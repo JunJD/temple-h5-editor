@@ -7,6 +7,35 @@ generator client {
   provider = "prisma-client-js"
 }
 
+model Issue {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  content     Json     // tiptap 内容
+  formConfig  Json     // 表单配置
+  startTime   DateTime?
+  endTime     DateTime?
+  wxPayConfig Json?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  submissions Submission[]
+}
+
+model Submission {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  formData   Json
+  amount     Float
+  paymentId  String?
+  status     PaymentStatus @default(PENDING)
+  openid     String?
+  wxPayInfo  Json?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  issueId    String   @db.ObjectId
+  issue      Issue    @relation(fields: [issueId], references: [id])
+}
+
 model Post {
   id      String   @id @default(auto()) @map("_id") @db.ObjectId
   title   String
@@ -16,10 +45,17 @@ model Post {
 
 model Preferences {
   id                   String @id @default(auto()) @map("_id") @db.ObjectId
-  user_email           String
+  user_email           String @unique
   user_fullname        String
   user_profile_picture String
-  username             String
+  username             String @unique
   user_description     String
-  // Add more customizations
+}
+
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
 }

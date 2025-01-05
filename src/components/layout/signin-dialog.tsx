@@ -20,7 +20,7 @@ export default function SigninDialog({
   children?: React.ReactNode
 }) {
   const attemptGoogleSignin = () => {
-    signIn('google', {
+    signIn('credentials', {
       callbackUrl: location.href
     })
       .then(() => {
@@ -43,8 +43,8 @@ export default function SigninDialog({
         </DialogDescription>
 
         <Button onClick={attemptGoogleSignin} variant='outline' size='lg'>
-          <Icon name='google' />
-          Sign in with Google
+          <Icon name='person-standing' />
+          Sign in with Local
         </Button>
 
         <DialogFooter>

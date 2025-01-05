@@ -10,6 +10,7 @@ import { FetchConfig } from 'atomic-utils'
 import { getServerSession } from 'next-auth'
 import { getUserPreferences } from '@/lib/preferences'
 import { cookies } from 'next/headers'
+import { checkDatabaseConnection } from '@/lib/prisma'
 
 export const metadata: Metadata = {
   title: 'Home',
@@ -23,14 +24,16 @@ export default async function MainLayout({ children }) {
 
   const serverTheme = (await cookies()).get('theme')?.value ?? 'system'
 
+  await checkDatabaseConnection()
+
   return (
-    <html suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning>
       <head>
         <title>Next.js starter</title>
         <meta name='description' content='A Starter with Next.js' />
       </head>
 
-      <body className={GeistSans.className}>
+      <body className={GeistSans.className} suppressHydrationWarning>
         <ThemeProvider attribute='class'>
           <main className='min-h-screen'>
             <AuthProvider>

@@ -1,3 +1,10 @@
 {
-  "typescript.tsdk": "node_modules\\typescript\\lib"
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "cSpell.words": [
+    "cmdk",
+    "easymde",
+    "embla",
+    "NEXTAUTH",
+    "sonner"
+  ]
 }
