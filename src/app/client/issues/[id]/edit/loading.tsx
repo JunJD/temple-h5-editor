@@ -1,3 +1,3 @@
-export default function IssuesEditLoading() {
+export default function IssueEditLoading() {
     return <div>Loading...</div>
 }

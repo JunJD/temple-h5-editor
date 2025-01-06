@@ -5,7 +5,7 @@ import { Button } from '@/components/ui'
 
 export default function IssuesLoading() {
   return (
-    <section>
+    <section className='py-8 px-6 md:px-8'>
       <div className='flex gap-1 items-center '>
         <ArrowLeft size={18} />
         Back
