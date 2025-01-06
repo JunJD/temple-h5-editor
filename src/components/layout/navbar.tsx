@@ -2,20 +2,10 @@
 import Link from 'next/link'
 
 import { ThemeToggle, AuthButton } from '@/components/layout'
-import {
-  Button,
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui'
+
 
 import { usePathname } from 'next/navigation'
 import { cn, RenderList } from 'atomic-utils'
-import Icon from 'bs-icon'
-import { useState } from 'react'
 
 const NAVBAR_LINKS: {
   children: string
@@ -48,59 +38,6 @@ function AuthAndTheme() {
   )
 }
 
-function MobileMenu() {
-  const getLinkStyle = useGetLinksStyle()
-  const [isOpen, setIsOpen] = useState(false)
-
-  const hideMenu = () => setIsOpen(false)
-
-  return (
-    <div className='md:hidden'>
-      <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogTrigger asChild>
-          <Button variant='ghost' size='icon' className='rounded-full'>
-            <Icon name='list' className='text-lg' />
-          </Button>
-        </DialogTrigger>
-        <DialogContent
-          className='h-full max-w-screen w-screen dark:bg-background/95 dark:backdrop-blur dark:supports-[backdrop-filter]:bg-background/60 rounded-none'
-          hideCloseButton
-        >
-          <DialogClose className='absolute left-6 top-3' asChild>
-            <Button size='icon' variant='ghost' className='rounded-full'>
-              <Icon name='x' className='text-lg' />
-            </Button>
-          </DialogClose>
-          <DialogTitle className='h-0 hidden'></DialogTitle>
-          <DialogDescription className='h-0 hidden'></DialogDescription>
-          <div className='flex flex-col items-center pt-16 gap-y-6'>
-            <Link
-              className='font-bold h-auto text-xl'
-              href={'/'}
-              onClick={hideMenu}
-            >
-              NEXT.JS
-            </Link>
-
-            <RenderList
-              data={NAVBAR_LINKS}
-              render={link => (
-                <Link
-                  key={'mobile' + link.href}
-                  onClick={hideMenu}
-                  className={cn(getLinkStyle(link.href), 'text-lg')}
-                  {...link}
-                />
-              )}
-            />
-            <AuthAndTheme />
-          </div>
-        </DialogContent>
-      </Dialog>
-    </div>
-  )
-}
-
 function DesktopMenu() {
   const getLinkStyle = useGetLinksStyle()
   return (
@@ -126,10 +63,15 @@ function DesktopMenu() {
 }
 
 export default function Navbar() {
+  // 根据当前路径，判断是否显示菜单
+  const pathname = usePathname()
+  const isNotVisible = pathname.endsWith('/edit')
+  if (isNotVisible) {
+    return null
+  }
   return (
     <header className='border-b border-neutral-100 dark:border-inherit  sticky top-0 z-50 h-14 items-center bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60'>
       <div className='max-w-screen-2xl mx-auto flex items-center h-full justify-between py-2 px-6 md:px-8'>
-        <MobileMenu />
         <DesktopMenu />
       </div>
     </header>

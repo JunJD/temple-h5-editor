@@ -2,16 +2,12 @@
 import { Panel, PanelGroup, PanelResizeHandle } from "@/components/ui/resizable-panel";
 import { cn } from "@/lib/utils";
 import { useBuilderStore } from "@/store/builder";
-import DraftEditor from "@/components/issue/editor/draft";
 const OutletSlot = ({ children }: { children: React.ReactNode }) => (
     <>
         {/* <BuilderHeader /> */}
-
-        {/* <DraftEditor editable={true} content={'22222'} /> */}
         <div className="absolute inset-0">
             {children}
         </div>
-
         {/* <BuilderToolbar /> */}
     </>
 );

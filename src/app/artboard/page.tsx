@@ -1,15 +1,23 @@
 'use client'
 
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import DraftEditor from "@/components/issue/editor/draft";
 
-export const MM_TO_PX = 3.78;
+export const MM_TO_PX = 1;
 
 export const pageSizeMap = {
-    a4: {
-      width: 210,
-      height: 297,
+    '14Pro': {
+      width: 430,
+      height: 932,
+    },
+    '12Pro': {
+      width: 390,
+      height: 844,
+    },
+    'SE': {
+      width: 375,
+      height: 667,
     },
   };
   
@@ -30,7 +38,9 @@ export default function Artboard() {
             }}
             wheel={{
                 step: 0.1,
-                wheelDisabled: false
+                wheelDisabled: false,
+                // 只在按住 Alt 键时启用滚轮缩放
+                activationKeys: ['Alt']
             }}
             panning={{
                 disabled: false,
@@ -43,11 +53,11 @@ export default function Artboard() {
                 wrapperClass="!w-screen !h-screen"
                 contentClass="grid items-start justify-center space-x-12"
                 contentStyle={{
-                    width: `${(pageSizeMap['a4'].width * MM_TO_PX + 42)}px`,
-                    height: `${(pageSizeMap['a4'].height * MM_TO_PX + 42)}px`
+                    width: `${(pageSizeMap['14Pro'].width * MM_TO_PX)}px`,
+                    height: `${(pageSizeMap['14Pro'].height * MM_TO_PX)}px`
                 }}
             >
-                <div className="w-full h-full relative bg-background text-foreground shadow-2xl">
+                <div className="w-full h-full relative bg-background text-foreground shadow-2xl overflow-auto">
                     <DraftEditor editable={true} content={'22222'} />
                 </div>
             </TransformComponent>
