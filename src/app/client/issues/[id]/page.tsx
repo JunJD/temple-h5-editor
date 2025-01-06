@@ -10,7 +10,7 @@ export default function IssuePage({ params }: { params: { id: string } }) {
   useEffect(() => {
     // 从 API 获取表单配置
     async function fetchConfig() {
-      const response = await fetch(`/api/issues/${params.id}`)
+      const response = await fetch(`/api/client/issues/${params.id}`)
       const data = await response.json()
       setConfig(data.formConfig)
     }

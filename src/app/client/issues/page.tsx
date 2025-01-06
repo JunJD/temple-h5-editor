@@ -37,14 +37,14 @@ export default async function Issues() {
       </Link>
       <header className='flex items-center justify-between my-4 md:my-8'>
         <h1 className='font-bold text-2xl'>All Issues</h1>
-        <Link href='/issues/create'>
+        <Link href='/client/issues/create'>
           <Button size='sm' variant='outline'>
             Create Issue
           </Button>
         </Link>
       </header>
 
-      {issues.length === 0 ? (
+      {issuesWithFormConfig.length === 0 ? (
         <div className='h-72 flex items-center justify-center'>
           <p>No issues to show</p>
         </div>

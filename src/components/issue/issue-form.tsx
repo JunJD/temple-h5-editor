@@ -43,7 +43,7 @@
     const { refresh, loading, error } = useMutation(createIssue, {
       params: form.getValues(),
       onResolve(data: Types.Issue) {
-        router.replace('/issues/' + data.id)
+        router.replace('/client/issues/' + data.id)
       }
     })
 

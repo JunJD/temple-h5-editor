@@ -1,6 +1,6 @@
 import { ArrowLeft } from 'lucide-react'
 
-import PostFormSkeleton from '@/components/post/post-form-skeleton'
+import IssueFormSkeleton from '@/components/issue/issue-form-skeleton'
 
 export default function CreateLoading() {
   return (
@@ -11,9 +11,9 @@ export default function CreateLoading() {
       </div>
       <div className='max-w-3xl mx-auto'>
         <header className='my-4 md:my-8'>
-          <h1 className='font-bold text-2xl'>Add Post</h1>
+          <h1 className='font-bold text-2xl'>Add Issue</h1>
         </header>
-        <PostFormSkeleton />
+        <IssueFormSkeleton />
       </div>
     </section>
   )

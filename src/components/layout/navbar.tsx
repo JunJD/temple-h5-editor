@@ -24,16 +24,8 @@ const NAVBAR_LINKS: {
   rel?: string
 }[] = [
   {
-    children: 'Posts',
-    href: '/posts'
-  },
-  {
-    children: 'Profile',
-    href: '/profile'
-  },
-  {
     children: 'Issues',
-    href: '/issues'
+    href: '/client/issues'
   }
 ]
 

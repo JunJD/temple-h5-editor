@@ -30,9 +30,12 @@ export default function IssueCard({ issue }: Props) {
           <ReactMarkdown>{issue.description}</ReactMarkdown>
         </article>
       </CardContent>
-      <CardFooter className='flex justify-end'>
+      <CardFooter className='flex justify-end gap-2'>
         <Button size='sm' variant='outline' asChild>
-          <Link href={`/issues/${issue.id}`}>View Issue</Link>
+          <Link href={`/client/issues/${issue.id}`}>View Issue</Link>
+        </Button>
+        <Button size='sm' variant='default' asChild>
+          <Link href={`/client/issues/${issue.id}/edit`}>Edit Issue</Link>
         </Button>
       </CardFooter>
     </Card>

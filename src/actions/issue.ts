@@ -29,7 +29,7 @@ export async function createIssue(issue: any) {
         data: assembleIssue(validation.data)
       })
 
-      revalidatePath('/issues')
+      revalidatePath('/client/issues')
       return actionData(newIssue)
     }
 
@@ -52,7 +52,7 @@ export async function deleteIssue(id: string) {
       }
     })
 
-    revalidatePath('/issues')
+    revalidatePath('/client/issues')
 
     /**
      * actionResult formats a response so http-react can read data, status code and error
