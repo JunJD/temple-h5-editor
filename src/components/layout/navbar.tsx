@@ -32,10 +32,8 @@ const NAVBAR_LINKS: {
     href: '/profile'
   },
   {
-    children: 'Github',
-    href: 'https://github.com/danybeltran/nextjs-typescript-and-mongodb',
-    target: '_blank',
-    rel: 'noreferrer'
+    children: 'Issues',
+    href: '/issues'
   }
 ]
 

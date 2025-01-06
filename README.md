@@ -284,3 +284,122 @@ MONGO_URI=mongodb://127.0.0.1:27017/你的数据库名?replicaSet=rs0
    - 确保连接字符串中包含 `replicaSet=rs0`
    - 验证副本集状态：`rs.status()`
    - 检查数据库用户权限
+
+## 数据模型说明
+
+### Issue（活动）模型
+
+Issue 模型用于管理企业的各类活动，包含活动内容展示、表单配置和支付功能。
+
+```prisma
+model Issue {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  title       String      // 活动标题
+  content     Json        // Tiptap 富文本内容
+  formConfig  Json        // 表单配置
+  startTime   DateTime?   // 活动开始时间
+  endTime     DateTime?   // 活动结束时间
+  wxPayConfig Json?      // 微信支付配置
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  submissions Submission[] // 关联的提交记录
+}
+```
+
+#### 字段说明
+- `content`: 使用 Tiptap 编辑器存储的 JSON 内容
+  - 支持富文本编辑
+  - 自定义 Extension 实现表单联动
+  - 支持图文混排
+  - 可嵌入动态列表展示参与者信息
+
+- `formConfig`: 表单配置 JSON
+  - 定义表单字段和验证规则
+  - 配置字段间的联动关系
+  - 设置金额计算规则
+  - 自定义表单展示样式
+
+- `wxPayConfig`: 微信支付配置
+  - 支付参数配置
+  - 商品信息设置
+  - 支付回调配置
+
+### Submission（提交记录）模型
+
+记录用户的活动报名和支付信息。
+
+```prisma
+model Submission {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  formData   Json        // 表单提交数据
+  amount     Float       // 支付金额
+  paymentId  String?     // 支付订单号
+  status     PaymentStatus @default(PENDING)  // 支付状态
+  openid     String?     // 微信支付用户标识
+  wxPayInfo  Json?      // 微信支付结果信息
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  issueId    String     @db.ObjectId  // 关联的活动ID
+  issue      Issue      @relation(fields: [issueId], references: [id])
+}
+
+enum PaymentStatus {
+  PENDING   // 待支付
+  PAID      // 已支付
+  FAILED    // 支付失败
+  REFUNDED  // 已退款
+}
+```
+
+#### 字段说明
+- `formData`: 存储用户提交的表单数据
+- `amount`: 根据表单选择计算的最终支付金额
+- `status`: 支付状态流转
+- `wxPayInfo`: 存储微信支付的详细信息
+
+### 业务流程
+
+1. 活动创建
+   - 管理员创建新的 Issue
+   - 使用 Tiptap 编辑器配置活动内容
+   - 设置表单配置和支付规则
+
+2. 活动展示
+   - H5 页面展示富文本内容
+   - 动态渲染参与者列表
+   - 显示表单供用户填写
+
+3. 用户参与
+   - 填写动态表单
+   - 根据选择自动计算金额
+   - 发起微信支付
+   - 创建 Submission 记录
+
+4. 数据统计
+   - 跟踪支付状态
+   - 统计参与人数和金额
+   - 导出活动数据
+
+### 技术实现要点
+
+1. Tiptap 扩展开发
+   - 自定义表单联动 Extension
+   - 实现动态列表展示 Extension
+   - 配置序列化和反序列化
+
+2. 表单配置
+   - 支持字段间联动
+   - 动态计算金额
+   - 实时验证
+
+3. 支付集成
+   - 微信支付接口对接
+   - 支付状态同步
+   - 退款处理
+
+4. 数据展示
+   - 实时更新参与者列表
+   - 支付状态实时反馈
+   - 数据导出功能

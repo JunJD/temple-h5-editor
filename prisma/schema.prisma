@@ -10,6 +10,7 @@ generator client {
 model Issue {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   title       String
+  description String
   content     Json     // tiptap 内容
   formConfig  Json     // 表单配置
   startTime   DateTime?

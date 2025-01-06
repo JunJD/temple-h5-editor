@@ -4,7 +4,9 @@
     "cmdk",
     "easymde",
     "embla",
+    "mchid",
     "NEXTAUTH",
-    "sonner"
+    "sonner",
+    "tiptap"
   ]
 }
