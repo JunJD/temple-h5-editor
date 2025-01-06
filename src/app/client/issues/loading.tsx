@@ -3,7 +3,7 @@ import { ArrowLeft } from 'lucide-react'
 import IssueCardSkeleton from '@/components/issue/issue-card-skeleton'
 import { Button } from '@/components/ui'
 
-export default function PostsLoading() {
+export default function IssuesLoading() {
   return (
     <section>
       <div className='flex gap-1 items-center '>
@@ -11,7 +11,7 @@ export default function PostsLoading() {
         Back
       </div>
       <header className='flex items-center justify-between my-4 md:my-8'>
-        <h1 className='font-bold text-2xl'>All Posts</h1>
+        <h1 className='font-bold text-2xl'>All Issues</h1>
         <Button size='sm' variant='outline'>
           Create Issue
         </Button>
