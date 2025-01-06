@@ -1,119 +1,88 @@
 import Link from 'next/link'
 import { GoPlus } from 'react-icons/go'
-import { FaReact } from 'react-icons/fa'
-import { BiLogoMongodb } from 'react-icons/bi'
-import { TbBrandNextjs } from 'react-icons/tb'
-import { SiPrisma, SiTailwindcss } from 'react-icons/si'
-import { IoLogoGithub, IoLogoVercel } from 'react-icons/io5'
+import { FaWpforms } from 'react-icons/fa'
+import { MdPayments } from 'react-icons/md'
+import { BsListUl } from 'react-icons/bs'
+import { HiTemplate } from 'react-icons/hi'
 
 import { Button } from '@/components/ui'
 
 export default function Page() {
   return (
     <>
-      <section className='space-y-6 pb-8 py-8 md:py-16 lg:py-20 '>
+      <section className='space-y-6 pb-8 py-8 md:py-16 lg:py-20'>
         <div className='container flex max-w-[64rem] flex-col items-center gap-4 text-center mx-auto'>
           <h1 className='font-bold leading-normal text-3xl sm:text-5xl md:text-6xl lg:text-7xl'>
-            Hello world
+            H5 页面生成器
           </h1>
-          <p>This is a starter project</p>
-          <div className='flex gap-x-2 *:*:gap-x-2'>
-            <Link
-              href='https://github.com/danybeltran/nextjs-typescript-and-mongodb'
-              target='_blank'
-              rel='noreferrer'
-            >
-              <Button variant='outline'>
-                <IoLogoGithub />
-                GitHub
+          <p className='text-xl text-muted-foreground'>快速创建支持支付和表单的营销落地页</p>
+          <div className='flex gap-x-2'>
+            <Link href='/client/issues/create'>
+              <Button>
+                <GoPlus className="mr-2" />
+                创建页面
               </Button>
             </Link>
-            <Link
-              target='_blank'
-              href='https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdanybeltran%2Fnextjs-typescript-and-mongodb'
-            >
-              <Button>
-                <IoLogoVercel /> Deploy
+            <Link href='/client/issues'>
+              <Button variant='outline'>
+                <BsListUl className="mr-2" />
+                我的页面
               </Button>
             </Link>
           </div>
         </div>
       </section>
-      <section
-        id='features'
-        className='container space-y-6 py-8 dark:bg-transparent md:py-12 lg:py-24 mx-auto'
-      >
+      <section className='container space-y-6 py-8 dark:bg-transparent md:py-12 lg:py-24 mx-auto'>
         <div className='mx-auto flex max-w-[58rem] flex-col items-center space-y-4 text-center'>
           <h2 className='font-bold text-2xl leading-[1.1] sm:text-2xl md:text-4xl'>
-            Features
+            核心功能
           </h2>
         </div>
         <div className='mx-auto grid justify-center gap-4 sm:grid-cols-2 md:max-w-[64rem] md:grid-cols-3'>
-          <div className='relative overflow-hidden rounded-lg border bg-background p-2 text-center'>
+          <div className='relative overflow-hidden rounded-lg border bg-background p-2'>
             <div className='flex h-[180px] flex-col justify-center gap-y-4 items-center rounded-md p-6'>
-              <TbBrandNextjs size={40} />
+              <HiTemplate size={40} />
               <div className='space-y-2'>
-                <h3 className='font-bold leading-normal'>Next.js 14</h3>
-                <p className='text-sm text-muted-foreground'>App dir</p>
-              </div>
-            </div>
-          </div>
-          <div className='relative overflow-hidden rounded-lg border bg-background p-2 text-center'>
-            <div className='flex h-[180px] flex-col justify-center gap-y-4 items-center rounded-md p-6'>
-              <FaReact size={40} />
-              <div className='space-y-2'>
-                <h3 className='font-bold leading-normal'>React 18</h3>
+                <h3 className='font-bold'>可视化编辑</h3>
                 <p className='text-sm text-muted-foreground'>
-                  Server and Client Components
+                  拖拽式编辑器，所见即所得
                 </p>
               </div>
             </div>
           </div>
-          <div className='relative overflow-hidden rounded-lg border bg-background p-2 text-center'>
+          <div className='relative overflow-hidden rounded-lg border bg-background p-2'>
             <div className='flex h-[180px] flex-col justify-center gap-y-4 items-center rounded-md p-6'>
-              <div className='flex items-center justify-center gap-x-3'>
-                <SiPrisma size={40} />
-                <GoPlus size={20} />
-                <BiLogoMongodb size={40} />
-              </div>
+              <FaWpforms size={40} />
               <div className='space-y-2'>
-                <h3 className='font-bold leading-normal'>Database</h3>
+                <h3 className='font-bold'>智能表单</h3>
                 <p className='text-sm text-muted-foreground'>
-                  Prisma + MongoDB
+                  支持联动逻辑的动态表单
                 </p>
               </div>
             </div>
           </div>
-          <div className='relative overflow-hidden rounded-lg border bg-background p-2 text-center'>
+          <div className='relative overflow-hidden rounded-lg border bg-background p-2'>
             <div className='flex h-[180px] flex-col justify-center gap-y-4 items-center rounded-md p-6'>
-              <SiTailwindcss size={40} />
+              <MdPayments size={40} />
               <div className='space-y-2'>
-                <h3 className='font-bold leading-normal'>ShadCN</h3>
+                <h3 className='font-bold'>支付功能</h3>
                 <p className='text-sm text-muted-foreground'>
-                  UI components built with TailwindCSS and Radix UI
+                  集成微信支付，轻松收款
                 </p>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-      <section
-        id='open-source'
-        className='container py-8 md:py-12 lg:py-24 mx-auto'
-      >
-        <div className='mx-auto flex max-w-[58rem] flex-col items-center justify-center gap-4 text-center '>
-          <p className='max-w-[85%] leading-normal text-muted-foreground sm:text-lg sm:leading-7'>
-            The code is available on{' '}
-            <Link
-              href='https://github.com/danybeltran/nextjs-typescript-and-mongodb'
-              target='_blank'
-              rel='noreferrer'
-              className='underline underline-offset-4'
-            >
-              GitHub
-            </Link>
-            .{' '}
-          </p>
+          <div className='relative overflow-hidden rounded-lg border bg-background p-2'>
+            <div className='flex h-[180px] flex-col justify-center gap-y-4 items-center rounded-md p-6'>
+              <BsListUl size={40} />
+              <div className='space-y-2'>
+                <h3 className='font-bold'>订单管理</h3>
+                <p className='text-sm text-muted-foreground'>
+                  自定义列表视图，订单一目了然
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
     </>

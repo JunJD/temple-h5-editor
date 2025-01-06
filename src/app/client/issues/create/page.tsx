@@ -5,7 +5,7 @@ import IssueForm from '@/components/issue/issue-form'
 
 export default function Create() {
   return (
-    <section>
+    <section className='py-8 px-6 md:px-8'>
       <Link href='/client/issues' className='flex gap-1 items-center max-w-min'>
         <ArrowLeft size={18} />
         Back

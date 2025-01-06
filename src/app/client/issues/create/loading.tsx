@@ -4,7 +4,7 @@ import IssueFormSkeleton from '@/components/issue/issue-form-skeleton'
 
 export default function CreateLoading() {
   return (
-    <section>
+    <section className='py-8 px-6 md:px-8'>
       <div className='flex gap-1 items-center '>
         <ArrowLeft size={18} />
         Back
