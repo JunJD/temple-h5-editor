@@ -53,8 +53,8 @@ export default function Artboard() {
                 wrapperClass="!w-screen !h-screen"
                 contentClass="grid items-start justify-center space-x-12"
                 contentStyle={{
-                    width: `${(pageSizeMap['14Pro'].width * MM_TO_PX)}px`,
-                    height: `${(pageSizeMap['14Pro'].height * MM_TO_PX)}px`
+                    width: `${(pageSizeMap['SE'].width * MM_TO_PX)}px`,
+                    height: `${(pageSizeMap['SE'].height * MM_TO_PX)}px`
                 }}
             >
                 <div className="w-full h-full relative bg-background text-foreground shadow-2xl overflow-auto">

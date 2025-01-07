@@ -1,5 +1,6 @@
 'use client'
 import { Panel, PanelGroup, PanelResizeHandle } from "@/components/ui/resizable-panel";
+import { BuilderToolbar } from "@/components/ui/toolbar";
 import { cn } from "@/lib/utils";
 import { useBuilderStore } from "@/store/builder";
 const OutletSlot = ({ children }: { children: React.ReactNode }) => (
@@ -8,7 +9,7 @@ const OutletSlot = ({ children }: { children: React.ReactNode }) => (
         <div className="absolute inset-0">
             {children}
         </div>
-        {/* <BuilderToolbar /> */}
+        <BuilderToolbar />
     </>
 );
 
