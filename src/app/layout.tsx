@@ -20,7 +20,7 @@ export default async function MainLayout({ children }) {
 
       <body className={GeistSans.className} suppressHydrationWarning>
         <ThemeProvider attribute='class'>
-          <div className='max-w-screen-2xl mx-auto overflow-x-auto'>
+          <div className='max-w-screen-2xl overflow-x-auto'>
             {children}
           </div>
         </ThemeProvider>
