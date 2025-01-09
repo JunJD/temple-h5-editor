@@ -8,7 +8,7 @@ import { Button } from '@/components/ui'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from 'atomic-utils'
 import Link from 'next/link'
-import { DevicesProvider } from '@grapesjs/react'
+import { DevicesProvider, useEditorMaybe } from '@grapesjs/react'
 
 export const BuilderHeader = () => {
   const title = '未命名页面'
@@ -16,6 +16,7 @@ export const BuilderHeader = () => {
   const leftPanelSize = 0
   const rightPanelSize = 0
   const isDragging = false
+  const editor = useEditorMaybe()
 
   const onSave = async () => {
     const editor = (window as any).editor
@@ -70,31 +71,22 @@ export const BuilderHeader = () => {
           </div>
 
           <DevicesProvider>
-            {({ selected, select }) => (
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant={selected === 'iphone14pro' ? 'default' : 'ghost'}
-                  onClick={() => select('iphone14pro')}
-                >
-                  14 Pro
-                </Button>
-                <Button
-                  size="sm"
-                  variant={selected === 'iphone14' ? 'default' : 'ghost'}
-                  onClick={() => select('iphone14')}
-                >
-                  14
-                </Button>
-                <Button
-                  size="sm"
-                  variant={selected === 'iphoneSE' ? 'default' : 'ghost'}
-                  onClick={() => select('iphoneSE')}
-                >
-                  SE
-                </Button>
-              </div>
-            )}
+            {({ selected, select, devices }) => {
+              return (
+                <div className="flex items-center gap-2">
+                  {devices.map(device => (
+                    <Button
+                      key={device.id}
+                      size="sm"
+                      variant={selected === device.id ? 'default' : 'ghost'}
+                      onClick={() => select(device.id.toString())}
+                    >
+                      {device.getName()}
+                    </Button>
+                  ))}
+                </div>
+              )
+            }}
           </DevicesProvider>
 
           <div className="flex items-center gap-2">

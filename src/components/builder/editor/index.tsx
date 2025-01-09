@@ -57,18 +57,18 @@ const gjsOptions: EditorConfig = {
     ],
   },
   // 使用基础 blocks
-  blockManager: {
-    custom: true,
-    blocks
-  },
+  // blockManager: {
+  //   custom: true,
+  //   blocks
+  // },
   deviceManager: {
     devices: Object.values(devices).map(device => ({
       id: device.id,
       name: device.name,
       width: `${device.width}px`,
-      height: `${device.height}px`
-    })),
-    default: 'iphone14'
+      height: `${device.height}px`,
+      widthMedia: undefined
+    }))
   },
   // styleManager: {
   //   sectors: [

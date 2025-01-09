@@ -33,7 +33,7 @@ export default async function MainLayout({ children }) {
             }}
           >
             <Navbar />
-            <div className='max-w-screen-2xl overflow-x-auto'>
+            <div className='overflow-x-auto'>
               {children}
             </div>
           </FetchConfig>
