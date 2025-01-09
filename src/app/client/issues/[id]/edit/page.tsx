@@ -12,7 +12,7 @@ import { RightSidebar } from '@/components/builder/sidebars/right'
 const OutletSlot = ({ children }: { children: React.ReactNode }) => (
   <>
     <BuilderHeader />
-    <div className="relative size-full overflow-hidden mt-16">
+    <div className="relative size-full overflow-hidden bg-secondary">
       {children}
     </div>
     <BuilderToolbar />

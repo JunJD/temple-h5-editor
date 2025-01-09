@@ -43,6 +43,9 @@ const gjsOptions: EditorConfig = {
   storageManager: false,
   undoManager: { trackSelection: false },
   selectorManager: { componentFirst: true },
+  canvas: {
+    infiniteCanvas: true
+  },
   projectData: {
     assets: [],
     pages: [
@@ -69,52 +72,5 @@ const gjsOptions: EditorConfig = {
       height: `${device.height}px`,
       widthMedia: undefined
     }))
-  },
-  // styleManager: {
-  //   sectors: [
-  //     {
-  //       name: 'Dimension',
-  //       properties: [
-  //         'width',
-  //         'height',
-  //         'min-width',
-  //         'max-width',
-  //         'min-height',
-  //         'max-height',
-  //       ],
-  //     },
-  //     {
-  //       name: 'Extra',
-  //       properties: [
-  //         'margin',
-  //         'padding',
-  //         'display',
-  //         'flex-direction',
-  //         'justify-content',
-  //         'align-items',
-  //         'gap',
-  //       ],
-  //     },
-  //     {
-  //       name: 'Typography',
-  //       properties: [
-  //         'font-family',
-  //         'font-size',
-  //         'font-weight',
-  //         'letter-spacing',
-  //         'color',
-  //         'text-align',
-  //       ],
-  //     },
-  //     {
-  //       name: 'Decorations',
-  //       properties: [
-  //         'background-color',
-  //         'border',
-  //         'border-radius',
-  //         'box-shadow',
-  //       ],
-  //     },
-  //   ],
-  // },
+  }
 }
