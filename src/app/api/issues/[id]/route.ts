@@ -16,4 +16,21 @@ export async function GET(
     }
 
     return NextResponse.json(issue)
+}
+
+export async function PUT(
+    request: Request,
+    { params }: { params: { id: string } }
+) {
+    const body = await request.json()
+    
+    // 更新数据库中的数据
+    const updatedIssue = await prisma.issue.update({
+        where: { id: params.id },
+        data: {
+            content: body.content
+        },
+    })
+    
+    return NextResponse.json(updatedIssue)
 } 

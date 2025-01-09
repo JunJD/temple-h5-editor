@@ -68,3 +68,17 @@ export async function deleteIssue(id: string) {
     }
   }
 }
+
+export async function getIssue(id: string) {
+  try {
+    const issue = await prisma.issue.findUnique({
+      where: { id }
+    })
+    return actionData(issue)
+  } catch (error) {
+    console.error('Issue fetch failed:', error instanceof Error ? error.message : String(error))
+    return {
+      status: 500
+    }
+  }
+}

@@ -9,6 +9,8 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { cn } from 'atomic-utils'
 import Link from 'next/link'
 import { DevicesProvider, useEditorMaybe } from '@grapesjs/react'
+import { useParams } from 'next/navigation'
+import { updateIssue } from '@/actions/builder'
 
 export const BuilderHeader = () => {
   const title = '未命名页面'
@@ -18,20 +20,34 @@ export const BuilderHeader = () => {
   const isDragging = false
   const editor = useEditorMaybe()
 
+  const id = useParams().id as string
+  
   const onSave = async () => {
-    const editor = (window as any).editor
-    const html = editor.getHtml()
-    const css = editor.getCss()
+    if (!editor) return
+
+    const html = editor.getHtml() ?? ''
+    const css = editor.getCss() ?? ''
+    const projectData = editor.getProjectData() ?? {}
     
-    await fetch('/api/issues/[id]', {
-      method: 'PUT',
-      body: JSON.stringify({
-        content: {
-          html,
-          css
-        }
-      })
-    })
+    console.log(html, css, projectData)
+    updateIssue(id, { html, css, projectData })
+    // try {
+    //   await fetch('/api/issues/[id]', {
+    //     method: 'PUT',
+    //     headers: {
+    //       'Content-Type': 'application/json',
+    //     },
+    //     body: JSON.stringify({
+    //       content: {
+    //         html,
+    //         css,
+    //         projectData
+    //       }
+    //     })
+    //   })
+    // } catch (error) {
+    //   console.error('保存失败:', error)
+    // }
   }
 
   return (
@@ -93,7 +109,7 @@ export const BuilderHeader = () => {
             <Button variant="outline" size="sm">
               预览
             </Button>
-            <Button size="sm">
+            <Button size="sm" onClick={onSave}>
               保存
             </Button>
           </div>

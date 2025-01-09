@@ -1,12 +1,13 @@
 'use client'
 
 import GjsEditor from '@grapesjs/react'
-import type { Editor, EditorConfig } from 'grapesjs'
+import type { Editor, EditorConfig, ObjectAny } from 'grapesjs'
 import { devices } from '@/lib/constants/devices'
 import { blocks } from './blocks'
 import { registerComponents } from '@/lib/components'
+import { useEffect } from 'react'
 
-export default function BuilderEditor({ children }: { children: React.ReactNode }) {
+export default function BuilderEditor({ children, projectData }: { children: React.ReactNode, projectData: ObjectAny }) {
   const onEditor = (editor: Editor) => {
     console.log('Editor loaded')
     ;(window as any).editor = editor
@@ -15,12 +16,16 @@ export default function BuilderEditor({ children }: { children: React.ReactNode 
     registerComponents(editor)
   }
 
+
   return (
     <GjsEditor
       className="gjs-custom-editor"
       grapesjs="https://unpkg.com/grapesjs"
       grapesjsCss="https://unpkg.com/grapesjs/dist/css/grapes.min.css"
-      options={gjsOptions}
+      options={{
+        ...gjsOptions,
+        projectData
+      }}
       plugins={[
         {
           id: 'gjs-blocks-basic',
@@ -37,7 +42,6 @@ export default function BuilderEditor({ children }: { children: React.ReactNode 
     </GjsEditor>
   )
 }
-
 const gjsOptions: EditorConfig = {
   height: '100vh',
   storageManager: false,
@@ -45,19 +49,6 @@ const gjsOptions: EditorConfig = {
   selectorManager: { componentFirst: true },
   canvas: {
     infiniteCanvas: true
-  },
-  projectData: {
-    assets: [],
-    pages: [
-      {
-        name: 'Home page',
-        component: `
-          <section style="min-height: 100vh;">
-            <div>拖拽组件到这里开始编辑</div>
-          </section>
-        `,
-      },
-    ],
   },
   // 使用基础 blocks
   // blockManager: {
@@ -74,3 +65,4 @@ const gjsOptions: EditorConfig = {
     }))
   }
 }
+

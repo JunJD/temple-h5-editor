@@ -3,11 +3,31 @@
 import BuilderEditor from '@/components/builder/editor'
 
 import Template from '@/components/animated-template'
+import { useParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { getIssue } from '@/actions/issue'
 
 export default function EditIssueLayout({ children }: { children: React.ReactNode }) {
+  const params = useParams()
+  const [issue, setIssue] = useState<{
+    content: any
+    html: string,
+    css: string,
+  } | null>(null)
+  useEffect(() => {
+    const fetchIssue = async () => {
+      const {data: issue} = await getIssue(params.id as string) as any
+      console.log('issue',issue)
+      setIssue(issue as any)
+    }
+    fetchIssue()
+  }, [params.id])
+  
+  if(!issue?.content?.projectData) return null
+  
   return (
     <Template>
-      <BuilderEditor>{children}</BuilderEditor>
+      <BuilderEditor projectData={issue.content.projectData}>{children}</BuilderEditor>
     </Template>
   )
 }
