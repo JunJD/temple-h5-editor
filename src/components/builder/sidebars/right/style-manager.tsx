@@ -1,63 +1,86 @@
 'use client'
 
-import { StylesProvider } from '@grapesjs/react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { StylesProvider, StylesResultProps } from '@grapesjs/react'
 import { StyleField } from './style-field'
+import { cn } from '@/lib/utils'
+import { ScrollArea } from '@/components/ui/scroll-area'
+import { useState } from 'react'
 
-// 样式分组
-const styleSections = {
-  dimension: {
-    name: '尺寸',
-    properties: ['width', 'height', 'min-width', 'max-width', 'min-height', 'max-height']
-  },
-  spacing: {
-    name: '间距',
-    properties: ['margin', 'padding']
-  },
-  typography: {
-    name: '文字',
-    properties: ['font-family', 'font-size', 'font-weight', 'line-height', 'color', 'text-align']
-  },
-  decorations: {
-    name: '装饰',
-    properties: ['background-color', 'border', 'border-radius', 'box-shadow']
-  },
-  layout: {
-    name: '布局',
-    properties: ['display', 'flex-direction', 'justify-content', 'align-items', 'gap']
+function StyleManagerContent({ sectors }: StylesResultProps) {
+  const [openPanels, setOpenPanels] = useState<Set<string>>(new Set())
+
+  const togglePanel = (sectorId: string) => {
+    setOpenPanels(prev => {
+      const next = new Set(prev)
+      if (next.has(sectorId)) {
+        next.delete(sectorId)
+      } else {
+        next.add(sectorId)
+      }
+      return next
+    })
   }
+
+  return (
+    <div className="space-y-1 p-1">
+      {sectors.map(sector => {
+        const properties = sector.getProperties()
+        if (properties.length === 0) return null
+
+        const isOpen = openPanels.has(sector.getId())
+
+        return (
+          <div key={sector.getId()} className="border-b border-border/50">
+            <button
+              className={cn(
+                "w-full px-2 py-1.5 text-sm text-left",
+                "hover:bg-accent/50 transition-colors",
+                "flex items-center justify-between",
+                isOpen && "bg-accent/30"
+              )}
+              onClick={() => togglePanel(sector.getId())}
+            >
+              {sector.getName()}
+              <span className={cn(
+                "transition-transform",
+                isOpen && "rotate-180"
+              )}>
+                ▼
+              </span>
+            </button>
+            <div className={cn(
+              "grid transition-all",
+              isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]"
+            )}>
+              <div className="overflow-hidden">
+                <div className="flex flex-wrap gap-3 p-3">
+                  {properties.map(prop => (
+                    <div
+                      key={prop.getId()}
+                      className={cn(
+                        prop.isFull() ? 'w-full' : 'w-[calc(50%-0.375rem)]',
+                        'min-w-[120px]'
+                      )}
+                    >
+                      <StyleField prop={prop} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )
 }
 
 export function StyleManager() {
   return (
-    <TabsContent value="styles">
+    <ScrollArea className="h-[calc(100vh-10rem)]">
       <StylesProvider>
-        {({ sectors }) => (
-          <Tabs defaultValue="dimension" className="w-full">
-            <TabsList className="grid grid-cols-5">
-              {Object.entries(styleSections).map(([key, section]) => (
-                <TabsTrigger key={key} value={key} className="text-xs">
-                  {section.name}
-                </TabsTrigger>
-              ))}
-            </TabsList>
-
-            {Object.entries(styleSections).map(([key, section]) => (
-              <TabsContent key={key} value={key} className="space-y-4">
-                {sectors?.map(sector => (
-                  <div key={sector.getId()} className="space-y-4">
-                    {sector.getProperties()
-                      .filter(prop => section.properties.includes(prop.getName()))
-                      .map(prop => (
-                        <StyleField key={prop.getId()} prop={prop} />
-                      ))}
-                  </div>
-                ))}
-              </TabsContent>
-            ))}
-          </Tabs>
-        )}
+        {(props) => <StyleManagerContent {...props} />}
       </StylesProvider>
-    </TabsContent>
+    </ScrollArea>
   )
 } 

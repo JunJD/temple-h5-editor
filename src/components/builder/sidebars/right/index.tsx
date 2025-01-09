@@ -3,14 +3,15 @@
 import { TraitsProvider, StylesProvider } from '@grapesjs/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TraitField } from './trait-field'
+import { StyleManager } from './style-manager'
 
 export function RightSidebar() {
   return (
     <div className="h-full flex flex-col p-4">
-      <Tabs defaultValue="traits">
+      <Tabs defaultValue="styles">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="traits">属性</TabsTrigger>
           <TabsTrigger value="styles">样式</TabsTrigger>
+          <TabsTrigger value="traits">属性</TabsTrigger>
         </TabsList>
         
         <TabsContent value="traits">
@@ -30,15 +31,8 @@ export function RightSidebar() {
             )}
           </TraitsProvider>
         </TabsContent>
-        
-        <TabsContent value="styles">
-          <StylesProvider>
-            {(props) => (
-              <div className="space-y-4">
-                {/* 样式编辑器 - 后续实现 */}
-              </div>
-            )}
-          </StylesProvider>
+        <TabsContent value="styles" className="h-full">
+          <StyleManager/>
         </TabsContent>
       </Tabs>
     </div>
