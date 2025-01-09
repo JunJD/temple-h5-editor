@@ -2,8 +2,20 @@
 
 import { BlocksResultProps } from '@grapesjs/react'
 import { cn } from '@/lib/utils'
+import { useState } from 'react'
 
 export function CustomBlockManager({ blocks, dragStart, dragStop, mapCategoryBlocks }: BlocksResultProps) {
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragStart = (block: any, ev: DragEvent) => {
+    setIsDragging(true);
+    dragStart(block, ev);
+  };
+
+  const handleDragEnd = () => {
+    setIsDragging(false);
+    dragStop(false);
+  };
   return (
     <div className="space-y-4">
       {Array.from(mapCategoryBlocks).map(([category, blocks]) => (
@@ -12,32 +24,39 @@ export function CustomBlockManager({ blocks, dragStart, dragStop, mapCategoryBlo
             {category}
           </div>
           <div className="grid grid-cols-2 gap-2">
-            {blocks.map(block => {
-                console.log('block', block)
-                return (
-                    (
-                        <div
-                          key={block.getId()}
-                          className={cn(
-                            "flex flex-col items-center justify-center p-4",
-                            "bg-card hover:bg-accent rounded-lg cursor-move",
-                            "border border-border hover:border-border/50",
-                            "transition-colors"
-                          )}
-                          onMouseDown={(e) => dragStart(block, e as any)}
-                          onMouseUp={() => dragStop()}
-                        >
-                          <div 
-                            className="text-2xl mb-2"
-                            dangerouslySetInnerHTML={{ __html: block.getMedia()! }}
-                          />
-                          <div className="text-xs text-center text-muted-foreground">
-                            {block.getLabel()}
-                          </div>
-                        </div>
-                      )
-                )
-            })}
+            {blocks.map((block) => (
+              <div
+                key={block.getId()}
+                draggable
+                className={cn(
+                  'flex flex-col items-center justify-center p-2.5',
+                  "bg-card hover:bg-accent",
+                  'rounded-lg cursor-move',
+                  'transition-all duration-200',
+                  'hover:-translate-y-0.5 active:scale-95',
+                  'h-20 border border-border hover:border-border/50',
+                  isDragging && 'opacity-50 scale-95',
+                )}
+                onDragStart={(ev) => handleDragStart(block, ev.nativeEvent)}
+                onDragEnd={handleDragEnd}
+              >
+                <div
+                  className={cn(
+                    'w-3 h-3 transition-transform duration-200',
+                  )}
+                  dangerouslySetInnerHTML={{ __html: block.getMedia()! }}
+                />
+                <div
+                  className={cn(
+                    'text-xs mt-1.5',
+                    'transition-opacity duration-200',
+                  )}
+                  title={block.getLabel()}
+                >
+                  {block.getLabel()}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       ))}

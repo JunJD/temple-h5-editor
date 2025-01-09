@@ -26,8 +26,8 @@ export const PanelResizeHandle = ({
     <div className="flex h-full items-center justify-center">
       <div
         className={cn(
-          "absolute inset-y-0 left-0 z-50 w-1 rounded-lg pl-1 transition-all hover:bg-secondary hover:opacity-100",
-          isDragging && "bg-secondary opacity-100",
+          "absolute inset-y-0 left-0 z-50 w-1 rounded-lg pl-1 transition-all hover:bg-destructive/20 hover:opacity-100",
+          isDragging && "bg-destructive/20 opacity-100",
         )}
       />
     </div>
