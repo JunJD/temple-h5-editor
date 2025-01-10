@@ -22,6 +22,10 @@ export const BuilderHeader = () => {
 
   const id = useParams().id as string
   
+  const onExport = () => {
+    editor?.runCommand('gjs-export-zip');
+  }
+  
   const onSave = async () => {
     if (!editor) return
 
@@ -106,8 +110,8 @@ export const BuilderHeader = () => {
           </DevicesProvider>
 
           <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
-              预览
+            <Button variant="outline" onClick={onExport} size="sm">
+              导出
             </Button>
             <Button size="sm" onClick={onSave}>
               保存

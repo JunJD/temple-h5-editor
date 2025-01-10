@@ -10,6 +10,7 @@ import { useState } from 'react'
 
 import gjsblockbasic from 'grapesjs-blocks-basic';
 
+// @ts-ingore
 import gjsPluginExport from 'grapesjs-plugin-export';
 import gjsForms from 'grapesjs-plugin-forms';
 import gjsStyleBg from 'grapesjs-style-bg';
@@ -23,8 +24,8 @@ export default function BuilderEditor({ children, projectData }: { children: Rea
 
   const onEditor = (editor: Editor) => {
     console.log('Editor loaded')
-    ;(window as any).editor = editor
-    
+      ; (window as any).editor = editor
+
     // 注册组件
     registerComponents(editor)
   }
@@ -51,6 +52,7 @@ export default function BuilderEditor({ children, projectData }: { children: Rea
         }}
         plugins={[
           gjsblockbasic,
+          // @ts-ingore
           gjsPluginExport,
           gjsForms,
           gjsStyleBg,
@@ -67,6 +69,7 @@ export default function BuilderEditor({ children, projectData }: { children: Rea
   )
 }
 const gjsOptions: EditorConfig = {
+  // stylePrefix: 'editor-h5-',
   height: '100vh',
   storageManager: false,
   undoManager: { trackSelection: false },
@@ -87,6 +90,26 @@ const gjsOptions: EditorConfig = {
       height: `${device.height}px`,
       widthMedia: undefined
     }))
+  },
+  pluginsOpts: {
+    // @ts-ignore
+    [gjsPluginExport as string]: {
+      root: {
+        css: {
+          'style.css': (editor: Editor) => editor.getCss(),
+        },
+        'index.html': (editor: Editor) =>
+          `<!doctype html>
+          <html lang="en">
+            <head>
+              <meta charset="utf-8">
+               <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <link rel="stylesheet" href="./css/style.css">
+            </head>
+            <body>${editor.getHtml()}</body>
+          </html>`,
+      },
+    }
   }
 }
 
