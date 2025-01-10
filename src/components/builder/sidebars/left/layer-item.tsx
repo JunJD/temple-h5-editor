@@ -1,10 +1,22 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import { GoChevronDown, GoChevronRight, GoEye, GoEyeClosed } from 'react-icons/go'
+import { 
+  GoChevronDown, 
+  GoChevronRight, 
+  GoEye, 
+  GoEyeClosed,
+  GoCopy,
+  GoTrash 
+} from 'react-icons/go'
 import type { Component } from 'grapesjs'
 import { useEditor } from '@grapesjs/react'
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useMemo } from 'react'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 
 interface LayerItemProps {
   component: Component
@@ -26,6 +38,24 @@ export function LayerItem({
   const layerRef = useRef<HTMLDivElement>(null)
   const [layerData, setLayerData] = useState(Layers.getLayerData(component))
   const { open, selected, visible, name, components } = layerData
+  const componentsIds = components.map(cmp => cmp.getId())
+  const isDragging = dragging === component
+  const isHovered = dragParent === component
+  const cmpHash = componentsIds.join('-')
+
+  // 使用 useMemo 优化子组件渲染
+  const childComponents = useMemo(() => {
+    return components.map(child => (
+      <LayerItem
+        key={child.getId()}
+        component={child}
+        level={level + 1}
+        dragging={dragging}
+        dragParent={dragParent}
+        onDragStart={onDragStart}
+      />
+    ))
+  }, [cmpHash, dragging, dragParent, onDragStart])
 
   useEffect(() => {
     level === 0 && setLayerData(Layers.getLayerData(component))
@@ -41,7 +71,7 @@ export function LayerItem({
     const ev = Layers.events.component
     editor.on(ev, up)
     return () => {
-        editor.off(ev, up)
+      editor.off(ev, up)
     }
   }, [editor, Layers, component])
 
@@ -60,60 +90,122 @@ export function LayerItem({
     Layers.setLayerData(component, { selected: true }, { event: e })
   }
 
-  return (
-    <div className="flex flex-col">
-      <div 
-        ref={layerRef}
-        className={cn(
-          "flex items-center gap-2 px-2 py-1.5",
-          "hover:bg-accent/50 cursor-move",
-          selected && "bg-accent",
-          dragging === component && "opacity-50",
-          !visible && "opacity-50"
-        )}
-        style={{ paddingLeft: `${level * 12 + 8}px` }}
-        onClick={select}
-        onPointerDown={() => onDragStart(component)}
-        data-layer-item
-      >
-        {components.length > 0 && (
-          <button 
-            className="cursor-pointer"
-            onClick={toggleOpen}
-          >
-            {open ? (
-              <GoChevronDown className="size-4" />
-            ) : (
-              <GoChevronRight className="size-4" />
-            )}
-          </button>
-        )}
-        <span className="text-sm flex-grow truncate">{name}</span>
-        <button
-          className={cn(
-            "opacity-0 hover:opacity-100",
-            !visible && "opacity-100"
-          )}
-          onClick={toggleVisibility}
-        >
-          {visible ? (
-            <GoEye className="size-4" />
-          ) : (
-            <GoEyeClosed className="size-4" />
-          )}
-        </button>
-      </div>
+  const handleCopy = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    editor.Commands.run('core:copy-component', { component })
+  }
 
-      {open && components.length > 0 && components.map(child => (
-        <LayerItem
-          key={child.getId()}
-          component={child}
-          level={level + 1}
-          dragging={dragging}
-          dragParent={dragParent}
-          onDragStart={onDragStart}
-        />
-      ))}
+  const handleDelete = (e: React.MouseEvent) => {
+    e.stopPropagation()
+    editor.Commands.run('core:component-delete', { component })
+  }
+
+  return (
+    <div className={cn(
+      "flex flex-col group/item",
+      (!visible || isDragging) && "opacity-50"
+    )}>
+      {components.length > 0 ? (
+        <Collapsible open={open} onOpenChange={open => Layers.setLayerData(component, { open })}>
+          <div 
+            ref={layerRef}
+            className={cn(
+              "flex items-center gap-2 px-2 py-1.5",
+              "hover:bg-accent/50 cursor-move group",
+              selected && "bg-accent",
+              isHovered && "bg-accent/70"
+            )}
+            style={{ paddingLeft: `${level * 12 + 8}px` }}
+            onClick={select}
+            onPointerDown={() => onDragStart(component)}
+            data-layer-item
+          >
+            <CollapsibleTrigger asChild>
+              <button className="cursor-pointer">
+                {open ? (
+                  <GoChevronDown className="size-4" />
+                ) : (
+                  <GoChevronRight className="size-4" />
+                )}
+              </button>
+            </CollapsibleTrigger>
+            <span className="text-sm flex-grow truncate">{name}</span>
+            <div className="flex items-center gap-1">
+              <button
+                className={cn(
+                  "opacity-0 group-hover:opacity-100",
+                  !visible && "opacity-100"
+                )}
+                onClick={toggleVisibility}
+              >
+                {visible ? (
+                  <GoEye className="size-4" />
+                ) : (
+                  <GoEyeClosed className="size-4" />
+                )}
+              </button>
+              <button
+                className="opacity-0 group-hover:opacity-100 hover:text-accent-foreground"
+                onClick={handleCopy}
+              >
+                <GoCopy className="size-4" />
+              </button>
+              <button
+                className="opacity-0 group-hover:opacity-100 hover:text-destructive"
+                onClick={handleDelete}
+              >
+                <GoTrash className="size-4" />
+              </button>
+            </div>
+          </div>
+          <CollapsibleContent>
+            {childComponents}
+          </CollapsibleContent>
+        </Collapsible>
+      ) : (
+        <div 
+          ref={layerRef}
+          className={cn(
+            "flex items-center gap-2 px-2 py-1.5",
+            "hover:bg-accent/50 cursor-move group",
+            selected && "bg-accent",
+            isHovered && "bg-accent/70"
+          )}
+          style={{ paddingLeft: `${level * 12 + 8}px` }}
+          onClick={select}
+          onPointerDown={() => onDragStart(component)}
+          data-layer-item
+        >
+          <span className="text-sm flex-grow truncate">{name}</span>
+          <div className="flex items-center gap-1">
+            <button
+              className={cn(
+                "opacity-0 group-hover:opacity-100",
+                !visible && "opacity-100"
+              )}
+              onClick={toggleVisibility}
+            >
+              {visible ? (
+                <GoEye className="size-4" />
+              ) : (
+                <GoEyeClosed className="size-4" />
+              )}
+            </button>
+            <button
+              className="opacity-0 group-hover:opacity-100 hover:text-accent-foreground"
+              onClick={handleCopy}
+            >
+              <GoCopy className="size-4" />
+            </button>
+            <button
+              className="opacity-0 group-hover:opacity-100 hover:text-destructive"
+              onClick={handleDelete}
+            >
+              <GoTrash className="size-4" />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 } 

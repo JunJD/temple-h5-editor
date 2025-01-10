@@ -6,6 +6,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { BlocksProvider } from '@grapesjs/react'
 import { CustomBlockManager } from './block-manager'
 import { useState } from 'react'
+import { LayerManager } from './layer-manager'
 
 type TabType = 'blocks' | 'layers'
 
@@ -55,7 +56,7 @@ export const LeftSidebar = () => {
               {(props) => <CustomBlockManager {...props} />}
             </BlocksProvider>
           ) : (
-            <div>大纲树 - 待实现</div>
+            <LayerManager />
           )}
         </div>
       </div>
