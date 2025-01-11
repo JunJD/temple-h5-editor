@@ -23,8 +23,8 @@ import {
 } from '@/components/ui/select'
 import { cn } from '@/lib/utils'
 import { GoChevronUp, GoChevronDown, GoPlus, GoX } from 'react-icons/go'
-import { PopoverPicker } from './PopoverPicker'
-import { SpacingField } from './SpacingField'
+import { PopoverPicker } from '../PopoverPicker'
+import { SpacingField } from '../SpacingField'
 
 interface StyleFieldProps {
   prop: Property
