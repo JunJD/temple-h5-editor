@@ -7,3 +7,5 @@ export function formatDate(date: Date): string {
 }
 
 export const cn = (...inputs: ClassValue[]) => twMerge(clsx(inputs));
+
+export const isDef = (value: any) => typeof value !== 'undefined';
