@@ -350,7 +350,7 @@ export const styleManager = {
         ],
       }, {
         id: 'borders',
-        name: 'Borders',
+        name: '边框',
         properties: [
           {
             extend: 'border-radius',
@@ -621,7 +621,7 @@ export const styleManager = {
         ],
       },{
         id: 'background',
-        name: 'Background',
+        name: '背景',
         properties: [
           // Stack of backgrounds (Color - Gradient - Image/Patterns)
           {

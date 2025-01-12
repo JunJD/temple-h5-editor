@@ -3,6 +3,7 @@
 import { BlocksResultProps } from '@grapesjs/react'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 export function CustomBlockManager({ blocks, dragStart, dragStop, mapCategoryBlocks }: BlocksResultProps) {
   const [isDragging, setIsDragging] = useState(false);
@@ -17,9 +18,10 @@ export function CustomBlockManager({ blocks, dragStart, dragStop, mapCategoryBlo
     dragStop(false);
   };
   return (
-    <div className="space-y-4">
-      {Array.from(mapCategoryBlocks).map(([category, blocks]) => (
-        <div key={category}>
+    <ScrollArea className="h-[calc(100vh-6rem)] overflow-y-auto">
+      <div className="space-y-4">
+        {Array.from(mapCategoryBlocks).map(([category, blocks]) => (
+          <div key={category}>
           <div className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
             {category}
           </div>
@@ -57,9 +59,10 @@ export function CustomBlockManager({ blocks, dragStart, dragStop, mapCategoryBlo
                 </div>
               </div>
             ))}
+            </div>
           </div>
-        </div>
-      ))}
-    </div>
+        ))}
+      </div>
+    </ScrollArea>
   )
 } 

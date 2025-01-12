@@ -4,13 +4,12 @@ import GjsEditor from '@grapesjs/react'
 import grapesjs from 'grapesjs';
 import type { Editor, EditorConfig, ObjectAny } from 'grapesjs'
 import { devices } from '@/lib/constants/devices'
-import { blocks } from './blocks'
 import { registerComponents } from '@/lib/components'
 import { useState } from 'react'
 
 import gjsblockbasic from 'grapesjs-blocks-basic';
 
-// @ts-ingore
+// @ts-ignore
 import gjsPluginExport from 'grapesjs-plugin-export';
 import gjsForms from 'grapesjs-plugin-forms';
 import gjsStyleBg from 'grapesjs-style-bg';
@@ -110,6 +109,17 @@ const gjsOptions: EditorConfig = {
             <body>${editor.getHtml()}</body>
           </html>`,
       },
+    },
+    // @ts-ignore
+    [gjsblockbasic as string]: {
+      // 启用的
+      blocks: ['column1', 'column2', 'column3', 'column3-7', 'text', 'image'],
+      // 使用 flexbox 布局
+      flexGrid: true,
+      // 使用基础 CSS
+      addBasicStyle: true,
+      // 分类名称
+      category: 'Basic',
     }
   },
   styleManager

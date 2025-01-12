@@ -1,11 +1,10 @@
 'use client'
 
 import { LayersProvider, useEditor } from '@grapesjs/react'
-import { cn } from '@/lib/utils'
-import { GoChevronDown, GoChevronRight } from 'react-icons/go'
 import { useState, useRef } from 'react'
 import type { Component } from 'grapesjs'
 import { LayerItem } from './layer-item'
+import { ScrollArea } from '@/components/ui/scroll-area'
 
 interface DragRect {
   y: number
@@ -44,33 +43,35 @@ export function LayerManager() {
   }
 
   return (
-    <LayersProvider>
-      {({ root }) => (
-        <div 
-          className="relative space-y-1"
-          onPointerUp={onDragEnd}
-        >
-          {root && (
-            <LayerItem
-              component={root}
-              level={0}
-              dragging={dragging}
-              dragParent={dragParent}
-              onDragStart={onDragStart}
-            />
-          )}
-          {dragRect && canMoveRes.result && !dragRect.pointerInside && (
-            <div
-              ref={indicatorRef}
-              className="absolute w-full h-0.5 bg-yellow-400"
-              style={{ 
-                top: dragRect.y,
-                left: 0,
-              }}
-            />
-          )}
-        </div>
-      )}
-    </LayersProvider>
+    <ScrollArea className="h-[calc(100vh-6rem)] overflow-y-auto">
+      <LayersProvider>
+        {({ root }) => (
+          <div
+            className="relative space-y-1"
+            onPointerUp={onDragEnd}
+          >
+            {root && (
+              <LayerItem
+                component={root}
+                level={0}
+                dragging={dragging}
+                dragParent={dragParent}
+                onDragStart={onDragStart}
+              />
+            )}
+            {dragRect && canMoveRes.result && !dragRect.pointerInside && (
+              <div
+                ref={indicatorRef}
+                className="absolute w-full h-0.5 bg-yellow-400"
+                style={{
+                  top: dragRect.y,
+                  left: 0,
+                }}
+              />
+            )}
+          </div>
+        )}
+      </LayersProvider>
+    </ScrollArea>
   )
 } 
