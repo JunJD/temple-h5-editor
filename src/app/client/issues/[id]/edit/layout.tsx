@@ -23,11 +23,24 @@ export default function EditIssueLayout({ children }: { children: React.ReactNod
     fetchIssue()
   }, [params.id])
   
-  if(!issue?.content?.projectData) return null
+  if(!issue) return null
   
   return (
     <Template>
-      <BuilderEditor projectData={issue.content.projectData}>{children}</BuilderEditor>
+      <BuilderEditor projectData={issue?.content?.projectData ?? {
+        components: [
+          {
+            id: 'formatTempList',
+            name: 'formatTempList',
+            label: '格式化模板列表',
+            content: {
+              type: 'formatTempList',
+            },
+          },
+        ],
+        styles: [],
+        scripts: [],
+      }}>{children}</BuilderEditor>
     </Template>
   )
 }

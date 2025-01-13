@@ -1,0 +1,75 @@
+.marquee-container {
+  width: 100%;
+  overflow: hidden;
+  padding: 10px;
+  background: #f5f5f5;
+  border-radius: 4px;
+}
+
+.marquee-content {
+  display: block;
+}
+
+.marquee-item {
+  display: block;
+  padding: 8px 10px;
+  border-bottom: 1px solid #ddd;
+  background: white;
+  margin-bottom: 4px;
+}
+
+.marquee-item:last-child {
+  margin-bottom: 0;
+  border-bottom: none;
+}
+
+/* 运行时的滚动效果 */
+.auto-scroll .marquee-content {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: marquee var(--scroll-speed, 20s) linear infinite;
+  animation-iteration-count: infinite;
+  will-change: transform;
+  &:hover {
+    animation-play-state: paused;
+  }
+}
+
+.auto-scroll .marquee-item {
+  display: inline-block;
+  border-bottom: none;
+  padding: 0 20px;
+  margin: 0;
+  background: transparent;
+}
+
+@keyframes marquee {
+  0% { transform: translateX(100%); }
+  100% { transform: translateX(-100%); }
+}
+
+/* 添加渐变遮罩效果 */
+.auto-scroll.marquee-container::before,
+.auto-scroll.marquee-container::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 50px;
+  height: 100%;
+  z-index: 1;
+}
+
+.auto-scroll.marquee-container::before {
+  left: 0;
+  background: linear-gradient(to right, #f5f5f5, transparent);
+}
+
+.auto-scroll.marquee-container::after {
+  right: 0;
+  background: linear-gradient(to left, #f5f5f5, transparent);
+}
+
+/* 悬停暂停效果 */
+.auto-scroll.pause-on-hover:hover .marquee-content {
+  animation-play-state: paused;
+} 
