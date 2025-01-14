@@ -1,29 +1,99 @@
-### Next.js 项目模板
+### Next.js 低代码平台
 
-一个使用 Shadcn、Prisma ORM、MongoDB 和 Next Auth 的 Next.js 应用
+一个基于 Next.js + GrapesJS 的低代码平台,用于生成 H5 活动页面。集成了 Shadcn、Prisma ORM、MongoDB 和 Next Auth。
 
-[![使用 Vercel 部署](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fdanybeltran%2Fnextjs-typescript-and-mongodb)
+### 功能特性
 
-### 更新依赖
+#### 低代码编辑器
 
-要更新所有依赖到最新版本，请运行：
+基于 GrapesJS 实现的可视化编辑器,支持以下核心功能:
 
+1. 格式化模板列表组件
+- 支持模板 + 字段变量组合配置
+- 自动滚动列表展示
+- 编辑器实时预览
+- TODO: 数据接口对接
+
+2. 联动表单组件
+- 基于 Alpine.js 实现表单联动
+- 支持的表单组件:
+  - 金额输入
+  - 姓名输入
+  - 联系电话
+  - 富文本编辑
+  - 提交按钮
+- TODO: 完善更多表单组件
+
+3. 商品组件（计划中）
+- 支持两级商品配置
+- 第一级：商品本身
+- 第二级：商品单位
+- 选择联动自动计算金额
+- 增强表单联动能力
+
+### 技术实现
+
+#### 组件开发规范
+
+1. 目录结构
 ```
-./scripts/update-deps.sh
+src/plugins/
+  ├── formatTempList/     # 格式化模板列表
+  │   ├── components.ts   # 组件定义
+  │   ├── blocks.ts       # 块配置
+  │   └── index.ts        # 插件入口
+  └── linkageForm/        # 联动表单
+      ├── components.ts
+      ├── blocks.ts
+      └── index.ts
 ```
+2. 组件开发流程
 
----
+- 定义组件接口和配置
+- 实现编辑器交互
+- 开发预览功能
+- 处理数据联动
+- 添加导出逻辑
+
+3. 代码规范
+
+- 使用 TypeScript 开发
+- 遵循 GrapesJS 插件规范
+- 保持组件独立性
+- 完善类型定义
+
+#### 待优化项
+
+1. 脚本管理
+- 当前状态：script 直接写在 root 配置中
+- 优化方向：将脚本移至各个组件
+- 或统一使用 API 挂载处理
+- TODO: 研究 GrapesJS 最佳实践
+
+2 后续计划
+- 整理和规范化代码
+- 完善联动表单组件
+- 实现商品能力
+- 优化脚本管理
+
 
 ### 开发环境配置
+
+#### MongoDB 设置
 
 你需要设置 MongoDB 连接字符串以及 `next-auth` 所需的环境变量：
 
 ```
-MONGO_URI=
-NEXTAUTH_SECRET=
-GOOGLE_APP_CLIENT_ID=
-GOOGLE_APP_CLIENT_SECRET=
-NEXTAUTH_URL=http://localhost:3000
+MONGO_URI=mongodb://localhost:27017/temple-h5-editor?replicaSet=rs0retryWrites=true&w=majority
+```
+
+#### 认证配置
+```
+NEXTAUTH_SECRET=<密钥>
+GOOGLE_APP_CLIENT_ID=<Google OAuth Client ID>
+GOOGLE_APP_CLIENT_SECRET=<Google OAuth Client Secret>
+NEXTAUTH_URL=http://localhost:3000  # 开发环境
+
 ```
 
 （如果你部署在 Vercel 上，则不需要 `NEXTAUTH_URL`）
@@ -106,6 +176,124 @@ console.log(base64String)
 - [`http-react`](https://httpr.vercel.app/docs)
 
 [在线预览](https://nextjs-typescript-and-mongodb-psi.vercel.app)
+
+### 数据模型
+
+#### Issue（活动）
+
+```
+model Issue {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  title       String      // 活动标题
+  content     Json        // GrapesJS 页面内容
+  formConfig  Json        // 表单配置
+  startTime   DateTime?   // 活动开始时间
+  endTime     DateTime?   // 活动结束时间
+  wxPayConfig Json?      // 微信支付配置
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  submissions Submission[] // 关联的提交记录
+}
+```
+
+#### 字段说明
+- `content`: 使用 Tiptap 编辑器存储的 JSON 内容
+  - 支持富文本编辑
+  - 自定义 Extension 实现表单联动
+  - 支持图文混排
+  - 可嵌入动态列表展示参与者信息
+
+- `formConfig`: 表单配置 JSON
+  - 定义表单字段和验证规则
+  - 配置字段间的联动关系
+  - 设置金额计算规则
+  - 自定义表单展示样式
+
+- `wxPayConfig`: 微信支付配置
+  - 支付参数配置
+  - 商品信息设置
+  - 支付回调配置
+
+#### Submission（提交记录）
+
+```
+model Submission {
+  id         String       @id @default(auto()) @map("_id") @db.ObjectId
+  formData   Json        // 表单提交数据
+  amount     Float       // 支付金额
+  paymentId  String?     // 支付订单号
+  status     PaymentStatus @default(PENDING)  // 支付状态
+  openid     String?     // 微信支付用户标识
+  wxPayInfo  Json?      // 微信支付结果信息
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  issueId    String     @db.ObjectId  // 关联的活动ID
+  issue      Issue      @relation(fields: [issueId], references: [id])
+}
+```
+
+
+
+#### 字段说明
+- `formData`: 存储用户提交的表单数据
+- `amount`: 根据表单选择计算的最终支付金额
+- `status`: 支付状态流转
+- `wxPayInfo`: 存储微信支付的详细信息
+
+### 业务流程
+
+1. 活动创建
+   - 管理员创建新的 Issue
+   - 使用 Tiptap 编辑器配置活动内容
+   - 设置表单配置和支付规则
+
+2. 活动展示
+   - H5 页面展示富文本内容
+   - 动态渲染参与者列表
+   - 显示表单供用户填写
+
+3. 用户参与
+   - 填写动态表单
+   - 根据选择自动计算金额
+   - 发起微信支付
+   - 创建 Submission 记录
+
+4. 数据统计
+   - 跟踪支付状态
+   - 统计参与人数和金额
+   - 导出活动数据
+
+### 技术实现要点
+
+1. Tiptap 扩展开发
+   - 自定义表单联动 Extension
+   - 实现动态列表展示 Extension
+   - 配置序列化和反序列化
+
+2. 表单配置
+   - 支持字段间联动
+   - 动态计算金额
+   - 实时验证
+
+3. 支付集成
+   - 微信支付接口对接
+   - 支付状态同步
+   - 退款处理
+
+4. 数据展示
+   - 实时更新参与者列表
+   - 支付状态实时反馈
+   - 数据导出功能
+
+
+### 相关文档
+
+- [GrapesJS](https://grapesjs.com/docs/)
+- [Next.js](https://nextjs.org/docs)
+- [NextAuth](https://next-auth.js.org/getting-started/introduction)
+- [MongoDB](https://www.mongodb.com/docs)
 
 ### 常见问题排查
 
@@ -284,122 +472,3 @@ MONGO_URI=mongodb://127.0.0.1:27017/你的数据库名?replicaSet=rs0
    - 确保连接字符串中包含 `replicaSet=rs0`
    - 验证副本集状态：`rs.status()`
    - 检查数据库用户权限
-
-## 数据模型说明
-
-### Issue（活动）模型
-
-Issue 模型用于管理企业的各类活动，包含活动内容展示、表单配置和支付功能。
-
-```prisma
-model Issue {
-  id          String      @id @default(auto()) @map("_id") @db.ObjectId
-  title       String      // 活动标题
-  content     Json        // Tiptap 富文本内容
-  formConfig  Json        // 表单配置
-  startTime   DateTime?   // 活动开始时间
-  endTime     DateTime?   // 活动结束时间
-  wxPayConfig Json?      // 微信支付配置
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  
-  submissions Submission[] // 关联的提交记录
-}
-```
-
-#### 字段说明
-- `content`: 使用 Tiptap 编辑器存储的 JSON 内容
-  - 支持富文本编辑
-  - 自定义 Extension 实现表单联动
-  - 支持图文混排
-  - 可嵌入动态列表展示参与者信息
-
-- `formConfig`: 表单配置 JSON
-  - 定义表单字段和验证规则
-  - 配置字段间的联动关系
-  - 设置金额计算规则
-  - 自定义表单展示样式
-
-- `wxPayConfig`: 微信支付配置
-  - 支付参数配置
-  - 商品信息设置
-  - 支付回调配置
-
-### Submission（提交记录）模型
-
-记录用户的活动报名和支付信息。
-
-```prisma
-model Submission {
-  id         String       @id @default(auto()) @map("_id") @db.ObjectId
-  formData   Json        // 表单提交数据
-  amount     Float       // 支付金额
-  paymentId  String?     // 支付订单号
-  status     PaymentStatus @default(PENDING)  // 支付状态
-  openid     String?     // 微信支付用户标识
-  wxPayInfo  Json?      // 微信支付结果信息
-  createdAt  DateTime    @default(now())
-  updatedAt  DateTime    @updatedAt
-
-  issueId    String     @db.ObjectId  // 关联的活动ID
-  issue      Issue      @relation(fields: [issueId], references: [id])
-}
-
-enum PaymentStatus {
-  PENDING   // 待支付
-  PAID      // 已支付
-  FAILED    // 支付失败
-  REFUNDED  // 已退款
-}
-```
-
-#### 字段说明
-- `formData`: 存储用户提交的表单数据
-- `amount`: 根据表单选择计算的最终支付金额
-- `status`: 支付状态流转
-- `wxPayInfo`: 存储微信支付的详细信息
-
-### 业务流程
-
-1. 活动创建
-   - 管理员创建新的 Issue
-   - 使用 Tiptap 编辑器配置活动内容
-   - 设置表单配置和支付规则
-
-2. 活动展示
-   - H5 页面展示富文本内容
-   - 动态渲染参与者列表
-   - 显示表单供用户填写
-
-3. 用户参与
-   - 填写动态表单
-   - 根据选择自动计算金额
-   - 发起微信支付
-   - 创建 Submission 记录
-
-4. 数据统计
-   - 跟踪支付状态
-   - 统计参与人数和金额
-   - 导出活动数据
-
-### 技术实现要点
-
-1. Tiptap 扩展开发
-   - 自定义表单联动 Extension
-   - 实现动态列表展示 Extension
-   - 配置序列化和反序列化
-
-2. 表单配置
-   - 支持字段间联动
-   - 动态计算金额
-   - 实时验证
-
-3. 支付集成
-   - 微信支付接口对接
-   - 支付状态同步
-   - 退款处理
-
-4. 数据展示
-   - 实时更新参与者列表
-   - 支付状态实时反馈
-   - 数据导出功能
