@@ -1,38 +1,36 @@
-import type { Plugin } from 'grapesjs';
-import { MarqueeTextComponent } from './components';
-import { MarqueeTextBlock } from './blocks';
-import './styles.css';
-export interface PluginOptions {
-  // 组件名称
-  componentName?: string;
-  // block名称
-  blockName?: string;
-  // 默认数据源
-  defaultDataSource?: Array<any>;
-  // 默认格式化模板
-  defaultTemplate?: string;
-}
+import type { BlockProperties, Plugin } from 'grapesjs';
+import loadBlocks from './blocks';
+import loadComponents from './components';
+
+export type PluginOptions = {
+  /**
+   * 要添加的块类型
+   * @default ['format-temp-list']
+   */
+  blocks?: string[];
+
+  /**
+   * 块的分类名称
+   * @default '列表'
+   */
+  category?: BlockProperties["category"];
+
+  /**
+   * 添加自定义块选项
+   */
+  block?: (blockId: string) => ({});
+};
 
 const plugin: Plugin<PluginOptions> = (editor, opts = {}) => {
-  const options: PluginOptions = {
-    componentName: 'format-temp-list',
-    blockName: '格式化模板列表',
-    defaultDataSource: [
-      { name: '项目1', value: 100 },
-      { name: '项目2', value: 200 },
-      { name: '项目3', value: 300 }
-    ],
-    defaultTemplate: '${name}: ${value}',
+  const config: Required<PluginOptions> = {
+    blocks: ['format-temp-list'],
+    category: { id: 'lists', label: '列表' },
+    block: () => ({}),
     ...opts
   };
 
-  const componentName = options.componentName || 'format-temp-list';
-
-  // 添加组件
-  editor.Components.addType(componentName, MarqueeTextComponent(editor));
-
-  // 添加区块
-  editor.Blocks.add(componentName, MarqueeTextBlock(options));
+  loadComponents(editor);
+  loadBlocks(editor, config);
 };
 
 export default plugin;

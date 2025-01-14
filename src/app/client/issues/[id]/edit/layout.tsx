@@ -28,7 +28,6 @@ const defaultProjectData = {
         }
       ],
       style: {
-        height: '100vh',
         'background-color': '#fff',
         'min-height': '100vh'
       }
