@@ -6,7 +6,7 @@ import type { Editor, EditorConfig, ObjectAny } from 'grapesjs'
 import { devices } from '@/lib/constants/devices'
 import { registerComponents } from '@/lib/components'
 import { useState } from 'react'
-import LinkageForm from '@/plugins/LinkageForm'
+import LinkageForm from '@/plugins/linkageForm'
 import gjsblockbasic from 'grapesjs-blocks-basic';
 import tailwindPlugin from 'grapesjs-tailwind'
 import formatTempList from '@/plugins/formatTempList'
