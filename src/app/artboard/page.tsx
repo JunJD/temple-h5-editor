@@ -4,7 +4,7 @@ import { useRef } from "react";
 import { ReactZoomPanPinchRef, TransformComponent, TransformWrapper } from "react-zoom-pan-pinch";
 import DraftEditor from "@/components/issue/editor/draft";
 
-export const MM_TO_PX = 1;
+const MM_TO_PX = 1;
 
 export const pageSizeMap = {
     '14Pro': {
