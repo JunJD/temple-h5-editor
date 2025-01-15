@@ -64,7 +64,7 @@ export const useFormStore = create<FormState>((set, get) => ({
 
     const calculations = config.calculations.reduce((acc, calc) => ({
       ...acc,
-      [calc.targetField]: executeCalculation(calc, values)
+      [calc.targetField]: executeCalculation(calc.rule, values)
     }), {})
 
     set({ calculations })
