@@ -1,40 +1,8 @@
+'use client'
+
 import type { Editor } from 'grapesjs';
 
 export const typeFormatTempList = 'format-temp-list';
-
-// 通用的滚动逻辑
-const initScrollList = (container: HTMLElement, data: any[], template: string, options: {
-  autoScroll?: boolean;
-  scrollSpeed?: number;
-}) => {
-  const list = document.createElement('ul');
-
-  // 渲染列表项
-  data.forEach(item => {
-    const li = document.createElement('li');
-    li.textContent = template.replace(/\${(\w+)}/g, (_, key) => item[key] || '');
-    list.appendChild(li);
-  });
-
-  container.innerHTML = '';
-  container.appendChild(list);
-
-  // 自动滚动
-  if (options.autoScroll) {
-    const scrollInterval = setInterval(() => {
-      if (!container.isConnected) {
-        clearInterval(scrollInterval);
-        return;
-      }
-      container.scrollTop += 0.5;
-      if (container.scrollTop >= list.scrollHeight - container.offsetHeight) {
-        container.scrollTop = 0;
-      }
-    }, 80);
-  }
-
-  return list;
-};
 
 export default function(editor: Editor) {
   const { Components } = editor;
@@ -51,27 +19,21 @@ export default function(editor: Editor) {
             name: 'autoScroll',
             label: '自动滚动',
             default: true,
-          },
-          {
-            type: 'number',
-            name: 'scrollSpeed',
-            label: '滚动速度',
-            default: 0.5,
-            min: 0.1,
-            max: 5,
-            step: 0.1,
+            changeProp: true,
           },
           {
             type: 'text',
             name: 'apiUrl',
             label: 'API地址',
             default: '/api/list',
+            changeProp: true,
           },
           {
             type: 'text',
             name: 'template',
             label: '格式化模板',
             default: '${name}: ${value}',
+            changeProp: true,
           }
         ],
         styles: `
@@ -101,23 +63,59 @@ export default function(editor: Editor) {
             border-bottom: none;
           }
         `,
-        script: function() {
+        'script-props': ['apiUrl', 'template', 'autoScroll', 'scrollSpeed'],
+        script: function(props) {
           const el = this;
-          const apiUrl = '{[ apiUrl ]}';
-          const template = '{[ template ]}';
-          const autoScroll = '{[ autoScroll ]}';
-          const scrollSpeed = '{[ scrollSpeed ]}';
+          const apiUrl = props.apiUrl || '/api/list';
+          const template = props.template || '${name}: ${value}';
+          const autoScroll = props.autoScroll || true;
+          const scrollSpeed = props.scrollSpeed || 1;
 
-          // 从API获取数据并渲染
           const fetchAndRender = async () => {
             try {
-              const response = await fetch(apiUrl);
-              const data = await response.json();
-              initScrollList(el, data, template, {
-                // @ts-ignore
-                autoScroll: autoScroll !== 'false',
-                scrollSpeed: Number(scrollSpeed)
+              let data;
+              console.log('editor', (window as any).editor);
+              if (!(window as any).editor) {
+                // 编辑器模式下使用模拟数据
+                data = [
+                  { name: '示例项目1', value: '¥1,234.00' },
+                  { name: '示例项目2', value: '¥2,345.00' },
+                  { name: '示例项目3', value: '¥3,456.00' },
+                  { name: '示例项目4', value: '¥4,567.00' },
+                  { name: '示例项目5', value: '¥5,678.00' },
+                ];
+              } else {
+                // 渲染模式下从API获取数据
+                const response = await fetch(apiUrl);
+                data = await response.json();
+              }
+
+              const list = document.createElement('ul');
+
+              data.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = template.replace(/\${(\w+)}/g, (_, key) => item[key] || '');
+                list.appendChild(li);
               });
+
+              el.innerHTML = '';
+              el.appendChild(list);
+
+              // 设置滚动位置到最底部
+              el.scrollTop = el.scrollHeight - el.clientHeight;
+
+              if (autoScroll) {
+                const scroll = () => {
+                  if (!el.isConnected) return;
+                  el.scrollTop += scrollSpeed;
+                  console.log('Scrolling...', el.scrollTop);
+                  if (el.scrollTop >= list.scrollHeight - el.offsetHeight) {
+                    el.scrollTop = 0;
+                  }
+                  requestAnimationFrame(scroll);
+                };
+                requestAnimationFrame(scroll);
+              }
             } catch (error) {
               console.error('Failed to fetch data:', error);
             }
@@ -129,35 +127,7 @@ export default function(editor: Editor) {
     },
     view: {
       init() {
-        // 监听整个traits的变化
-        this.listenTo(this.model, 'change:traits', ()=>{
-            
-            this.render();
-        });
-        
-        // 单独监听template的变化
-        const traits = this.model.get('traits');
-        const templateTrait = traits.where({ name: 'template' })[0];
-        this.listenTo(templateTrait, 'change:value', this.render);
-      },
-      onRender() {
-        const mockData = [
-          { name: '示例项目1', value: '¥1,234.00' },
-          { name: '示例项目2', value: '¥2,345.00' },
-          { name: '示例项目3', value: '¥3,456.00' },
-          { name: '示例项目4', value: '¥4,567.00' },
-          { name: '示例项目5', value: '¥5,678.00' },
-        ];
-
-        const traits = this.model.get('traits');
-        const template = traits.where({ name: 'template' })[0].get('value');
-        const autoScroll = traits.where({ name: 'autoScroll' })[0].get('value');
-        const scrollSpeed = traits.where({ name: 'scrollSpeed' })[0].get('value');
-
-        initScrollList(this.el, mockData, template, {
-          autoScroll: Boolean(autoScroll),
-          scrollSpeed: Number(scrollSpeed)
-        });
+        this.listenTo(this.model, 'change:traits', this.render);
       }
     }
   });

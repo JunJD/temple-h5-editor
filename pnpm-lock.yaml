@@ -176,6 +176,9 @@ importers:
       grapesjs-blocks-basic:
         specifier: ^1.0.2
         version: 1.0.2
+      grapesjs-blocks-bootstrap4:
+        specifier: ^0.2.5
+        version: 0.2.5(grapesjs@0.22.4)
       grapesjs-plugin-export:
         specifier: ^1.0.12
         version: 1.0.12
@@ -1975,6 +1978,11 @@ packages:
 
   grapesjs-blocks-basic@1.0.2:
     resolution: {integrity: sha512-SsPKf/CvQkZ+kABOsN01auAPHXh/2J20g0AWYF7fHR3Gw3TZLtdIxT1mk90Qzi76u/7sUYi3CTI+i3ZaTtXHRA==}
+
+  grapesjs-blocks-bootstrap4@0.2.5:
+    resolution: {integrity: sha512-YocA8fhygEsf2yuWY32XVAkLyPlsxM/8+QzdN/t50eTk/FLv5e3C5z8OxD7MGRhAdZO3G+o2Gy67sSNMAVqdyw==}
+    peerDependencies:
+      grapesjs: 0.x
 
   grapesjs-plugin-export@1.0.12:
     resolution: {integrity: sha512-q5rn1dwUYqPwDVnL9dhMxInk2SXWbrJ7OUUjFYk2LGJoT1laN3TZSDlDn/DVp9pCQd7fyHDgLdy8mvaVVmSh6g==}
@@ -4661,6 +4669,10 @@ snapshots:
   graceful-fs@4.2.11: {}
 
   grapesjs-blocks-basic@1.0.2: {}
+
+  grapesjs-blocks-bootstrap4@0.2.5(grapesjs@0.22.4):
+    dependencies:
+      grapesjs: 0.22.4
 
   grapesjs-plugin-export@1.0.12:
     dependencies:

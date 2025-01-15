@@ -17,8 +17,8 @@ import gjsStyleBg from 'grapesjs-style-bg';
 import gjsStyleFilter from 'grapesjs-style-filter';
 import gjsStyleGradient from 'grapesjs-style-gradient';
 import gjsTuiImageEditor from 'grapesjs-tui-image-editor';
-import 'grapesjs/dist/css/grapes.min.css';
 import { styleManager } from './config/styleManager';
+import 'grapesjs/dist/css/grapes.min.css';
 
 export default function BuilderEditor({ children, projectData }: { children: React.ReactNode, projectData: ObjectAny }) {
   const [isLoading, setIsLoading] = useState(true)
@@ -80,11 +80,6 @@ const gjsOptions: EditorConfig = {
   canvas: {
     infiniteCanvas: true
   },
-  // 使用基础 blocks
-  // blockManager: {
-  //   custom: true,
-  //   blocks
-  // },
   deviceManager: {
     devices: Object.values(devices).map(device => ({
       id: device.id,
