@@ -6,7 +6,7 @@ import DraftEditor from "@/components/issue/editor/draft";
 
 const MM_TO_PX = 1;
 
-export const pageSizeMap = {
+const pageSizeMap = {
     '14Pro': {
       width: 430,
       height: 932,
