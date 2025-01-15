@@ -11,8 +11,8 @@ export default function PreviewPage({ params }: { params: { id: string } }) {
 
   return (
     <div>
-      <style>{content?.css}</style>
-      <div dangerouslySetInnerHTML={{ __html: content?.html }} />
+      <style>{content?.css || ''}</style>
+      <div dangerouslySetInnerHTML={{ __html: content?.html || '' }} />
     </div>
   )
 } 
