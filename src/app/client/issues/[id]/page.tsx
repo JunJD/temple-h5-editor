@@ -18,9 +18,11 @@ export default function IssuePage() {
   } | null>(null)
   useEffect(() => {
     const fetchIssue = async () => {
-      const {data: issue} = await getIssue(params.id as string)
-      console.log('issue',issue)
-      setIssue(issue as any)
+      const result = await getIssue(params.id as string)
+      if ('data' in result && result.data) {
+        console.log('issue', result.data)
+        setIssue(result.data as any)
+      }
     }
     fetchIssue()
   }, [params.id])
