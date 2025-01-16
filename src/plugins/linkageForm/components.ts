@@ -2,6 +2,7 @@ import type { Editor } from 'grapesjs';
 
 export const typeForm = 'form';
 export const typeInput = 'input';
+export const typeAmountInput = 'amount-input';
 
 export default function(editor: Editor) {
   const { Components } = editor;
@@ -178,6 +179,85 @@ export default function(editor: Editor) {
           ...this.model.get('attributes'),
           value
         });
+      }
+    }
+  });
+
+  // 添加金额输入组件
+  Components.addType(typeAmountInput, {
+    isComponent: el => el.classList?.contains('input_item'),
+    model: {
+      defaults: {
+        name: '金额输入',
+        droppable: false,
+        traits: [
+          {
+            type: 'text',
+            name: 'label',
+            label: '标签文本',
+            default: '金额',
+            changeProp: true,
+          },
+          {
+            type: 'text',
+            name: 'placeholder',
+            label: '占位文本',
+            default: '请输入金额',
+            changeProp: true,
+          },
+          {
+            type: 'checkbox',
+            name: 'disabled',
+            label: '禁用',
+            default: false,
+            changeProp: true,
+          }
+        ],
+        classes: [
+          'border', 'border-[#eee]', 'rounded-xl', 'p-[3%_5%]', 'mt-[5%]',
+          'flex', 'items-center', 'bg-white'
+        ],
+        'script-props': ['label', 'placeholder', 'disabled'],
+        script: function(props) {
+          const el = this;
+          const label = props.label || '金额';
+          const placeholder = props.placeholder || '请输入金额';
+          const disabled = props.disabled || false;
+
+          const wrapper = document.createElement('div');
+          wrapper.className = 'flex items-center w-full';
+
+          const labelSpan = document.createElement('span');
+          labelSpan.className = 'text-[#666666] text-base h-[23px] leading-[23px]';
+          labelSpan.textContent = label + '：';
+
+          const input = document.createElement('input');
+          input.className = 'border-none outline-none text-base text-[#666666] h-[23px] leading-[23px] flex-1 w-full pr-3 text-right bg-transparent';
+          input.type = 'text';
+          input.placeholder = placeholder;
+          if (disabled) input.disabled = true;
+          
+          input.addEventListener('input', function(e) {
+            const target = e.target as HTMLInputElement;
+            target.value = target.value.replace(/[^\d]/g, '');
+          });
+
+          const unitSpan = document.createElement('span');
+          unitSpan.className = 'text-[#666666] text-base h-[23px] leading-[23px] ml-2';
+          unitSpan.textContent = '元';
+
+          wrapper.appendChild(labelSpan);
+          wrapper.appendChild(input);
+          wrapper.appendChild(unitSpan);
+
+          el.innerHTML = '';
+          el.appendChild(wrapper);
+        }
+      }
+    },
+    view: {
+      init() {
+        this.listenTo(this.model, 'change:traits', this.render);
       }
     }
   });

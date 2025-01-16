@@ -1,6 +1,6 @@
 import type { BlockProperties, Editor } from 'grapesjs';
 import { PluginOptions } from '.';
-import { typeForm, typeInput } from './components';
+import { typeForm, typeInput, typeAmountInput } from './components';
 
 export default function (editor: Editor, opt: Required<PluginOptions>) {
     const opts = opt;
@@ -34,7 +34,7 @@ export default function (editor: Editor, opt: Required<PluginOptions>) {
 
     // 输入框块
     addBlock(typeInput, {
-        label: '输入框',
+        label: '输入框2',
         // media: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 9c0-.6-.5-1-1.3-1H3.4C2.5 8 2 8.4 2 9v6c0 .6.5 1 1.3 1h17.4c.8 0 1.3-.4 1.3-1V9zm-1 6H3V9h18v6z"/><path d="M4 10h1v4H4z"/></svg>',
         content: {
             type: typeInput,
@@ -43,5 +43,16 @@ export default function (editor: Editor, opt: Required<PluginOptions>) {
                 name: 'field'
             }
         },
+    });
+
+    // 添加金额输入块
+    addBlock(typeAmountInput, {
+        label: '金额输入',
+        // media: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 9c0-.6-.5-1-1.3-1H3.4C2.5 8 2 8.4 2 9v6c0 .6.5 1 1.3 1h17.4c.8 0 1.3-.4 1.3-1V9zm-1 6H3V9h18v6z"/><path d="M4 10h1v4H4z"/></svg>',
+        content: {
+            type: typeAmountInput,
+            label: '金额',
+            placeholder: '请输入金额'
+        }
     });
 }

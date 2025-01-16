@@ -3,7 +3,7 @@ import loadBlocks from './blocks';
 import loadComponents from './components';
 import loadTraits from './traits';
 
-export type PluginOptions = {
+export interface PluginOptions {
     /**
      * 要添加的块类型
      * @default ['form', 'input']
@@ -21,11 +21,11 @@ export type PluginOptions = {
      * @default (blockId) => ({})
      */
     block?: (blockId: string) => ({});
-};
+}
 
 const plugin: Plugin<PluginOptions> = (editor, opts = {}) => {
     const config: Required<PluginOptions> = {
-        blocks: ['form', 'input'],
+        blocks: ['form', 'input', 'amount-input'],
         category: { id: 'forms', label: '表单' },
         block: () => ({}),
         ...opts
