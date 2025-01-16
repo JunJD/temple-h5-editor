@@ -20,6 +20,7 @@ import gjsTuiImageEditor from 'grapesjs-tui-image-editor';
 import { styleManager } from './config/styleManager';
 import 'grapesjs/dist/css/grapes.min.css';
 import '@/styles/grapesjs.css';
+import '@/styles/fonts.css';
 
 export default function BuilderEditor({ children, projectData }: { children: React.ReactNode, projectData: ObjectAny }) {
   const [isLoading, setIsLoading] = useState(true)
@@ -79,6 +80,13 @@ const gjsOptions: EditorConfig = {
   undoManager: { trackSelection: false },
   selectorManager: { componentFirst: true },
   canvas: {
+    styles: [
+      `
+        * {
+          font-family: 'weiruanyahei', 'Microsoft YaHei', sans-serif !important;
+        }
+      `
+    ],
     infiniteCanvas: true
   },
   deviceManager: {
@@ -95,7 +103,19 @@ const gjsOptions: EditorConfig = {
     [gjsPluginExport as string]: {
       root: {
         css: {
-          'style.css': (editor: Editor) => editor.getCss(),
+          'style.css': (editor: Editor) => `
+            @font-face {
+              font-family: 'weiruanyahei';
+              src: url('/fonts/weiruanyahei.ttf') format('truetype');
+            }
+            * {
+              font-family: 'weiruanyahei', 'Microsoft YaHei', sans-serif !important;
+            }
+            ${editor.getCss()}
+          `,
+        },
+        fonts: {
+          'weiruanyahei.ttf': '/fonts/weiruanyahei.ttf',  // 这里是字体文件的路径
         },
         'index.html': (editor: Editor) =>
           `<!doctype html>

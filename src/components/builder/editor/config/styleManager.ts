@@ -294,7 +294,6 @@ export const styleManager = {
         id: 'typography',
         name: '文本',
         properties: [
-          { extend: 'font-family' },
           { extend: 'color' },
           { extend: 'font-size' }, { extend: 'font-weight' },
           { extend: 'line-height', min: 0 }, { extend: 'letter-spacing' },

@@ -48,7 +48,7 @@ export default function SectorTypography({ sector }: Props) {
   return (
     <div className="space-y-4">
       {/* Font Family */}
-      {renderField(sector.getProperty('font-family'), 'select')}
+      {/* {renderField(sector.getProperty('font-family'), 'select')} */}
 
       {/* Color */}
       {renderField(sector.getProperty('color'), 'color')}
