@@ -63,20 +63,19 @@ export default function(editor: Editor) {
             border-bottom: none;
           }
         `,
-        'script-props': ['apiUrl', 'template', 'autoScroll', 'scrollSpeed'],
+        'script-props': ['apiUrl', 'template', 'autoScroll'],
         script: function(props) {
           const el = this;
           const apiUrl = props.apiUrl || '/api/list';
           const template = props.template || '${name}: ${value}';
           const autoScroll = props.autoScroll || true;
-          const scrollSpeed = props.scrollSpeed || 1;
+          let scrollAnimation: number;
+          let isPaused = false;
 
           const fetchAndRender = async () => {
             try {
               let data;
-              console.log('editor', (window as any).editor);
               if (!(window as any).editor) {
-                // 编辑器模式下使用模拟数据
                 data = [
                   { name: '示例项目1', value: '¥1,234.00' },
                   { name: '示例项目2', value: '¥2,345.00' },
@@ -85,36 +84,101 @@ export default function(editor: Editor) {
                   { name: '示例项目5', value: '¥5,678.00' },
                 ];
               } else {
-                // 渲染模式下从API获取数据
                 const response = await fetch(apiUrl);
                 data = await response.json();
               }
 
-              const list = document.createElement('ul');
+              // 创建容器和列表
+              const container = document.createElement('div');
+              container.style.cssText = `
+                position: relative;
+                height: 100%;
+                overflow: hidden;
+              `;
 
-              data.forEach(item => {
-                const li = document.createElement('li');
-                li.textContent = template.replace(/\${(\w+)}/g, (_, key) => item[key] || '');
-                list.appendChild(li);
-              });
+              const list = document.createElement('div');
+              list.style.cssText = `
+                position: absolute;
+                width: 100%;
+                transition: transform 0.5s ease;
+                will-change: transform;
+              `;
 
+              const createList = () => {
+                const ul = document.createElement('ul');
+                data.forEach(item => {
+                  const li = document.createElement('li');
+                  li.textContent = template.replace(/\${(\w+)}/g, (_, key) => item[key] || '');
+                  ul.appendChild(li);
+                });
+                return ul;
+              };
+
+              // 添加两个相同的列表
+              const list1 = createList();
+              const list2 = createList();
+              list.appendChild(list1);
+              list.appendChild(list2);
+
+              container.appendChild(list);
               el.innerHTML = '';
-              el.appendChild(list);
-
-              // 设置滚动位置到最底部
-              el.scrollTop = el.scrollHeight - el.clientHeight;
+              el.appendChild(container);
 
               if (autoScroll) {
+                let currentScroll = 0;
+                const scrollHeight = list1.offsetHeight;
+                let isTransitioning = false;
+
                 const scroll = () => {
-                  if (!el.isConnected) return;
-                  el.scrollTop += scrollSpeed;
-                  console.log('Scrolling...', el.scrollTop);
-                  if (el.scrollTop >= list.scrollHeight - el.offsetHeight) {
-                    el.scrollTop = 0;
+                  if (!el.isConnected || isPaused) {
+                    scrollAnimation = requestAnimationFrame(scroll);
+                    return;
                   }
-                  requestAnimationFrame(scroll);
+                  
+                  if (!isTransitioning) {
+                    currentScroll += 0.3; // 降低滚动速度
+                    list.style.transform = `translate3d(0, -${currentScroll}px, 0)`; // 使用 translate3d 启用硬件加速
+
+                    if (currentScroll >= scrollHeight) {
+                      isTransitioning = true;
+                      currentScroll = 0;
+                      
+                      requestAnimationFrame(() => {
+                        list.style.transition = 'none';
+                        list.style.transform = 'translate3d(0, 0, 0)';
+                        
+                        requestAnimationFrame(() => {
+                          list.style.transition = 'transform 0.5s ease';
+                          isTransitioning = false;
+                        });
+                      });
+                    }
+                  }
+                  
+                  scrollAnimation = requestAnimationFrame(scroll);
                 };
-                requestAnimationFrame(scroll);
+
+                // 鼠标悬停时暂停滚动
+                const pauseScroll = () => {
+                  isPaused = true;
+                };
+
+                const resumeScroll = () => {
+                  isPaused = false;
+                };
+
+                el.addEventListener('mouseenter', pauseScroll);
+                el.addEventListener('mouseleave', resumeScroll);
+
+                // 开始滚动
+                scroll();
+
+                // 清理函数
+                return () => {
+                  cancelAnimationFrame(scrollAnimation);
+                  el.removeEventListener('mouseenter', pauseScroll);
+                  el.removeEventListener('mouseleave', resumeScroll);
+                };
               }
             } catch (error) {
               console.error('Failed to fetch data:', error);
