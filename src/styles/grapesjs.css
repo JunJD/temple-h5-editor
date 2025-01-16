@@ -1,0 +1,84 @@
+/* 覆盖 GrapesJS 默认的弹窗样式 */
+.gjs-mdl-dialog {
+  @apply bg-background text-foreground border border-border rounded-lg !important;
+  min-width: 500px !important;
+  min-height: 400px !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* 确保背景色不透明 */
+.gjs-mdl-dialog.gjs-one-bg {
+  background-color: hsl(var(--background)) !important;
+}
+
+.gjs-mdl-dialog.gjs-two-color {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+/* 弹窗头部样式 */
+.gjs-mdl-header {
+  @apply border-b border-border bg-muted/50 rounded-t-lg !important;
+  padding: 1rem !important;
+}
+
+/* 弹窗标题 */
+.gjs-mdl-title {
+  @apply text-lg font-medium text-foreground !important;
+}
+
+/* 弹窗内容区域样式 */
+.gjs-mdl-content {
+  @apply p-0 bg-background !important;
+}
+
+.gjs-am-file-uploader {
+    width: 40% !important;
+}
+.gjs-am-assets-cont{
+    width: 60% !important;
+}
+
+.gjs-am-add-asset {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+/* 按钮样式 */
+.gjs-btn-prim {
+  @apply bg-zinc-900 text-zinc-50 hover:bg-zinc-900/90 transition-colors dark:bg-zinc-50 dark:text-zinc-900 dark:hover:bg-zinc-50/90 !important;
+  border: none !important;
+  margin-top: 10px !important;
+}
+
+.gjs-btn-close {
+  @apply text-muted-foreground hover:bg-accent/50 rounded-sm transition-colors !important;
+}
+
+/* 遮罩层样式 */
+.gjs-mdl-backdrop {
+  background-color: hsl(var(--background))/.8 !important;
+  backdrop-filter: blur(4px) !important;
+}
+
+/* 主题色应用 */
+.gjs-mdl-dialog button:not(.gjs-btn-prim) {
+  @apply bg-muted hover:bg-muted/80 text-muted-foreground transition-colors !important;
+}
+
+.gjs-mdl-dialog input,
+.gjs-mdl-dialog select {
+  @apply bg-background border-input text-foreground !important;
+}
+
+/* 滚动条样式 */
+.gjs-mdl-content::-webkit-scrollbar {
+  @apply w-2 !important;
+}
+
+.gjs-mdl-content::-webkit-scrollbar-track {
+  @apply bg-muted !important;
+}
+
+.gjs-mdl-content::-webkit-scrollbar-thumb {
+  @apply bg-zinc-400/30 rounded-full hover:bg-zinc-400/50 !important;
+} 

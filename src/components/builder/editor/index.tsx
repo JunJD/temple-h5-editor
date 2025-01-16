@@ -19,6 +19,7 @@ import gjsStyleGradient from 'grapesjs-style-gradient';
 import gjsTuiImageEditor from 'grapesjs-tui-image-editor';
 import { styleManager } from './config/styleManager';
 import 'grapesjs/dist/css/grapes.min.css';
+import '@/styles/grapesjs.css';
 
 export default function BuilderEditor({ children, projectData }: { children: React.ReactNode, projectData: ObjectAny }) {
   const [isLoading, setIsLoading] = useState(true)
