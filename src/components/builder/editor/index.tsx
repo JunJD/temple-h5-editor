@@ -10,6 +10,8 @@ import LinkageForm from '@/plugins/linkageForm'
 import gjsblockbasic from 'grapesjs-blocks-basic';
 import tailwindPlugin from 'grapesjs-tailwind'
 import formatTempList from '@/plugins/formatTempList'
+import customCodePlugin from "grapesjs-custom-code";
+import grapesjsTabs from 'grapesjs-tabs';
 // @ts-ignore
 import gjsPluginExport from 'grapesjs-plugin-export';
 // import gjsForms from 'grapesjs-plugin-forms';
@@ -59,6 +61,8 @@ export default function BuilderEditor({ children, projectData }: { children: Rea
           gjsPluginExport,
           LinkageForm,
           formatTempList,
+          customCodePlugin,
+          grapesjsTabs,
           tailwindPlugin,
           gjsStyleBg,
           gjsStyleFilter,
@@ -200,7 +204,7 @@ const gjsOptions: EditorConfig = {
       // 使用基础 CSS
       addBasicStyle: true,
       // 分类名称
-      category: 'Basic',
+      category: '基础组件',
     }
   },
   styleManager
