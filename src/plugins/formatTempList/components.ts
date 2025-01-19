@@ -4,7 +4,7 @@ import type { Editor } from 'grapesjs';
 
 export const typeFormatTempList = 'format-temp-list';
 
-export default function(editor: Editor) {
+export default function (editor: Editor) {
   const { Components } = editor;
 
   Components.addType(typeFormatTempList, {
@@ -37,34 +37,22 @@ export default function(editor: Editor) {
           }
         ],
         styles: `
-          .format-temp-list {
-            height: 300px;
+          .format-temp-list .infinite-scroll {
+            height: 100%;
             overflow-y: auto;
-            background: #fff;
-            border-radius: 4px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
           }
-          .format-temp-list::-webkit-scrollbar {
+
+        .format-temp-list .infinite-scroll::-webkit-scrollbar {
             display: none;
-          }
-          .format-temp-list ul {
-            list-style: none;
-            margin: 0;
-            padding: 0;
-          }
-          .format-temp-list li {
-            padding: 12px 16px;
-            border-bottom: 1px solid #eee;
-            font-size: 14px;
-            color: #333;
-            background: #fff;
-          }
-          .format-temp-list li:last-child {
-            border-bottom: none;
+        }
+
+        .format-temp-list .infinite-scroll ul {
+            list-style-type: none;
+            font-size: 40px;
           }
         `,
         'script-props': ['apiUrl', 'template', 'autoScroll'],
-        script: function(props) {
+        script: function (props) {
           const el = this;
           const apiUrl = props.apiUrl || '/api/list';
           const template = props.template || '${name}: ${value}';
@@ -88,21 +76,8 @@ export default function(editor: Editor) {
                 data = await response.json();
               }
 
-              // 创建容器和列表
               const container = document.createElement('div');
-              container.style.cssText = `
-                position: relative;
-                height: 100%;
-                overflow: hidden;
-              `;
-
-              const list = document.createElement('div');
-              list.style.cssText = `
-                position: absolute;
-                width: 100%;
-                transition: transform 0.5s ease;
-                will-change: transform;
-              `;
+              container.className = 'infinite-scroll';
 
               const createList = () => {
                 const ul = document.createElement('ul');
@@ -116,69 +91,79 @@ export default function(editor: Editor) {
 
               // 添加两个相同的列表
               const list1 = createList();
-              const list2 = createList();
-              list.appendChild(list1);
-              list.appendChild(list2);
 
-              container.appendChild(list);
+              container.appendChild(list1);
+
               el.innerHTML = '';
               el.appendChild(container);
 
               if (autoScroll) {
-                let currentScroll = 0;
-                const scrollHeight = list1.offsetHeight;
-                let isTransitioning = false;
-
-                const scroll = () => {
-                  if (!el.isConnected || isPaused) {
-                    scrollAnimation = requestAnimationFrame(scroll);
-                    return;
+                const ulDefaultHeight = container.offsetHeight > list1.offsetHeight ? list1.offsetHeight : 0;
+                const liDefaultValues = container.querySelectorAll('.infinite-scroll ul li');
+                if (container.offsetHeight > list1.offsetHeight) {
+                  const diff = Math.ceil(container.offsetHeight / list1.offsetHeight);
+                  for (let j = 0; j < diff; j++) {
+                    appendToDown();
+                    appendToUp();
                   }
-                  
-                  if (!isTransitioning) {
-                    currentScroll += 0.3; // 降低滚动速度
-                    list.style.transform = `translate3d(0, -${currentScroll}px, 0)`; // 使用 translate3d 启用硬件加速
+                } else {
+                  appendToDown();
+                  appendToUp();
+                }
 
-                    if (currentScroll >= scrollHeight) {
-                      isTransitioning = true;
-                      currentScroll = 0;
-                      
-                      requestAnimationFrame(() => {
-                        list.style.transition = 'none';
-                        list.style.transform = 'translate3d(0, 0, 0)';
-                        
-                        requestAnimationFrame(() => {
-                          list.style.transition = 'transform 0.5s ease';
-                          isTransitioning = false;
-                        });
-                      });
+
+                // moving to the center of the list
+                container.scrollTop = ulDefaultHeight / 2;
+
+                container.addEventListener("scroll", event => {
+                  const currentScroll = container.scrollTop;
+
+                  // to scroll down
+                  if (
+                    currentScroll > (container.offsetHeight * 3) / 4 &&
+                    list1.offsetHeight - container.offsetHeight < currentScroll
+                  ) {
+                    appendToDown();
+
+                    // removing the top elements so that the code page doesn't fill up
+                    for (let i = 0; i < liDefaultValues.length; i++) {
+                      container.querySelector('ul li')?.remove();
                     }
                   }
-                  
-                  scrollAnimation = requestAnimationFrame(scroll);
-                };
 
-                // 鼠标悬停时暂停滚动
-                const pauseScroll = () => {
-                  isPaused = true;
-                };
+                  // to scroll up
+                  if (
+                    currentScroll < container.offsetHeight / 4 &&
+                    container.scrollTop < container.offsetHeight - ulDefaultHeight
+                  ) {
+                    appendToUp();
 
-                const resumeScroll = () => {
-                  isPaused = false;
-                };
+                    // removing the bottom elements so that the code page doesn't fill up
+                    for (let i = 0; i < liDefaultValues.length; i++) {
+                      container.querySelector('ul li')?.remove();
+                    }
+                  }
+                });
 
-                el.addEventListener('mouseenter', pauseScroll);
-                el.addEventListener('mouseleave', resumeScroll);
+                function appendToDown() {
+                  for (let i = 0; i < liDefaultValues.length; i++) {
+                    const node = liDefaultValues[i].cloneNode(true);
+                    list1.append(node);
+                  }
+                }
 
-                // 开始滚动
-                scroll();
+                function appendToUp() {
+                  for (let i = (liDefaultValues.length - 1); i >= 0; i--) {
+                    const node = liDefaultValues[i].cloneNode(true);
+                    list1.prepend(node);
+                  }
+                }
 
-                // 清理函数
-                return () => {
-                  cancelAnimationFrame(scrollAnimation);
-                  el.removeEventListener('mouseenter', pauseScroll);
-                  el.removeEventListener('mouseleave', resumeScroll);
-                };
+                setInterval(function () {
+                  if (container) {
+                    container.scrollTop = container.scrollTop + 1;
+                  }
+                }, 50);
               }
             } catch (error) {
               console.error('Failed to fetch data:', error);
