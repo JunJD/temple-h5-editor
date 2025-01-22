@@ -1,9 +1,10 @@
 'use client'
 
-import { TraitsProvider, StylesProvider } from '@grapesjs/react'
+import { TraitsProvider, StylesProvider, SelectorsProvider } from '@grapesjs/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TraitField } from './trait-field'
 import { StyleManager } from './style-manager'
+import { SelectorsManager } from './selector-manager'
 
 export function RightSidebar() {
   return (
@@ -32,7 +33,14 @@ export function RightSidebar() {
           </TraitsProvider>
         </TabsContent>
         <TabsContent value="styles" className="h-full">
-          <StyleManager/>
+          <div className='h-full'>
+            <div> 
+              <SelectorsManager/>
+            </div>
+            <div>
+              <StyleManager/>
+            </div>
+          </div>
         </TabsContent>
       </Tabs>
     </div>

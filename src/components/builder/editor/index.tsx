@@ -1,6 +1,7 @@
 'use client'
 
 import GjsEditor from '@grapesjs/react'
+import zh from 'grapesjs/locale/zh';
 import grapesjs from 'grapesjs';
 import type { Editor, EditorConfig, ObjectAny } from 'grapesjs'
 import { devices } from '@/lib/constants/devices'
@@ -8,10 +9,17 @@ import { registerComponents } from '@/lib/components'
 import { useState } from 'react'
 import LinkageForm from '@/plugins/linkageForm'
 import gjsblockbasic from 'grapesjs-blocks-basic';
+import gjsStyleEasing from 'grapesjs-style-easing';
+import gjsPluginBorders from 'grapesjs-plugin-borders'
+import gjsPluginGoogleMaterialIcons from 'grapesjs-google-material-icons'
+import grapesjsScriptEditor from 'grapesjs-script-editor';
+import grapesjsRulers from 'grapesjs-rulers';
 import tailwindPlugin from 'grapesjs-tailwind'
 import formatTempList from '@/plugins/formatTempList'
 import customCodePlugin from "grapesjs-custom-code";
 import grapesjsTabs from 'grapesjs-tabs';
+import grapesRulers from 'grapesjs-rulers';
+import grapesUserBlocks from 'grapesjs-user-blocks';
 // @ts-ignore
 import gjsPluginExport from 'grapesjs-plugin-export';
 // import gjsForms from 'grapesjs-plugin-forms';
@@ -57,12 +65,23 @@ export default function BuilderEditor({ children, projectData }: { children: Rea
         }}
         plugins={[
           gjsblockbasic,
+          gjsStyleEasing,
+          gjsPluginBorders,
+          grapesjsScriptEditor,
+          gjsPluginGoogleMaterialIcons,
+          grapesjsRulers,
+          {
+            id: 'grapesjs-grid-system',
+            src: '/grapesjs-grid-system.min.js',
+          },
           // @ts-ignore
           gjsPluginExport,
           LinkageForm,
           formatTempList,
           customCodePlugin,
           grapesjsTabs,
+          grapesRulers,
+          grapesUserBlocks,
           tailwindPlugin,
           gjsStyleBg,
           gjsStyleFilter,
@@ -78,11 +97,28 @@ export default function BuilderEditor({ children, projectData }: { children: Rea
   )
 }
 const gjsOptions: EditorConfig = {
-  // stylePrefix: 'editor-h5-',
+  i18n: {
+    locale: 'zh',
+    localeFallback: 'en',
+    detectLocale: true,
+    messages: {
+      zh: zh
+    }
+  },
   height: '100vh',
   storageManager: false,
   undoManager: { trackSelection: false },
-  selectorManager: { componentFirst: true },
+  selectorManager: {
+    componentFirst: true,
+    states: [
+      { name: 'hover', label: 'Hover' },
+      { name: 'active', label: 'Active' },
+      { name: 'focus', label: 'Focus' },
+      { name: 'checked', label: 'Checked' },
+      { name: 'disabled', label: 'Disabled' },
+      { name: 'nth-of-type(2n)', label: 'Even/Odd' },
+    ],
+  },
   canvas: {
     styles: [
       `

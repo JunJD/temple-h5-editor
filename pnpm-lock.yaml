@@ -182,15 +182,30 @@ importers:
       grapesjs-custom-code:
         specifier: ^1.0.2
         version: 1.0.2
+      grapesjs-google-material-icons:
+        specifier: ^1.0.9
+        version: 1.0.9
+      grapesjs-plugin-borders:
+        specifier: ^0.1.1
+        version: 0.1.1(grapesjs@0.22.4)
       grapesjs-plugin-export:
         specifier: ^1.0.12
         version: 1.0.12
       grapesjs-plugin-forms:
         specifier: ^2.0.6
         version: 2.0.6
+      grapesjs-rulers:
+        specifier: ^1.0.8
+        version: 1.0.8
+      grapesjs-script-editor:
+        specifier: ^1.0.3
+        version: 1.0.3
       grapesjs-style-bg:
         specifier: ^2.0.2
         version: 2.0.2
+      grapesjs-style-easing:
+        specifier: ^1.0.1
+        version: 1.0.1
       grapesjs-style-filter:
         specifier: ^1.0.2
         version: 1.0.2
@@ -206,6 +221,9 @@ importers:
       grapesjs-tui-image-editor:
         specifier: ^1.0.2
         version: 1.0.2
+      grapesjs-user-blocks:
+        specifier: ^1.0.6
+        version: 1.0.6
       immer:
         specifier: ^10.1.1
         version: 10.1.1
@@ -1647,6 +1665,10 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
+  base64-arraybuffer@1.0.2:
+    resolution: {integrity: sha512-I3yl4r9QB5ZRY3XuJVEPfc2XhZO6YweFPI+UovAzn+8/hb3oJ6lnysaFcjVpkCPfVWFUDvoZ8kmVDP7WyRtYtQ==}
+    engines: {node: '>= 0.6.0'}
+
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
     engines: {node: '>=8'}
@@ -1759,6 +1781,9 @@ packages:
   cross-spawn@7.0.6:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
+
+  css-line-break@2.1.0:
+    resolution: {integrity: sha512-FHcKFCZcAha3LwfVBhCQbW2nCNbkZXn7KVUJcsT5/P8YmfsVja0FMPJr0B903j/E69HUphKiV9iQArX8SDYA4w==}
 
   css@3.0.0:
     resolution: {integrity: sha512-DG9pFfwOrzc+hawpmqX/dHYHJG+Bsdb0klhyi1sDneOgGOXy9wQIC8hzyVp1e4NRYDBdxcylvywPkkXCHAzTyQ==}
@@ -1993,14 +2018,31 @@ packages:
   grapesjs-custom-code@1.0.2:
     resolution: {integrity: sha512-B8IZQyB+HjLb9HkHzQ+RVHE5Q6zqX7Ry8b+kYk8Jh7vjmPawe+/kL0pXYxYQ2bSmdaUEuq8mLngiNY+l6EFEVQ==}
 
+  grapesjs-google-material-icons@1.0.9:
+    resolution: {integrity: sha512-nmAjCVRsFZ6Shp9On0Xiz5pm/AsNxxv54d8uNP5m2fnGsEAtjNELlyHVr65JdYI61bbAiC5/CkN6xOCUg34gtQ==}
+
+  grapesjs-plugin-borders@0.1.1:
+    resolution: {integrity: sha512-0IKXn5db5OoM0xUJCacGZ1ibd9Hz9k/qVtkXZZScTbCpWWhDavLKUEODYwg+Vu7p1pW8BDpc+vkLw0kVuny1qw==}
+    peerDependencies:
+      grapesjs: 0.x
+
   grapesjs-plugin-export@1.0.12:
     resolution: {integrity: sha512-q5rn1dwUYqPwDVnL9dhMxInk2SXWbrJ7OUUjFYk2LGJoT1laN3TZSDlDn/DVp9pCQd7fyHDgLdy8mvaVVmSh6g==}
 
   grapesjs-plugin-forms@2.0.6:
     resolution: {integrity: sha512-4rDob01NLiJWas5JW1FCpQc/4R4oS4wc/qr7pQwjGUiDzHNPKZLix10FqUKEv7hnzPmBaR2ejBL87sMwz11Tlw==}
 
+  grapesjs-rulers@1.0.8:
+    resolution: {integrity: sha512-FBCdeXqE9lFYiMoYduoPKm+6KCpSdtsLLxSR0TPS+ZLUzCW/SUvwxXWJOeADzFeEepz4YGVjtPVq6aG1T+t7ag==}
+
+  grapesjs-script-editor@1.0.3:
+    resolution: {integrity: sha512-CL4BGKIavCqAoFINqo8sYvht2A1Y10henA2w8tnyqqadigHPNm73684AqxF9gEgfK+4vS+2MqzoMwHmQHvmYdg==}
+
   grapesjs-style-bg@2.0.2:
     resolution: {integrity: sha512-LFPRjWeGpnwW6WbbxvbQIG6F52RAFuHyO5L7Rov39rltvERlyrE1n/xaZW8arFAF4yxylPHQ/hhxJaVlILf2Iw==}
+
+  grapesjs-style-easing@1.0.1:
+    resolution: {integrity: sha512-A+50IimEO8eR5x7UMmnePj5TOT7yELXefLz17wZxDt6OfcAE3m5qpBCMcxulhB13Tq6F4eKyeblbGAc0Xc/Idg==}
 
   grapesjs-style-filter@1.0.2:
     resolution: {integrity: sha512-f5ufWeIsnU3hHV3TiQeYVEZis2WlDpllOKst18BEyAUERO1yu1zwIqgIPWH9en2W262+jEvsRjgd06EWgchYgQ==}
@@ -2016,6 +2058,9 @@ packages:
 
   grapesjs-tui-image-editor@1.0.2:
     resolution: {integrity: sha512-cnKSYzzQV8m5mdvVGhhO9aO5tmtOZLR1O+12z2LqnBcYCvA1eN7ecEYqHT7qpRVH8Q84Nj2mmCn+2t4TvrkI8g==}
+
+  grapesjs-user-blocks@1.0.6:
+    resolution: {integrity: sha512-OROT7/uuxgAj7WQVCOgBFK5g0JMWm92Ub9k9TyV3HTR/bmYKgXMYVMxnApU76E7qQGHDIjdFe+/tDlsArFKEnQ==}
 
   grapesjs@0.22.4:
     resolution: {integrity: sha512-4ea7T5FguyPC2fLytpSBgPXcSGreRKKisknXUbsgHBCzv4G11Z0oBJNM5jRucupBr2CRxt/3U2zixeEHEisfbw==}
@@ -2038,6 +2083,10 @@ packages:
 
   html-url-attributes@3.0.1:
     resolution: {integrity: sha512-ol6UPyBWqsrO6EJySPz2O7ZSr856WDrEzM5zMqp+FJJLGMW35cLYmmZnl0vztAZxRUoNZJFTCohfjuIJ8I4QBQ==}
+
+  html2canvas@1.4.1:
+    resolution: {integrity: sha512-fPU6BHNpsyIhr8yyMpTLLxAbkaK8ArIBcmZIRiBLiDhjeqvXolaEmDGmELFuX9I4xDcaKKcJl+TKZLqruBbmWA==}
+    engines: {node: '>=8.0.0'}
 
   http-react@3.7.5:
     resolution: {integrity: sha512-pGlyjTiflkyYO6bJby4FqHJ2v2ZyG4P06H9V+GSaj9eDwxdf5PaadpLAXJpy9vvYfU7narn0ZqKDe+82jZXz5g==}
@@ -2789,6 +2838,9 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
+  text-segmentation@1.0.3:
+    resolution: {integrity: sha512-iOiPUo/BGnZ6+54OsWxZidGCsdU8YbE4PSpdPinp7DeMtUJNJBoJ/ouUSTJjHkh1KntHaltHl/gDs2FC4i5+Nw==}
+
   thenify-all@1.6.0:
     resolution: {integrity: sha512-RNxQH/qI8/t3thXJDwcstUO4zeqo64+Uy/+sNVRBx4Xn2OX+OZ9oP+iJnNFqplFra2ZUVeKCSa2oVWi3T4uVmA==}
     engines: {node: '>=0.8'}
@@ -2929,6 +2981,9 @@ packages:
 
   util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==}
+
+  utrie@1.0.2:
+    resolution: {integrity: sha512-1MLa5ouZiOmQzUbjbu9VmjLzn1QLXBhwpUa7kdLUQK+KQ5KA9I1vk5U4YHe/X2Ch7PYnJfWuWT+VbuxbGwljhw==}
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
@@ -4385,6 +4440,8 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
+  base64-arraybuffer@1.0.2: {}
+
   binary-extensions@2.3.0: {}
 
   brace-expansion@2.0.1:
@@ -4490,6 +4547,10 @@ snapshots:
       path-key: 3.1.1
       shebang-command: 2.0.0
       which: 2.0.2
+
+  css-line-break@2.1.0:
+    dependencies:
+      utrie: 1.0.2
 
   css@3.0.0:
     dependencies:
@@ -4688,15 +4749,27 @@ snapshots:
 
   grapesjs-custom-code@1.0.2: {}
 
+  grapesjs-google-material-icons@1.0.9: {}
+
+  grapesjs-plugin-borders@0.1.1(grapesjs@0.22.4):
+    dependencies:
+      grapesjs: 0.22.4
+
   grapesjs-plugin-export@1.0.12:
     dependencies:
       '@types/file-saver': 2.0.7
 
   grapesjs-plugin-forms@2.0.6: {}
 
+  grapesjs-rulers@1.0.8: {}
+
+  grapesjs-script-editor@1.0.3: {}
+
   grapesjs-style-bg@2.0.2:
     dependencies:
       grapesjs-style-gradient: 3.0.3
+
+  grapesjs-style-easing@1.0.1: {}
 
   grapesjs-style-filter@1.0.2: {}
 
@@ -4711,6 +4784,10 @@ snapshots:
       css: 3.0.0
 
   grapesjs-tui-image-editor@1.0.2: {}
+
+  grapesjs-user-blocks@1.0.6:
+    dependencies:
+      html2canvas: 1.4.1
 
   grapesjs@0.22.4:
     dependencies:
@@ -4756,6 +4833,11 @@ snapshots:
   html-entities@1.4.0: {}
 
   html-url-attributes@3.0.1: {}
+
+  html2canvas@1.4.1:
+    dependencies:
+      css-line-break: 2.1.0
+      text-segmentation: 1.0.3
 
   http-react@3.7.5(react@18.3.1):
     dependencies:
@@ -5680,6 +5762,10 @@ snapshots:
     transitivePeerDependencies:
       - ts-node
 
+  text-segmentation@1.0.3:
+    dependencies:
+      utrie: 1.0.2
+
   thenify-all@1.6.0:
     dependencies:
       thenify: 3.3.1
@@ -5854,6 +5940,10 @@ snapshots:
       react: 18.3.1
 
   util-deprecate@1.0.2: {}
+
+  utrie@1.0.2:
+    dependencies:
+      base64-arraybuffer: 1.0.2
 
   uuid@8.3.2: {}
 
