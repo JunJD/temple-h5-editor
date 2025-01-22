@@ -82,3 +82,31 @@
 .gjs-mdl-content::-webkit-scrollbar-thumb {
   @apply bg-zinc-400/30 rounded-full hover:bg-zinc-400/50 !important;
 } 
+
+.gjs-toolbar {
+  @apply flex justify-center items-center rounded-lg shadow-lg bg-background text-muted-foreground;
+}
+
+.gjs-toolbar-items {
+  @apply flex flex-row px-2 bg-background text-muted-foreground;
+}
+
+.gjs-toolbar-item {
+  @apply flex !important;
+  justify-content: center;
+  align-items: center;
+}
+
+.gjs-rte-toolbar{
+  @apply flex justify-center items-center shadow-lg rounded-lg bg-background text-foreground;
+}
+
+.gjs-rte-actionbar {
+  @apply flex flex-row rounded-lg bg-background text-foreground;
+}
+
+.gjs-rte-action{
+  @apply flex justify-center items-center  !important;
+  justify-content: center;
+  align-items: center;
+}
