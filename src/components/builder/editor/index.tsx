@@ -111,12 +111,12 @@ const gjsOptions: EditorConfig = {
   selectorManager: {
     componentFirst: true,
     states: [
-      { name: 'hover', label: 'Hover' },
-      { name: 'active', label: 'Active' },
-      { name: 'focus', label: 'Focus' },
-      { name: 'checked', label: 'Checked' },
-      { name: 'disabled', label: 'Disabled' },
-      { name: 'nth-of-type(2n)', label: 'Even/Odd' },
+      { name: 'hover', label: '悬浮' },
+      { name: 'active', label: '激活' },
+      { name: 'focus', label: '聚焦' },
+      { name: 'selected', label: '选中' },
+      { name: 'disabled', label: '禁用' },
+      { name: 'nth-of-type(2n)', label: '偶数/奇数' },
     ],
   },
   canvas: {
