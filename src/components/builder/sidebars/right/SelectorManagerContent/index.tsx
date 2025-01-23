@@ -6,7 +6,8 @@ import {
     Palette,
     Plus,
     Tag,
-    Target
+    Target,
+    RefreshCw
 } from 'lucide-react';
 import type { CssRule } from 'grapesjs';
 import { useState } from 'react';
@@ -79,7 +80,20 @@ export default function SelectorManager({
     // 添加新选择器的处理函数
     const handleAddSelector = (value: string) => {
         if (value) {
-            addSelector(value);
+            console.log('addSelector', value);
+            // 如果不是以 . 开头，添加 .
+            const selectorName = value.startsWith('.') ? value : `.${value}`;
+            // 添加选择器并获取返回值
+            const selector = addSelector(selectorName);
+            console.log('Added selector:', selector);
+            
+            // 如果有当前样式，应用到新选择器
+            const selected = Styles.getSelected();
+            if (selected) {
+                const style = selected.getStyle();
+                editor.Css.setRule(selectorName, style);
+            }
+            
             setNewTag(false);
         }
     }
@@ -89,6 +103,34 @@ export default function SelectorManager({
     const toggleCssPanel = () => setIsCssPanelActive(!isCssPanelActive);
 
     const selectedTargets = Selectors.getSelectedTargets();
+
+    // 刷新样式的处理函数
+    const handleRefreshStyles = () => {
+        const selected = Styles.getSelected();
+        if (selected && hasSelectors) {
+            // 获取当前样式
+            const style = selected.getStyle();
+            // 获取当前选择器字符串
+            const baseSelector = selected.getSelectorsString();
+            // 获取所有活动的选择器
+            const activeSelectors = selectors
+                .filter(sel => sel.getActive())
+                .map(sel => sel.toString());
+            
+            // 如果有活动选择器，创建组合选择器
+            if (activeSelectors.length > 0) {
+                const combinedSelector = activeSelectors.join('');
+                console.log('Combined selector:', combinedSelector);
+                // 创建新规则
+                editor.Css.setRule(combinedSelector, style);
+                
+                // 移除原有规则（可选）
+                if (baseSelector !== combinedSelector) {
+                    editor.Css.remove(baseSelector);
+                }
+            }
+        }
+    };
 
     return (
         <TooltipProvider>
@@ -113,6 +155,22 @@ export default function SelectorManager({
                                 {/* 这里添加样式目录的内容 */}
                             </DialogContent>
                         </Dialog>
+                        {hasSomeTarget && (
+                            <Tooltip>
+                                <TooltipTrigger>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        onClick={handleRefreshStyles}
+                                    >
+                                        <RefreshCw className="h-4 w-4" />
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    刷新样式
+                                </TooltipContent>
+                            </Tooltip>
+                        )}
                     </div>
 
                     {target && (
