@@ -8,6 +8,7 @@ import { devices } from '@/lib/constants/devices'
 import { registerComponents } from '@/lib/components'
 import { useState } from 'react'
 import LinkageForm from '@/plugins/linkageForm'
+import Linkage from '@/plugins/linkage'
 import gjsblockbasic from 'grapesjs-blocks-basic';
 import gjsStyleEasing from 'grapesjs-style-easing';
 import gjsPluginGoogleMaterialIcons from 'grapesjs-google-material-icons'
@@ -74,6 +75,7 @@ export default function BuilderEditor({ children, projectData }: { children: Rea
           // @ts-ignore
           gjsPluginExport,
           LinkageForm,
+          Linkage,
           formatTempList,
           customCodePlugin,
           grapesjsTabs,

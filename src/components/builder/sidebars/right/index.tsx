@@ -1,6 +1,6 @@
 'use client'
 
-import { TraitsProvider, StylesProvider, SelectorsProvider } from '@grapesjs/react'
+import { TraitsProvider } from '@grapesjs/react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { TraitField } from './trait-field'
 import { StyleManager } from './style-manager'
