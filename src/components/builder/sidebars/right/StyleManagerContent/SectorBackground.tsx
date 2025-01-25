@@ -21,6 +21,7 @@ import { parseGradient } from '@/components/builder/utils/parseGradient'
 import StackField from '@/components/ui/StackField'
 import PropertyComposite from './PropertyComposite'
 import functionName from '@/lib/parsers/functionName'
+import { X } from 'lucide-react'
 
 export interface Props extends React.HTMLProps<HTMLDivElement> {
   sector: any
@@ -102,9 +103,21 @@ export default function SectorBackground({ sector }: Props) {
 
   const renderField = (prop: any, type: 'color' | 'select', label?: string) => (
     <div className="space-y-1.5">
-      <Label className="text-xs font-medium text-foreground/70">
-        {label || prop.getLabel()}
-      </Label>
+      <div className="flex items-center justify-between">
+        <Label className="text-xs font-medium text-foreground/70">
+          {label || prop.getLabel()}
+        </Label>
+        {type === 'color' && prop.getValue() && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-4 w-4"
+            onClick={() => prop.upValue('')}
+          >
+            <X className="h-3 w-3" />
+          </Button>
+        )}
+      </div>
       {type === 'color' && <ColorField {...getColorProps(prop)} />}
       {type === 'select' && (
         <Select
@@ -171,10 +184,30 @@ export default function SectorBackground({ sector }: Props) {
           </Button>
         )}
         {propTypeValue === BackgroundType.Color && (
-          <ColorField 
-            {...getColorProps(propImage)} 
-            value={getColorValueFromImage(propImageValue)}
-          />
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <Label className="text-xs font-medium text-foreground/70">
+                颜色
+              </Label>
+              {propImageValue && propImageValue !== 'none' && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-4 w-4"
+                  onClick={() => {
+                    propImage.upValue('none');
+                    propType.upValue('');
+                  }}
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
+            <ColorField 
+              {...getColorProps(propImage)} 
+              value={getColorValueFromImage(propImageValue)}
+            />
+          </div>
         )}
         {propTypeValue === BackgroundType.Gradient && (
           <GradientPicker
