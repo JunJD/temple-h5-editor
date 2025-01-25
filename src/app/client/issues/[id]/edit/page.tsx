@@ -34,7 +34,7 @@ export default function EditIssuePage() {
             maxSize={55}
             defaultSize={35}
             className={cn(
-              "z-100 bg-background mt-16",
+              "z-10 bg-background mt-16",
               !leftHandle.isDragging && "transition-[flex]"
             )}
             onResize={leftSetSize}

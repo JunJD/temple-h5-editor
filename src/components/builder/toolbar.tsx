@@ -13,255 +13,260 @@ import {
   GoListUnordered,
   GoEye,
 } from 'react-icons/go'
-import { GridIcon, Rotate3dIcon } from 'lucide-react'
+import { Rotate3dIcon } from 'lucide-react'
 import { Button, Separator } from '@/components/ui'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { motion } from 'framer-motion'
-import { useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { cn } from '@/lib/utils'
+import { IconType } from 'react-icons'
+import { RxBorderNone } from "react-icons/rx";
+import { BsEyeFill } from "react-icons/bs";
+import { HiOutlineCodeBracketSquare } from "react-icons/hi2";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+
+interface ToolbarButton {
+  id: string
+  icon: IconType | any  // 支持 lucide 图标
+  tooltip: string
+  command?: string
+  options?: Record<string, any>  // 添加 options 类型
+  onClick?: () => void
+  isActive?: () => boolean
+  disabled?: () => boolean
+}
+
+interface ToolbarButtonGroup {
+  id: string
+  buttons: ToolbarButton[]
+}
 
 export const BuilderToolbar = () => {
   const editor = useEditorMaybe();
-  const [rulerVisible, setRulerVisible] = useState(false);
-  const [guidesVisible, setGuidesVisible] = useState(false);
-  const [transformVisible, setTransformVisible] = useState(false);
+  const [, setUpdateCounter] = useState(0);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
 
-  // 命令处理函数
-  const handleCommand = (command: string) => () => {
-    editor?.runCommand(command);
-  };
+  const toolbarGroups: ToolbarButtonGroup[] = [
+    {
+      id: 'history',
+      buttons: [
+        {
+          id: 'undo',
+          icon: GoArrowLeft,
+          tooltip: '撤销',
+          command: 'core:undo'
+        },
+        {
+          id: 'redo',
+          icon: GoArrowRight,
+          tooltip: '重做',
+          command: 'core:redo'
+        },
+      ]
+    },
+    {
+      id: 'canvas',
+      buttons: [
+        {
+          id: 'zoom-in',
+          icon: GoZoomIn,
+          tooltip: '放大',
+          onClick: () => {
+            const zoom = editor?.Canvas.getZoom() || 1;
+            editor?.Canvas.setZoom(zoom + 30);
+          }
+        },
+        {
+          id: 'zoom-out',
+          icon: GoZoomOut,
+          tooltip: '缩小',
+          onClick: () => {
+            const zoom = editor?.Canvas.getZoom() || 1;
+            editor?.Canvas.setZoom(zoom - 30);
+          }
+        },
+        {
+          id: 'reset-zoom',
+          icon: GoClock,
+          tooltip: '清空画布',
+          onClick: () => {            
+            setShowClearConfirm(true);
+          }
+        },
+        {
+          id: 'center-canvas',
+          icon: GoScreenFull,
+          tooltip: '居中画布',
+          onClick: () => {
+            // 重置缩放和位置
+            editor?.Canvas.setZoom(100);
+            editor?.Canvas.setCoords(0, 0);
+          }
+        },
+      ]
+    },
+    {
+      id: 'view',
+      buttons: [
+        {
+          id: 'outline',
+          icon: RxBorderNone,
+          tooltip: '组件轮廓',
+          command: 'core:component-outline',
+          isActive: () => editor?.Commands.isActive('core:component-outline') ?? false
+        },
+        {
+          id: 'preview',
+          icon: BsEyeFill,
+          tooltip: '预览',
+          command: 'core:preview',
+          options: { target: '#root' },
+          isActive: () => editor?.Commands.isActive('core:preview') ?? false
+        },
+        {
+          id: 'code',
+          icon: HiOutlineCodeBracketSquare,
+          tooltip: '查看代码',
+          command: 'core:open-code',
+          isActive: () => editor?.Commands.isActive('core:open-code') ?? false
+        },
+      ]
+    },
+    {
+      id: 'config',
+      buttons: [
+        {
+          id: 'copy-link',
+          icon: GoLink,
+          tooltip: '复制链接',
+          onClick: async () => {
+            await navigator.clipboard.writeText(window.location.href);
+          }
+        },
+        {
+          id: 'form-config',
+          icon: GoListUnordered,
+          tooltip: '表单配置',
+          command: 'form-config'
+        },
+        {
+          id: 'payment-config',
+          icon: GoGear,
+          tooltip: '支付配置',
+          command: 'payment-config'
+        },
+      ]
+    },
+    {
+      id: 'transform',
+      buttons: [
+        {
+          id: 'transform',
+          icon: Rotate3dIcon,
+          tooltip: '自由变换',
+          isActive: () => {
+            const selected = editor?.getSelected();
+            return selected?.getDragMode() === 'absolute';
+          },
+          onClick: () => {
+            const selected = editor?.getSelected();
+            const isAbsolute = selected?.getDragMode() === 'absolute';
+            selected?.setDragMode(isAbsolute ? '' : 'absolute');
+          }
+        },
+      ]
+    },
+  ];
 
-  // 缩放处理函数
-  const handleZoom = (delta: number) => () => {
-    const zoom = editor?.Canvas.getZoom() || 1;
-    editor?.Canvas.setZoom(zoom + delta);
-  };
+  useEffect(() => {
+    if (!editor) return;
+    
+    const cmdEvent = 'run stop';
+    const updateEvent = 'update';
+    const updateCounter = () => setUpdateCounter(v => v + 1);
+    
+    editor.on(cmdEvent, updateCounter);
+    editor.on(updateEvent, updateCounter);
 
-  // 复制链接
-  const handleCopyLink = async () => {
-    const url = window.location.href;
-    await navigator.clipboard.writeText(url);
-    // TODO: 添加提示
-  };
+    return () => {
+      editor.off(cmdEvent, updateCounter);
+      editor.off(updateEvent, updateCounter);
+    };
+  }, [editor]);
 
-  // 处理标尺显示/隐藏
-  const handleToggleRuler = () => {
-    if (rulerVisible) {
-      editor?.runCommand('ruler-visibility:stop');
-    } else {
-      editor?.runCommand('ruler-visibility');
+  const handleClick = (button: ToolbarButton) => {
+    if (button.onClick) {
+      button.onClick();
+    } else if (button.command && editor) {
+      const isActive = editor.Commands.isActive(button.command);
+      isActive
+        ? editor.Commands.stop(button.command)
+        : editor.Commands.run(button.command, button.options);
     }
-    setRulerVisible(!rulerVisible);
-  };
-  
-  const handleToggleGuides = () => {
-    if (guidesVisible) {
-      editor?.runCommand('guides-disable');
-    } else {
-      editor?.runCommand('guides-enable');
-    }
-    setGuidesVisible(!guidesVisible);
   };
 
-  // 处理自由变换开关
-  const handleToggleTransform = () => {
-    if (transformVisible) {
-      editor?.setDragMode('translate');
-    } else {
-      editor?.setDragMode('absolute');
-    }
-    setTransformVisible(!transformVisible);
+  const handleClear = () => {
+    editor?.runCommand('core:canvas-clear');
+    setShowClearConfirm(false);
   };
 
   return (
-    <TooltipProvider>
-      <motion.div className="z-50 fixed inset-x-0 bottom-0 mx-auto hidden py-6 text-center md:block">
-        <div className="inline-flex items-center justify-center rounded-full bg-background px-4 shadow-xl">
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="rounded-none"
-                onClick={handleCommand('core:undo')}
-              >
-                <GoArrowLeft />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>撤销</TooltipContent>
-          </Tooltip>
+    <>
+      <AlertDialog open={showClearConfirm} onOpenChange={setShowClearConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>确认清空画布？</AlertDialogTitle>
+            <AlertDialogDescription>
+              此操作将清空画布上的所有内容，且无法撤销。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>取消</AlertDialogCancel>
+            <AlertDialogAction onClick={handleClear}>确认清空</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                size="icon"
-                variant="ghost"
-                className="rounded-none"
-                onClick={handleCommand('core:redo')}
-              >
-                <GoArrowRight />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>重做</TooltipContent>
-          </Tooltip>
-
-          <Separator orientation="vertical" className="h-9" />
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                className="rounded-none"
-                onClick={handleZoom(30)}
-              >
-                <GoZoomIn />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>放大</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                className="rounded-none"
-                onClick={handleZoom(-30)}
-              >
-                <GoZoomOut />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>缩小</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                className="rounded-none"
-                onClick={handleCommand('core:canvas-clear')}
-              >
-                <GoClock />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>重置缩放</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                className="rounded-none"
-                onClick={handleCommand('core:canvas-center')}
-              >
-                <GoScreenFull />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>居中画布</TooltipContent>
-          </Tooltip>
-
-          <Separator orientation="vertical" className="h-9" />
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                className="rounded-none"
-                onClick={handleCommand('core:preview')}
-              >
-                <GoEye />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>预览</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                className="rounded-none"
-                onClick={handleCopyLink}
-              >
-                <GoLink />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>复制链接</TooltipContent>
-          </Tooltip>
-
-          <Separator orientation="vertical" className="h-9" />
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                className="rounded-none"
-                onClick={handleCommand('form-config')}
-              >
-                <GoListUnordered />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>表单配置</TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                className="rounded-none"
-                onClick={handleCommand('payment-config')}
-              >
-                <GoGear />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>支付配置</TooltipContent>
-          </Tooltip>
-
-          <Separator orientation="vertical" className="h-9" />
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                className={cn(
-                  "rounded-none",
-                  guidesVisible && "bg-accent"
-                )}
-                onClick={handleToggleGuides}
-              >
-                <GridIcon className={guidesVisible ? 'text-primary' : ''} />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {guidesVisible ? '关闭参考线' : '开启参考线'}
-            </TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button 
-                size="icon" 
-                variant="ghost" 
-                className={cn(
-                  "rounded-none",
-                  transformVisible && "bg-accent"
-                )}
-                onClick={handleToggleTransform}
-              >
-                <Rotate3dIcon />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>自由变换</TooltipContent>
-          </Tooltip>
-        </div>
-      </motion.div>
-    </TooltipProvider>
-  )
-}
+      <TooltipProvider>
+        <motion.div className="z-50 fixed bottom-0 left-1/2 -translate-x-1/2 hidden py-6 text-center md:block">
+          <div className="inline-flex items-center justify-center rounded-full bg-background px-4 shadow-xl">
+            {toolbarGroups.map((group, groupIndex) => (
+              <Fragment key={group.id}>
+                {groupIndex > 0 && <Separator orientation="vertical" className="h-9" />}
+                {group.buttons.map((button) => (
+                  <Tooltip key={button.id}>
+                    <TooltipTrigger asChild>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className={cn(
+                          "rounded-none",
+                          button.isActive?.() && "bg-accent"
+                        )}
+                        onClick={() => handleClick(button)}
+                        disabled={button.disabled?.()}
+                      >
+                        <button.icon className={button.isActive?.() ? 'text-primary' : ''} />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>{button.tooltip}</TooltipContent>
+                  </Tooltip>
+                ))}
+              </Fragment>
+            ))}
+          </div>
+        </motion.div>
+      </TooltipProvider>
+    </>
+  );
+};
