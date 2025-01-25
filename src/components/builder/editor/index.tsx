@@ -10,10 +10,9 @@ import { useState } from 'react'
 import LinkageForm from '@/plugins/linkageForm'
 import gjsblockbasic from 'grapesjs-blocks-basic';
 import gjsStyleEasing from 'grapesjs-style-easing';
-import gjsPluginBorders from 'grapesjs-plugin-borders'
 import gjsPluginGoogleMaterialIcons from 'grapesjs-google-material-icons'
 import grapesjsScriptEditor from 'grapesjs-script-editor';
-import grapesjsRulers from 'grapesjs-rulers';
+
 import tailwindPlugin from 'grapesjs-tailwind'
 import formatTempList from '@/plugins/formatTempList'
 import customCodePlugin from "grapesjs-custom-code";
@@ -66,10 +65,8 @@ export default function BuilderEditor({ children, projectData }: { children: Rea
         plugins={[
           gjsblockbasic,
           gjsStyleEasing,
-          gjsPluginBorders,
           grapesjsScriptEditor,
           gjsPluginGoogleMaterialIcons,
-          grapesjsRulers,
           {
             id: 'grapesjs-grid-system',
             src: '/grapesjs-grid-system.min.js',
@@ -97,6 +94,9 @@ export default function BuilderEditor({ children, projectData }: { children: Rea
   )
 }
 const gjsOptions: EditorConfig = {
+  showOffsets: true,
+  showOffsetsSelected: true,
+  fromElement: true,
   i18n: {
     locale: 'zh',
     localeFallback: 'en',
@@ -116,7 +116,6 @@ const gjsOptions: EditorConfig = {
       { name: 'focus', label: '聚焦' },
       { name: 'selected', label: '选中' },
       { name: 'disabled', label: '禁用' },
-      { name: 'nth-of-type(2n)', label: '偶数/奇数' },
     ],
   },
   canvas: {
@@ -127,7 +126,7 @@ const gjsOptions: EditorConfig = {
         }
       `
     ],
-    infiniteCanvas: true
+    infiniteCanvas: true,
   },
   deviceManager: {
     devices: Object.values(devices).map(device => ({

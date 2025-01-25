@@ -97,6 +97,10 @@
   align-items: center;
 }
 
+.gjs-toolbar-item:hover{
+  @apply bg-muted/50 rounded-sm transition-colors !important;
+}
+
 .gjs-rte-toolbar{
   @apply flex justify-center items-center shadow-lg rounded-lg bg-background text-foreground;
 }
@@ -109,4 +113,42 @@
   @apply flex justify-center items-center  !important;
   justify-content: center;
   align-items: center;
+}
+
+.gjs-rte-action:hover{
+  @apply bg-muted/50 rounded-sm transition-colors !important;
+}
+
+/* 参考线样式 */
+.gjs-guide {
+  background-color: hsl(var(--primary) / 0.5) !important;
+  transition: background-color 0.2s !important;
+  pointer-events: all !important;
+}
+
+.gjs-guide:hover {
+  background-color: hsl(var(--primary)) !important;
+}
+
+.gjs-guide-active {
+  background-color: hsl(var(--primary)) !important;
+}
+
+/* 参考线容器 */
+.gjs-guides {
+  pointer-events: none !important;
+  z-index: 10 !important;
+}
+
+/* 参考线拖动时的样式 */
+.gjs-guide-info {
+  background-color: hsl(var(--popover)) !important;
+  color: hsl(var(--popover-foreground)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+  padding: 2px 5px !important;
+  font-size: 11px !important;
+}
+
+.rul_wrapper{
+  display: none !important;
 }

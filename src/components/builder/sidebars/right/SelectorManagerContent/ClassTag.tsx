@@ -17,13 +17,15 @@ interface ClassTagProps {
     removable?: boolean
     toggleable?: boolean
     className?: string
+    removeSelector?: (selector: Selector) => void
 }
 
 export default function ClassTag({ 
     selector, 
     className, 
     removable, 
-    toggleable 
+    toggleable,
+    removeSelector
 }: ClassTagProps) {
     const [toRename, setToRename] = useState(false);
     const [isActive, setActive] = useState(selector.getActive());
@@ -48,7 +50,7 @@ export default function ClassTag({
     }
 
     const remove = () => {
-        selector.collection.remove(selector);
+        removeSelector?.(selector);
     }
 
     const menuItems = [
