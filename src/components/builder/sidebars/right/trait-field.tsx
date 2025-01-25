@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
+import { Slider } from '@/components/ui/slider'
 
 interface TraitFieldProps {
   trait: Trait
@@ -31,7 +32,7 @@ export function TraitField({ trait }: TraitFieldProps) {
     return () => { editor.off('trait:value', onTraitValue) }
   }, [editor, trait])
 
-  const handleChange = (value: string) => {
+  const handleChange = (value: string | number) => {
     trait.setValue(value)
   }
 
@@ -108,6 +109,59 @@ export function TraitField({ trait }: TraitFieldProps) {
         >
           {trait.getLabel()}
         </Button>
+      )
+
+    case 'number':
+      return (
+        <div className="space-y-2">
+          <Label>{trait.getLabel()}</Label>
+          <Input
+            type="number"
+            value={value}
+            placeholder={defaultValue}
+            disabled={disabled}
+            min={trait.get('min')}
+            max={trait.get('max')}
+            step={trait.get('step') || 1}
+            onChange={(e) => handleChange(Number(e.target.value))}
+          />
+        </div>
+      )
+
+    case 'slider':
+      const min = trait.get('min') || 0
+      const max = trait.get('max') || 100
+      const step = trait.get('step') || 1
+      const currentValue = Number(value) || Number(defaultValue) || min
+
+      return (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label>{trait.getLabel()}</Label>
+            <span className="text-sm text-gray-500">{currentValue}</span>
+          </div>
+          <div className="flex gap-4">
+            <Slider
+              value={[currentValue]}
+              min={min}
+              max={max}
+              step={step}
+              disabled={disabled}
+              onValueChange={(values) => handleChange(values[0])}
+              className="flex-1"
+            />
+            <Input
+              type="number"
+              value={currentValue}
+              className="w-20"
+              min={min}
+              max={max}
+              step={step}
+              disabled={disabled}
+              onChange={(e) => handleChange(Number(e.target.value))}
+            />
+          </div>
+        </div>
       )
 
     case 'linkage':

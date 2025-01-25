@@ -1,8 +1,11 @@
 import type { Editor } from 'grapesjs';
-
+import loadRadioGroup from './radioGroup';
 export const typeForm = 'form';
 export const typeInput = 'input';
 export const typeAmountInput = 'amount-input';
+
+
+
 
 export default function(editor: Editor) {
   const { Components } = editor;
@@ -261,4 +264,6 @@ export default function(editor: Editor) {
       }
     }
   });
+
+  loadRadioGroup(editor);
 }

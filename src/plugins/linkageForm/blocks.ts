@@ -1,6 +1,7 @@
 import type { BlockProperties, Editor } from 'grapesjs';
 import { PluginOptions } from '.';
 import { typeForm, typeInput, typeAmountInput } from './components';
+import { typeRadioButton, typeRadioButtonGroup } from './radioGroup'
 
 export default function (editor: Editor, opt: Required<PluginOptions>) {
     const opts = opt;
@@ -55,4 +56,27 @@ export default function (editor: Editor, opt: Required<PluginOptions>) {
             placeholder: '请输入金额'
         }
     });
+
+    addBlock(typeRadioButtonGroup, {
+        label: '按钮组',
+        content: {
+            type: typeRadioButtonGroup,
+            components: [
+                {
+                    type: typeRadioButton,
+                    attributes: {
+                        value: '1',
+                        label: '选项1'
+                    }
+                },
+                {
+                    type: typeRadioButton,
+                    attributes: {
+                        value: '2',
+                        label: '选项2'
+                    }
+                }
+            ]
+        }
+    })
 }

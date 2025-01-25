@@ -25,7 +25,7 @@ export interface PluginOptions {
 
 const plugin: Plugin<PluginOptions> = (editor, opts = {}) => {
     const config: Required<PluginOptions> = {
-        blocks: ['form', 'input', 'amount-input'],
+        blocks: ['form', 'input', 'amount-input', 'radio-button-group'],
         category: { id: 'forms', label: '表单' },
         block: () => ({}),
         ...opts
