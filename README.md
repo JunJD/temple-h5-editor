@@ -36,14 +36,154 @@
 - TODO: 数据接口对接
 
 2. 联动表单组件
-- 基于 Alpine.js 实现表单联动
+- 基于 GrapesJS 实现表单联动
 - 支持的表单组件:
   - 金额输入
-  - 姓名输入
-  - 联系电话
-  - 富文本编辑
+  - 文本输入
+  - 单选按钮组
   - 提交按钮
-- TODO: 完善更多表单组件
+- 联动设计:
+  ```typescript
+  /**
+   * 联动系统设计
+   * 
+   * 1. 事件流
+   * Input/RadioButton 值变化
+   * -> field:change 事件
+   * -> Form.updateField (检查值是否变化)
+   * -> form:data:change 事件 (带有 isFieldUpdate 标记)
+   * -> FormItem 接收事件 (检查是否需要处理)
+   * -> 如果需要，触发 form:field:change 事件
+   * -> 更新显示值
+   */
+  ```
+
+- 事件系统说明:
+  ```
+  1. GrapesJS 内部事件 (编辑器层面)
+  ┌─────────────────────────────────────┐
+  │ Component Events                    │
+  │ ├─ change:attributes               │
+  │ ├─ change:content                  │
+  │ └─ component:*                     │
+  └─────────────────────────────────────┘
+           ↑↓ 
+  ┌─────────────────────────────────────┐
+  │ Editor Events                       │
+  │ ├─ load                           │
+  │ ├─ storage:load                    │
+  │ └─ canvas:update                   │
+  └─────────────────────────────────────┘
+
+  2. 自定义事件 (运行时联动)
+  ┌─────────────────────────────────────┐
+  │ Input/RadioButton                   │
+  │ └─ input/click                     │
+  └───────────────┬─────────────────────┘
+                  ↓
+  ┌─────────────────────────────────────┐
+  │ FormItem                            │
+  │ ├─ field:change                    │
+  │ └─ form:field:change               │
+  └───────────────┬─────────────────────┘
+                  ↓
+  ┌─────────────────────────────────────┐
+  │ Form                                │
+  │ ├─ form:data:change                │
+  │ ├─ form:submit                     │
+  │ └─ form:submit:result              │
+  └─────────────────────────────────────┘
+
+  3. 事件流程示例
+  ```
+  ┌─────────────┐     field:change     ┌──────────┐    updateField()    ┌──────────┐
+  │ Input/Radio │ ─────────────────────> FormItem  │ ─────────────────> │   Form   │
+  └─────────────┘   {value: newValue}  └──────────┘  {name, value}     └──────────┘
+         ▲                                                                    │
+         │                                                                    │
+         │                                                                    ▼
+  ┌─────────────┐    form:field:change  ┌──────────┐   form:data:change   ┌──────────┐
+  │ Input/Radio │ <───────────────────── FormItem  │ <─────────────────── │   Form   │
+  └─────────────┘    {value, formData}  └──────────┘  {formData, source}  └──────────┘
+
+  事件传递过程：
+  1. 用户输入触发
+     Input/Radio ──(用户输入)──> field:change
+     - 携带新值 {value: newValue}
+  
+  2. FormItem 中转
+     FormItem ──(收到 field:change)──> 调用 form.updateField()
+     - 携带字段信息 {name, value}
+  
+  3. Form 数据更新
+     Form ──(更新数据)──> form:data:change
+     - 携带完整表单数据 {formData, source}
+  
+  4. FormItem 分发
+     FormItem ──(收到 form:data:change)──> form:field:change
+     - 携带字段数据 {value, formData}
+  
+  5. Input/Radio 更新
+     Input/Radio ──(收到 form:field:change)──> 更新显示值
+     - 如果有表达式，计算新值
+     - 如果是触发源，则跳过更新
+
+  防循环机制工作点：
+  * FormItem: 检查 source 是否为自身
+  * Input/Radio: 检查 source 是否为自身
+  * Form: 检查值是否发生变化
+  ```
+- 防循环机制:
+  ```typescript
+  /**
+   * 1. 值变化检查
+   * if (this.formData[name] === value) {
+   *   return; // 值没有变化，不触发更新
+   * }
+   * 
+   * 2. 来源检查
+   * if (source === el) {
+   *   return; // 是自己触发的变化，不处理
+   * }
+   * 
+   * 3. 更新标记
+   * detail: { 
+   *   isFieldUpdate: true, // 标记这是一个字段更新事件
+   *   source: el,         // 记录触发源
+   *   ...
+   * }
+   */
+  ```
+
+- 表达式支持:
+  ```typescript
+  /**
+   * 1. 表达式定义
+   * <input expression="form.price * form.quantity" />
+   * <input expression="form.userType === 'vip' ? form.price * 0.8 : form.price" />
+   * 
+   * 2. 表达式执行
+   * const form = formData;
+   * const calculate = new Function('form', `return ${expression}`);
+   * const newValue = calculate(form);
+   * 
+   * 3. 表达式上下文
+   * - form: 整个表单的数据对象
+   * - 支持所有 JavaScript 表达式
+   * - 可以访问表单中的任何字段
+   * - 支持条件运算和数学计算
+   */
+  ```
+- 组件职责:
+  - Form: 管理表单数据，处理提交
+  - FormItem: 处理字段联动，管理标签
+  - Input/AmountInput: 处理用户输入，执行表达式，也可以触发联动
+  - RadioButtonGroup: 处理选项切换，触发联动
+  
+- TODO: 
+  - 添加更多表单组件
+  - 支持复杂联动规则
+  - 增加表单验证
 
 3. 商品组件（计划中）
 - 支持两级商品配置
@@ -493,3 +633,120 @@ MONGO_URI=mongodb://127.0.0.1:27017/你的数据库名?replicaSet=rs0
    - 确保连接字符串中包含 `replicaSet=rs0`
    - 验证副本集状态：`rs.status()`
    - 检查数据库用户权限
+
+### 使用示例:
+  ```typescript
+  // 1. VIP价格计算示例
+  {
+    type: 'form',
+    components: [
+      {
+        type: 'form-item',
+        attributes: { name: 'userType', label: '用户类型' },
+        components: [{
+          type: 'radio-button-group',
+          attributes: { value: 'normal' },
+          components: [
+            { type: 'radio-button', attributes: { value: 'normal', label: '普通用户' }},
+            { type: 'radio-button', attributes: { value: 'vip', label: 'VIP用户' }}
+          ]
+        }]
+      },
+      {
+        type: 'form-item',
+        attributes: { name: 'price', label: '商品价格' },
+        components: [{
+          type: 'amount-input',
+          attributes: { placeholder: '请输入商品价格' }
+        }]
+      },
+      {
+        type: 'form-item',
+        attributes: { name: 'finalPrice', label: '最终价格' },
+        components: [{
+          type: 'amount-input',
+          attributes: {
+            disabled: 'true',
+            expression: 'form.userType === "vip" ? form.price * 0.8 : form.price'
+          }
+        }]
+      }
+    ]
+  }
+
+  // 2. 数量金额联动示例
+  {
+    type: 'form-item',
+    attributes: { name: 'quantity', label: '数量' },
+    components: [{
+      type: 'input',
+      attributes: { type: 'number', min: '1' }
+    }]
+  },
+  {
+    type: 'form-item',
+    attributes: { name: 'total', label: '总金额' },
+    components: [{
+      type: 'amount-input',
+      attributes: {
+        disabled: 'true',
+        expression: 'form.price * form.quantity'
+      }
+    }]
+  }
+  ```
+
+- 开发指南:
+  1. 添加新的表单组件
+  ```typescript
+  // 1. 在 components.ts 中定义组件类型
+  export const typeNewInput = 'new-input';
+  
+  // 2. 添加组件定义
+  Components.addType(typeNewInput, {
+    isComponent: el => el.classList?.contains('new-input'),
+    model: {
+      defaults: {
+        // 基础配置...
+        script: function() {
+          const el = this;
+          const formItem = el.closest('.form-item');
+          
+          if (formItem) {
+            // 监听用户输入
+            el.addEventListener('input', (e) => {
+              const event = new CustomEvent('field:change', {
+                detail: { value: e.target.value }
+              });
+              formItem.dispatchEvent(event);
+            });
+
+            // 处理联动更新
+            formItem.addEventListener('form:field:change', (e) => {
+              const { value, formData, source } = e.detail;
+              if (source === el) return;  // 防循环
+              
+              // 处理表达式
+              const expression = el.getAttribute('expression');
+              if (expression) {
+                // 计算新值...
+              }
+            });
+          }
+        }
+      }
+    }
+  });
+  ```
+
+  2. 联动注意事项
+  - 始终使用 `field:change` 事件通知值变化
+  - 在处理联动时检查 source 避免循环
+  - 表达式计算后只更新显示值，不触发新事件
+  - 使用 `formItem` 作为事件中转站
+  
+  3. 调试技巧
+  - 使用 console.log 跟踪事件流
+  - 检查 formData 对象的变化
+  - 验证表达式计算结果
+  - 观察防循环机制是否生效

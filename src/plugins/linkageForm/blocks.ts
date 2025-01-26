@@ -1,6 +1,6 @@
 import type { BlockProperties, Editor } from 'grapesjs';
 import { PluginOptions } from '.';
-import { typeForm, typeInput, typeAmountInput } from './components';
+import { typeForm, typeFormItem, typeInput, typeAmountInput, typeSubmitButton } from './components';
 import { typeRadioButton, typeRadioButtonGroup } from './radioGroup'
 
 export default function (editor: Editor, opt: Required<PluginOptions>) {
@@ -15,68 +15,144 @@ export default function (editor: Editor, opt: Required<PluginOptions>) {
         });
     }
 
-    // 表单块
+    // 表单块 - 包含完整的演示结构
     addBlock(typeForm, {
         label: '表单',
-        // media: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 5.5c0-.3-.5-.5-1.3-.5H3.4c-.8 0-1.3.2-1.3.5v3c0 .3.5.5 1.3.5h17.4c.8 0 1.3-.2 1.3-.5v-3zM21 8H3V6h18v2zM22 10.5c0-.3-.5-.5-1.3-.5H3.4c-.8 0-1.3.2-1.3.5v3c0 .3.5.5 1.3.5h17.4c.8 0 1.3-.2 1.3-.5v-3zM21 13H3v-2h18v2z"/><rect width="10" height="3" x="2" y="15" rx=".5"/></svg>',
         content: {
             type: typeForm,
             components: [
                 {
-                    type: typeInput,
-                    attributes: {
-                        placeholder: '请输入...',
-                        name: 'field1'
-                    }
+                    type: typeFormItem,
+                    attributes: { name: 'userType', label: '用户类型' },
+                    components: [{
+                        type: typeRadioButtonGroup,
+                        attributes: { value: 'normal' },
+                        components: [
+                            {
+                                type: typeRadioButton,
+                                attributes: { value: 'normal', label: '普通用户' }
+                            },
+                            {
+                                type: typeRadioButton,
+                                attributes: { value: 'vip', label: 'VIP用户' }
+                            }
+                        ]
+                    }]
+                },
+                {
+                    type: typeFormItem,
+                    attributes: { name: 'price', label: '商品价格' },
+                    components: [{
+                        type: typeAmountInput,
+                        attributes: {
+                            placeholder: '请输入商品价格'
+                        }
+                    }]
+                },
+                {
+                    type: typeFormItem,
+                    attributes: { name: 'finalPrice', label: '最终价格' },
+                    components: [{
+                        type: typeAmountInput,
+                        attributes: {
+                            placeholder: '最终价格（自动计算）',
+                            expression: 'form.userType === "vip" ? form.price * 0.8 : form.price'
+                        }
+                    }]
+                },
+                {
+                    type: typeSubmitButton,
+                    attributes: { text: '提交订单' }
                 }
             ]
+        }
+    });
+
+    // 表单项块
+    addBlock(typeFormItem, {
+        label: '表单项',
+        content: {
+            type: typeFormItem,
+            attributes: { name: 'field' },
+            components: [{
+                type: typeInput,
+                attributes: {
+                    placeholder: '请输入...'
+                }
+            }]
         }
     });
 
     // 输入框块
     addBlock(typeInput, {
-        label: '输入框2',
-        // media: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 9c0-.6-.5-1-1.3-1H3.4C2.5 8 2 8.4 2 9v6c0 .6.5 1 1.3 1h17.4c.8 0 1.3-.4 1.3-1V9zm-1 6H3V9h18v6z"/><path d="M4 10h1v4H4z"/></svg>',
+        label: '输入框',
         content: {
-            type: typeInput,
-            attributes: {
-                placeholder: '请输入...',
-                name: 'field'
-            }
-        },
+            type: typeFormItem,
+            attributes: { name: 'field' },
+            components: [{
+                type: typeInput,
+                attributes: {
+                    placeholder: '请输入...'
+                }
+            }]
+        }
     });
 
     // 添加金额输入块
     addBlock(typeAmountInput, {
         label: '金额输入',
-        // media: '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M22 9c0-.6-.5-1-1.3-1H3.4C2.5 8 2 8.4 2 9v6c0 .6.5 1 1.3 1h17.4c.8 0 1.3-.4 1.3-1V9zm-1 6H3V9h18v6z"/><path d="M4 10h1v4H4z"/></svg>',
         content: {
-            type: typeAmountInput,
-            label: '金额',
-            placeholder: '请输入金额'
+            type: typeFormItem,
+            attributes: { name: 'amount' },
+            components: [{
+                type: typeAmountInput,
+                label: '金额',
+                placeholder: '请输入金额'
+            }]
         }
     });
 
+    // 单选按钮组块
     addBlock(typeRadioButtonGroup, {
-        label: '按钮组',
+        label: '单选按钮组',
         content: {
-            type: typeRadioButtonGroup,
-            components: [
-                {
-                    type: typeRadioButton,
-                    attributes: {
-                        value: '1',
-                        label: '选项1'
+            type: typeFormItem,
+            attributes: { name: 'options' },
+            components: [{
+                type: typeRadioButtonGroup,
+                components: [
+                    {
+                        type: typeRadioButton,
+                        attributes: {
+                            value: 'option1',
+                            label: '选项一'
+                        }
+                    },
+                    {
+                        type: typeRadioButton,
+                        attributes: {
+                            value: 'option2',
+                            label: '选项二'
+                        }
+                    },
+                    {
+                        type: typeRadioButton,
+                        attributes: {
+                            value: 'option3',
+                            label: '选项三'
+                        }
                     }
-                },
-                {
-                    type: typeRadioButton,
-                    attributes: {
-                        value: '2',
-                        label: '选项2'
-                    }
-                }
-            ]
+                ]
+            }]
         }
-    })
+    });
+
+    // 提交按钮块
+    addBlock(typeSubmitButton, {
+        label: '提交按钮',
+        content: {
+            type: typeSubmitButton,
+            attributes: { text: '提交' }
+        }
+    });
 }

@@ -147,6 +147,12 @@ export default function (editor: Editor) {
                         min: 0,
                         max: 48,
                         step: 4,
+                    },
+                    {
+                        type: 'text',
+                        name: 'expression',
+                        label: '联动表达式',
+                        placeholder: '例如: form.type === "vip" ? "option1" : "option2"'
                     }
                 ],
                 'script-props': ['classactive', 'direction', 'size', 'disabled'],
@@ -154,6 +160,7 @@ export default function (editor: Editor) {
                 script: function(props) {
                     const el = this;
                     const classActive = props.classactive;
+                    const formItem = el.closest('.form-item');
                     
                     const updateRadios = (selectedValue) => {
                         const radios = el.querySelectorAll('[role=radio]');
@@ -167,6 +174,14 @@ export default function (editor: Editor) {
                                 radio.setAttribute('aria-checked', 'false');
                             }
                         });
+
+                        // 更新 formItem 的值
+                        if (formItem) {
+                            const event = new CustomEvent('field:change', {
+                                detail: { value: selectedValue }
+                            });
+                            formItem.dispatchEvent(event);
+                        }
                     };
 
                     // 初始化状态
@@ -183,6 +198,35 @@ export default function (editor: Editor) {
                             updateRadios(value);
                         }
                     });
+
+                    // 处理表单字段变化
+                    if (formItem) {
+                        formItem.addEventListener('form:field:change', (e: any) => {
+                            const { value, formData } = e.detail;
+                            
+                            // 如果有联动表达式，则计算新值
+                            const expression = el.getAttribute('expression');
+                            if (expression) {
+                                try {
+                                    const form = formData;
+                                    const calculate = new Function('form', `return ${expression}`);
+                                    const newValue = calculate(form);
+                                    
+                                    // 更新选中值
+                                    el.setAttribute('value', newValue);
+                                    updateRadios(newValue);
+                                } catch (error) {
+                                    console.error('表达式计算错误:', error);
+                                }
+                            } else {
+                                // 如果没有表达式，直接更新值
+                                if (value !== undefined) {
+                                    el.setAttribute('value', value);
+                                    updateRadios(value);
+                                }
+                            }
+                        });
+                    }
                 },
                 style: {
                     display: 'flex',
