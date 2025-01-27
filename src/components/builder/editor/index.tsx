@@ -165,7 +165,6 @@ const gjsOptions: EditorConfig = {
               <meta charset="utf-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
               <script src="https://cdn.tailwindcss.com"></script>
-              <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
               <script>
                 tailwind.config = {
                   theme: {
@@ -176,58 +175,7 @@ const gjsOptions: EditorConfig = {
               <link rel="stylesheet" href="./css/style.css">
             </head>
             <body>
-              <div x-data="formHandler">
-                ${editor.getHtml()}
-              </div>
-
-              <script>
-                document.addEventListener('alpine:init', () => {
-                  Alpine.data('formHandler', () => ({
-                    formData: {},
-                    linkageRules: {},
-                    
-                    init() {
-                      // 收集所有输入框的初始值
-                      document.querySelectorAll('input[name]').forEach(input => {
-                        this.formData[input.name] = input.value || '';
-                      });
-                      
-                      // 收集联动规则
-                      document.querySelectorAll('input[linkage-target]').forEach(input => {
-                        this.linkageRules[input.name] = {
-                          target: input.getAttribute('linkage-target'),
-                          triggerValue: input.getAttribute('linkage-value'),
-                          setValue: input.getAttribute('linkage-set')
-                        };
-                        console.log('Rule added for:', input.name, this.linkageRules[input.name]);
-                      });
-
-                      // 添加事件监听和数据绑定
-                      document.querySelectorAll('input[name]').forEach(input => {
-                        input.addEventListener('input', this.handleInput.bind(this));
-                      });
-                    },
-
-                    handleInput(event) {
-                      const input = event.target;
-                      this.formData[input.name] = input.value;
-                      console.log('Input changed:', input.name, input.value);
-                      
-                      // 检查联动规则
-                      const rule = this.linkageRules[input.name];
-                      if (rule && this.formData[input.name] === rule.triggerValue) {
-                        console.log('Rule matched:', rule);
-                        this.formData[rule.target] = rule.setValue;
-                        const targetInput = document.querySelector('input[name="' + rule.target + '"]');
-                        if (targetInput) {
-                          targetInput.value = rule.setValue;
-                          console.log('Updated target:', rule.target, rule.setValue);
-                        }
-                      }
-                    }
-                  }));
-                });
-              </script>
+              ${editor.getHtml()}
             </body>
           </html>`
       },
