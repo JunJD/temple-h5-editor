@@ -58,6 +58,7 @@ export default function BuilderEditor({ children, projectData, id }: { children:
         </div>}
         className="gjs-custom-editor"
         grapesjs={grapesjs}
+        grapesjsCss='/css/gjsCss.css'
         options={{
           ...gjsOptions,
           storageManager: {
@@ -72,7 +73,7 @@ export default function BuilderEditor({ children, projectData, id }: { children:
           gjsblockbasic,
           gjsStyleEasing,
           grapesjsScriptEditor,
-          tailwindPlugin,
+          // tailwindPlugin,
           gjsPluginGoogleMaterialIcons,
           {
             id: 'grapesjs-grid-system',
@@ -168,7 +169,6 @@ const gjsOptions: EditorConfig = {
             <head>
               <meta charset="utf-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
-              <script src="https://cdn.tailwindcss.com"></script>
               <script>
                 tailwind.config = {
                   theme: {
