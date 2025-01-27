@@ -8,13 +8,14 @@ import { devices } from '@/lib/constants/devices'
 import { registerComponents } from '@/lib/components'
 import { useState } from 'react'
 import LinkageForm from '@/plugins/linkageForm'
+import gjsWrapper from '@/plugins/wrapper'
 import Linkage from '@/plugins/linkage'
 import gjsblockbasic from 'grapesjs-blocks-basic';
 import gjsStyleEasing from 'grapesjs-style-easing';
 import gjsPluginGoogleMaterialIcons from 'grapesjs-google-material-icons'
 import grapesjsScriptEditor from 'grapesjs-script-editor';
 
-import tailwindPlugin from 'grapesjs-tailwind'
+// import tailwindPlugin from 'grapesjs-tailwind'
 import formatTempList from '@/plugins/formatTempList'
 import customCodePlugin from "grapesjs-custom-code";
 import grapesjsTabs from 'grapesjs-tabs';
@@ -76,12 +77,12 @@ export default function BuilderEditor({ children, projectData }: { children: Rea
           gjsPluginExport,
           LinkageForm,
           Linkage,
+          gjsWrapper,
           formatTempList,
           customCodePlugin,
           grapesjsTabs,
           grapesRulers,
           grapesUserBlocks,
-          tailwindPlugin,
           gjsStyleBg,
           gjsStyleFilter,
           gjsStyleGradient,
@@ -125,6 +126,10 @@ const gjsOptions: EditorConfig = {
       `
         * {
           font-family: 'weiruanyahei', 'Microsoft YaHei', sans-serif !important;
+        }
+        body {
+          height: 100vh;
+          background-color: #fff;
         }
       `
     ],
