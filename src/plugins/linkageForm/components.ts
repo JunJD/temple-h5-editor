@@ -1,3 +1,4 @@
+'use client'
 import type { Editor } from 'grapesjs';
 import loadRadioGroup from './radioGroup';
 export const typeForm = 'form';

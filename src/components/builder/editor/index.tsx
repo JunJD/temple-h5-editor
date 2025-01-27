@@ -15,7 +15,7 @@ import gjsStyleEasing from 'grapesjs-style-easing';
 import gjsPluginGoogleMaterialIcons from 'grapesjs-google-material-icons'
 import grapesjsScriptEditor from 'grapesjs-script-editor';
 
-// import tailwindPlugin from 'grapesjs-tailwind'
+import tailwindPlugin from 'grapesjs-tailwind'
 import formatTempList from '@/plugins/formatTempList'
 import customCodePlugin from "grapesjs-custom-code";
 import grapesjsTabs from 'grapesjs-tabs';
@@ -33,7 +33,7 @@ import 'grapesjs/dist/css/grapes.min.css';
 import '@/styles/grapesjs.css';
 import '@/styles/fonts.css';
 
-export default function BuilderEditor({ children, projectData }: { children: React.ReactNode, projectData: ObjectAny }) {
+export default function BuilderEditor({ children, projectData, id }: { children: React.ReactNode, projectData: ObjectAny, id: string }) {
   const [isLoading, setIsLoading] = useState(true)
 
   const onEditor = (editor: Editor) => {
@@ -50,24 +50,29 @@ export default function BuilderEditor({ children, projectData }: { children: Rea
 
   return (
     <>
-      {isLoading && (
-        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
+      <GjsEditor
+        waitReady={<div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="animate-pulse text-muted-foreground">
             加载编辑器...
           </div>
-        </div>
-      )}
-      <GjsEditor
+        </div>}
         className="gjs-custom-editor"
         grapesjs={grapesjs}
         options={{
           ...gjsOptions,
+          storageManager: {
+            id
+          },
           projectData
+        }}
+        style={{
+          overflow: 'hidden',
         }}
         plugins={[
           gjsblockbasic,
           gjsStyleEasing,
           grapesjsScriptEditor,
+          tailwindPlugin,
           gjsPluginGoogleMaterialIcons,
           {
             id: 'grapesjs-grid-system',
@@ -82,7 +87,7 @@ export default function BuilderEditor({ children, projectData }: { children: Rea
           customCodePlugin,
           grapesjsTabs,
           grapesRulers,
-          grapesUserBlocks,
+          // grapesUserBlocks,
           gjsStyleBg,
           gjsStyleFilter,
           gjsStyleGradient,
@@ -97,6 +102,7 @@ export default function BuilderEditor({ children, projectData }: { children: Rea
   )
 }
 const gjsOptions: EditorConfig = {
+  telemetry: false,
   showOffsets: true,
   showOffsetsSelected: true,
   fromElement: true,
@@ -109,7 +115,6 @@ const gjsOptions: EditorConfig = {
     }
   },
   height: '100vh',
-  storageManager: false,
   undoManager: { trackSelection: false },
   selectorManager: {
     componentFirst: true,
@@ -122,17 +127,11 @@ const gjsOptions: EditorConfig = {
     ],
   },
   canvas: {
-    styles: [
-      `
-        * {
-          font-family: 'weiruanyahei', 'Microsoft YaHei', sans-serif !important;
-        }
-        body {
-          height: 100vh;
-          background-color: #fff;
-        }
-      `
-    ],
+    frameStyle: `
+      * {
+        font-family: 'weiruanyahei', 'Microsoft YaHei', sans-serif !important;
+      }
+    `,
     infiniteCanvas: true,
   },
   deviceManager: {

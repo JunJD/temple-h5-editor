@@ -1,3 +1,4 @@
+'use client'
 import type { BlockProperties, Plugin } from 'grapesjs';
 import loadBlocks from './blocks';
 import loadComponents from './components';

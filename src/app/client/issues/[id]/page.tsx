@@ -10,7 +10,6 @@ interface IssuePageProps {
 
 export default function IssuePage() {
   const params = useParams()
-  console.log('params',params)
   const [issue, setIssue] = useState<{
     content: any
     html: string,
@@ -31,7 +30,7 @@ export default function IssuePage() {
       {issue?.content ? (
         <pre>{JSON.stringify(issue.content, null, 2)}</pre>
       ) : (
-        <div>Loading...</div>
+        null
       )}
     </div>
   )

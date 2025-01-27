@@ -59,7 +59,9 @@ export function CustomBlockManager({ blocks, dragStart, dragStop, mapCategoryBlo
                       )}
                       title={block.getLabel()}
                     >
-                      {block.getLabel().length > 10 ? block.getLabel().slice(0, 10) + '...' : block.getLabel()}
+                      <div
+                        dangerouslySetInnerHTML={{ __html: block.getLabel()! }}
+                      />
                     </div>
                   </div>
                 ))}

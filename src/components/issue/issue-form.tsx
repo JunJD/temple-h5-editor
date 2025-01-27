@@ -33,7 +33,20 @@
       resolver: zodResolver(issueSchema),
       defaultValues: {
         title: '',
-        content: ''
+        content: '',
+        formConfig: {
+          fields: [],
+          layout: 'vertical' as const,
+          submitButtonText: '提交'
+        },
+        wxPayConfig: {
+          mchid: '',
+          appid: '',
+          notifyUrl: 'http://localhost:3000/api/wxpay/notify',
+          description: '测试',
+          attach: '',
+          timeExpire: '',
+        },
       }
     })
 
@@ -43,7 +56,7 @@
     const { refresh, loading, error } = useMutation(createIssue, {
       params: form.getValues(),
       onResolve(data: Types.Issue) {
-        router.replace('/client/issues/' + data.id)
+        router.replace('/client/issues/' + data.id + '/edit')
       }
     })
 

@@ -10,17 +10,19 @@ const assembleIssue: (issue: Partial<Issue>) => Prisma.IssueCreateInput = (issue
   return {
     title: issue.title || '',
     description: issue.description || '',
-    content: {},
-    formConfig: {},
-    wxPayConfig: {},
-    startTime: new Date(),
-    endTime: new Date(),
+    content: issue.content || {},
+    formConfig: issue.formConfig || {},
+    wxPayConfig: issue.wxPayConfig || {},
+    startTime: issue.startTime || new Date(),
+    endTime: issue.endTime || new Date(),
     createdAt: new Date(),
     updatedAt: new Date(),
   }
 }
 
-export async function createIssue(issue: any) {
+type createIssueDto = Omit<Issue, 'id' | 'createdAt' | 'updatedAt'>
+
+export async function createIssue(issue: createIssueDto) {
   try {
     const validation = issueSchema.safeParse(issue)
 
@@ -28,7 +30,6 @@ export async function createIssue(issue: any) {
       const newIssue = await prisma.issue.create({
         data: assembleIssue(validation.data)
       })
-
       revalidatePath('/client/issues')
       return actionData(newIssue)
     }

@@ -37,27 +37,31 @@ const defaultProjectData = {
 
 export default function EditIssueLayout({ children }: { children: React.ReactNode }) {
   const params = useParams()
+  const [loading, setLoading] = useState(true)
   const [issue, setIssue] = useState<{
     content: any
     html: string,
     css: string,
+    id: string
   } | null>(null)
 
   useEffect(() => {
+    setLoading(true)
     const fetchIssue = async () => {
       const {data: issue} = await getIssue(params.id as string) as any
-      console.log('issue',issue)
       setIssue(issue as any)
+      setLoading(false)
     }
     fetchIssue()
   }, [params.id])
   
   if(!issue) return null
-  
+  if(loading) return null
   return (
     <Template>
       <BuilderEditor 
         projectData={issue?.content?.projectData ?? defaultProjectData}
+        id={params.id as string}
       >
         {children}
       </BuilderEditor>

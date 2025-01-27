@@ -1,4 +1,4 @@
-import { WritableDraft } from "immer";
+// import { WritableDraft } from "immer";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
@@ -19,10 +19,6 @@ type Panel = {
 };
 
 type BuilderState = {
-  frame: {
-    ref: HTMLIFrameElement | null;
-    setRef: (ref: HTMLIFrameElement | null) => void;
-  };
   sheet: {
     left: Sheet;
     right: Sheet;
@@ -39,14 +35,6 @@ type BuilderActions = {
 
 export const useBuilderStore = create<BuilderState & BuilderActions>()(
   immer((set) => ({
-    frame: {
-      ref: null,
-      setRef: (ref) => {
-        set((state) => {
-          state.frame.ref = ref as unknown as WritableDraft<HTMLIFrameElement>;
-        });
-      },
-    },
     sheet: {
       left: {
         open: false,
