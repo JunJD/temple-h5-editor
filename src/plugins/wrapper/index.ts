@@ -16,7 +16,23 @@ const plugin: Plugin = (editor) => {
         droppable: true,
         copyable: false,
         selectable: true,
+        classes: ['container-fluid'],
         traits: [
+          {
+            type: 'select',
+            name: 'container-type',
+            label: '容器类型',
+            options: [
+              { id: 'container-fluid', name: '100%宽度' },
+              { id: 'container', name: '响应式固定宽度' },
+              { id: 'container-sm', name: 'SM响应式' },
+              { id: 'container-md', name: 'MD响应式' },
+              { id: 'container-lg', name: 'LG响应式' },
+              { id: 'container-xl', name: 'XL响应式' },
+              { id: 'container-xxl', name: 'XXL响应式' }
+            ],
+            default: 'container-fluid'
+          },
           {
             type: 'select',
             name: 'background-type',
@@ -64,6 +80,7 @@ const plugin: Plugin = (editor) => {
             min-height: 800px;
             background-color: #ffffff;
             font-family: system-ui, -apple-system, sans-serif;
+            padding: 0;
           }
         `
       },
@@ -73,6 +90,7 @@ const plugin: Plugin = (editor) => {
       },
 
       handleTraitChange() {
+        const containerType = this.getTrait('container-type').getValue();
         const bgType = this.getTrait('background-type').getValue();
         const bgColor = this.getTrait('background-color').getValue();
         const bgImage = this.getTrait('background-image').getValue();
@@ -80,6 +98,10 @@ const plugin: Plugin = (editor) => {
         const display = this.getTrait('display').getValue();
 
         let styles = {};
+
+        // 处理容器类型
+        this.removeClass(['container', 'container-fluid', 'container-sm', 'container-md', 'container-lg', 'container-xl', 'container-xxl']);
+        this.addClass(containerType);
 
         // 处理背景
         if (bgType === 'color') {
@@ -115,6 +137,7 @@ const plugin: Plugin = (editor) => {
       const currentStyles = { ...wrapper.getStyle() };
       const currentTraits = wrapper.getTraits();
       const currentType = wrapper.get('type');
+      const currentClasses = wrapper.getClasses();
 
       // 清空组件
       wrapper.components().reset();
@@ -122,6 +145,7 @@ const plugin: Plugin = (editor) => {
       // 恢复wrapper的样式和特性
       wrapper.setStyle(currentStyles);
       wrapper.set('type', currentType);
+      currentClasses.forEach(cls => wrapper.addClass(cls));
       currentTraits.forEach(trait => {
         const traitName = trait.get('name');
         if (traitName) {

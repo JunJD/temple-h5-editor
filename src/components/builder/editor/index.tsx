@@ -9,6 +9,7 @@ import { registerComponents } from '@/lib/components'
 import { useState } from 'react'
 import LinkageForm from '@/plugins/linkageForm'
 import gjsWrapper from '@/plugins/wrapper'
+import v5 from '@/plugins/v5'
 import Linkage from '@/plugins/linkage'
 import gjsblockbasic from 'grapesjs-blocks-basic';
 import gjsStyleEasing from 'grapesjs-style-easing';
@@ -84,6 +85,7 @@ export default function BuilderEditor({ children, projectData, id }: { children:
           LinkageForm,
           Linkage,
           gjsWrapper,
+          v5,
           formatTempList,
           customCodePlugin,
           grapesjsTabs,
