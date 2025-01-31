@@ -13,15 +13,15 @@ import v5 from '@/plugins/v5'
 // import Linkage from '@/plugins/linkage'
 import gjsblockbasic from 'grapesjs-blocks-basic';
 import gjsStyleEasing from 'grapesjs-style-easing';
-import gjsPluginGoogleMaterialIcons from 'grapesjs-google-material-icons'
-import grapesjsScriptEditor from 'grapesjs-script-editor';
+// import gjsPluginGoogleMaterialIcons from 'grapesjs-google-material-icons'
+// import grapesjsScriptEditor from 'grapesjs-script-editor';
 
-import tailwindPlugin from 'grapesjs-tailwind'
+// import tailwindPlugin from 'grapesjs-tailwind'
 import formatTempList from '@/plugins/formatTempList'
-import customCodePlugin from "grapesjs-custom-code";
-import grapesjsTabs from 'grapesjs-tabs';
+// import customCodePlugin from "grapesjs-custom-code";
+// import grapesjsTabs from 'grapesjs-tabs';
 import grapesRulers from 'grapesjs-rulers';
-import grapesUserBlocks from 'grapesjs-user-blocks';
+// import grapesUserBlocks from 'grapesjs-user-blocks';
 // @ts-ignore
 import gjsPluginExport from 'grapesjs-plugin-export';
 // import gjsForms from 'grapesjs-plugin-forms';
@@ -73,13 +73,13 @@ export default function BuilderEditor({ children, projectData, id }: { children:
         plugins={[
           gjsblockbasic,
           gjsStyleEasing,
-          grapesjsScriptEditor,
+          // grapesjsScriptEditor,
           // tailwindPlugin,
-          gjsPluginGoogleMaterialIcons,
-          {
-            id: 'grapesjs-grid-system',
-            src: '/grapesjs-grid-system.min.js',
-          },
+          // gjsPluginGoogleMaterialIcons,
+          // {
+          //   id: 'grapesjs-grid-system',
+          //   src: '/grapesjs-grid-system.min.js',
+          // },
           // @ts-ignore
           gjsPluginExport,
           LinkageForm,
@@ -87,7 +87,7 @@ export default function BuilderEditor({ children, projectData, id }: { children:
           gjsWrapper,
           v5,
           formatTempList,
-          customCodePlugin,
+          // customCodePlugin,
           // grapesjsTabs,
           grapesRulers,
           // grapesUserBlocks,
@@ -189,7 +189,7 @@ const gjsOptions: EditorConfig = {
     // @ts-ignore
     [gjsblockbasic as string]: {
       // 启用的
-      blocks: ['column1', 'column2', 'column3', 'column3-7', 'text', 'image'],
+      blocks: ['text', 'image'],
       // 使用 flexbox 布局
       flexGrid: true,
       // 使用基础 CSS
