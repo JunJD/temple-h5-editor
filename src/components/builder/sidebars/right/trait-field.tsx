@@ -98,6 +98,7 @@ export function TraitField({ trait }: TraitFieldProps) {
     case 'button':
       return (
         <Button
+          className="w-full"
           onClick={() => {
             const command = trait.get('command')
             if (command) {
