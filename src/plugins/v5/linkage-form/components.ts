@@ -145,8 +145,8 @@ export class LinkageFormComponents extends BaseLoadComponents {
                             line-height: 24px;
                             flex: 1;
                             width: 100%;
-                            padding-right: 12px;
-                            text-align: right;
+                            padding-left: 12px;
+                            text-align: left;
                             background: transparent;
                         }
 
@@ -166,7 +166,7 @@ export class LinkageFormComponents extends BaseLoadComponents {
                             font-size: 18px;
                             height: 32px;
                             line-height: 32px;
-                            padding-right: 16px;
+                            padding-left: 16px;
                         }
 
                         /* 超大尺寸 */
@@ -185,7 +185,7 @@ export class LinkageFormComponents extends BaseLoadComponents {
                             font-size: 20px;
                             height: 40px;
                             line-height: 40px;
-                            padding-right: 20px;
+                            padding-left: 20px;
                         }
                     `,
                     script: function(props) {
