@@ -43,6 +43,21 @@ class LinkageFormTraitsFactory extends BaseTraitsFactory {
         };
     }
 
+    // 获取尺寸trait
+    static getSizeTrait() {
+        return {
+            type: 'select',
+            label: '尺寸',
+            name: 'size',
+            options: [
+                { id: 'default', value: 'default', name: '默认' },
+                { id: 'large', value: 'large', name: '大' },
+                { id: 'xlarge', value: 'xlarge', name: '超大' }
+            ],
+            changeProp: true
+        };
+    }
+
     // 获取联动表达式trait
     static getExpressionTrait() {
         return {
@@ -82,10 +97,11 @@ export class LinkageFormComponents extends BaseLoadComponents {
                         LinkageFormTraitsFactory.getLabelTrait(),
                         LinkageFormTraitsFactory.getSuffixTrait(),
                         LinkageFormTraitsFactory.getInputTypeTrait(),
+                        LinkageFormTraitsFactory.getSizeTrait(),
                         LinkageFormTraitsFactory.getExpressionTrait(),
                         LinkageFormTraitsFactory.getRequiredTrait()
                     ],
-                    'script-props': ['label', 'suffix', 'input-type', 'expression', 'required'],
+                    'script-props': ['label', 'suffix', 'input-type', 'size', 'expression', 'required'],
                     components: `
                         <div class="input_item">
                             <span></span>
@@ -133,14 +149,62 @@ export class LinkageFormComponents extends BaseLoadComponents {
                             text-align: right;
                             background: transparent;
                         }
+
+                        /* 大尺寸 */
+                        .input_item.large {
+                            padding: 16px 24px;
+                        }
+                        
+                        .input_item.large > span:first-child,
+                        .input_item.large > span:last-child {
+                            font-size: 18px;
+                            height: 32px;
+                            line-height: 32px;
+                        }
+                        
+                        .input_item.large .form-input {
+                            font-size: 18px;
+                            height: 32px;
+                            line-height: 32px;
+                            padding-right: 16px;
+                        }
+
+                        /* 超大尺寸 */
+                        .input_item.xlarge {
+                            padding: 20px 32px;
+                        }
+                        
+                        .input_item.xlarge > span:first-child,
+                        .input_item.xlarge > span:last-child {
+                            font-size: 20px;
+                            height: 40px;
+                            line-height: 40px;
+                        }
+                        
+                        .input_item.xlarge .form-input {
+                            font-size: 20px;
+                            height: 40px;
+                            line-height: 40px;
+                            padding-right: 20px;
+                        }
                     `,
                     script: function(props) {
                         const el = this as HTMLElement;
                         const label = props.label || '';
                         const suffix = props.suffix || '';
                         const inputType = props['input-type'] || 'text';
+                        const size = props.size || 'default';
                         const expression = props.expression || '';
                         const required = props.required || false;
+
+                        // 更新尺寸类名
+                        const inputItem = el.querySelector('.input_item');
+                        if (inputItem) {
+                            inputItem.classList.remove('large', 'xlarge');
+                            if (size !== 'default') {
+                                inputItem.classList.add(size);
+                            }
+                        }
 
                         // 更新标签
                         const labelEl = el.querySelector('span:first-child');
