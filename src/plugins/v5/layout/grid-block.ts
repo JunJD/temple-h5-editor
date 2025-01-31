@@ -1,14 +1,14 @@
-import { BaseLoadBlocks } from "../base";
+import { BaseLoadBlocks } from "../common/base";
 import { GRID_BLOCKS } from "./constants";
 import { Editor, PluginOptions } from "grapesjs";
 import type { BlockProperties } from "grapesjs";
-import { TraitsFactory } from "./grid-components";
+import { GridTraitsFactory } from "./grid-components";
 
 // 布局块工厂类
 class LayoutBlockFactory {
     // 创建基础列组件
     private static createColumn(width: string = 'col', content: string = ''): any {
-        const traits = TraitsFactory.getColumnTraits();
+        const traits = GridTraitsFactory.getColumnTraits();
         // 设置列宽的默认值
         const colBaseTrait = traits.find(t => t.name === 'col-base');
         if (colBaseTrait) {
@@ -39,7 +39,7 @@ class LayoutBlockFactory {
     private static createRow(columns: any[]): any {
         return {
             type: GRID_BLOCKS['bs-row'],
-            traits: TraitsFactory.getRowTraits(),
+            traits: GridTraitsFactory.getRowTraits(),
             components: columns
         };
     }

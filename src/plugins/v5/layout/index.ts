@@ -1,6 +1,6 @@
 import { Editor, PluginOptions } from "grapesjs";
-import BasePluginV5 from "../base";
-import { BaseLoadComponents } from "../base";
+import BasePluginV5 from "../common/base";
+import { BaseLoadComponents } from "../common/base";
 import { GridComponents } from "./grid-components";
 import { GridBlocks } from "./grid-block";
 

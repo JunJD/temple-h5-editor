@@ -88,7 +88,7 @@ export default function BuilderEditor({ children, projectData, id }: { children:
           v5,
           formatTempList,
           customCodePlugin,
-          grapesjsTabs,
+          // grapesjsTabs,
           grapesRulers,
           // grapesUserBlocks,
           gjsStyleBg,
