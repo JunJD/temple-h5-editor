@@ -3,6 +3,7 @@ import { Editor, PluginOptions } from 'grapesjs';
 // import loadTraits from './traits';
 import LayoutPlugin from './layout';
 import CustomTabPlugin from './custom-tab';
+import LinkageFormPlugin from './linkage-form';
 // import loadDevices from './devices';
 
 
@@ -51,4 +52,6 @@ export default (editor: Editor, opts: OPtion) => {
 //   loadTraits(editor, options);
   new LayoutPlugin(editor, options);
   new CustomTabPlugin(editor, options);
+  new LinkageFormPlugin(editor, options);
 };
+

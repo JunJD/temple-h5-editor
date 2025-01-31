@@ -98,20 +98,6 @@ export default function (editor: Editor, opt: Required<PluginOptions>) {
         }
     });
 
-    // 添加金额输入块
-    addBlock(typeAmountInput, {
-        label: '金额输入',
-        content: {
-            type: typeFormItem,
-            attributes: { name: 'amount' },
-            components: [{
-                type: typeAmountInput,
-                label: '金额',
-                placeholder: '请输入金额'
-            }]
-        }
-    });
-
     // 单选按钮组块
     addBlock(typeRadioButtonGroup, {
         label: '单选按钮组',

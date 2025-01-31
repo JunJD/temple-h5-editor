@@ -10,7 +10,7 @@ import { useState } from 'react'
 import LinkageForm from '@/plugins/linkageForm'
 import gjsWrapper from '@/plugins/wrapper'
 import v5 from '@/plugins/v5'
-import Linkage from '@/plugins/linkage'
+// import Linkage from '@/plugins/linkage'
 import gjsblockbasic from 'grapesjs-blocks-basic';
 import gjsStyleEasing from 'grapesjs-style-easing';
 import gjsPluginGoogleMaterialIcons from 'grapesjs-google-material-icons'
@@ -83,7 +83,7 @@ export default function BuilderEditor({ children, projectData, id }: { children:
           // @ts-ignore
           gjsPluginExport,
           LinkageForm,
-          Linkage,
+          // Linkage,
           gjsWrapper,
           v5,
           formatTempList,
