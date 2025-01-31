@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
+import { PopoverPicker } from './PopoverPicker'
 
 interface TraitFieldProps {
   trait: Trait
@@ -165,75 +166,14 @@ export function TraitField({ trait }: TraitFieldProps) {
         </div>
       )
 
-    case 'linkage':
+    case 'color':
       return (
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Checkbox
-              id={`${trait.getId()}-enabled`}
-              checked={value?.enabled || false}
-              onCheckedChange={(checked) => {
-                trait.setValue({
-                  ...value,
-                  enabled: checked
-                });
-              }}
-            />
-            <Label htmlFor={`${trait.getId()}-enabled`}>参与数据联动</Label>
-          </div>
-          
-          {value?.enabled && (
-            <div className="space-y-4 pl-6">
-              <div className="space-y-2">
-                <Label>字段值</Label>
-                <Input
-                  value={value.fieldValue || ''}
-                  onChange={(e) => {
-                    trait.setValue({
-                      ...value,
-                      fieldValue: e.target.value
-                    });
-                  }}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label>字段值类型</Label>
-                <Select
-                  value={value.sourceType || 'fixed'}
-                  onValueChange={(sourceType) => {
-                    trait.setValue({
-                      ...value,
-                      sourceType: sourceType as 'fixed' | 'user-input'
-                    });
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="fixed">固定值</SelectItem>
-                    <SelectItem value="user-input">用户输入</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {value.sourceType === 'user-input' && (
-                <div className="space-y-2">
-                  <Label>用户输入字段</Label>
-                  <Input
-                    value={value.sourceValue || ''}
-                    onChange={(e) => {
-                      trait.setValue({
-                        ...value,
-                        sourceValue: e.target.value
-                      });
-                    }}
-                  />
-                </div>
-              )}
-            </div>
-          )}
+        <div className="space-y-2">
+          <Label>{trait.getLabel()}</Label>
+          <PopoverPicker
+            color={value || defaultValue}
+            onChange={(color) => handleChange(color)}
+          />
         </div>
       )
 

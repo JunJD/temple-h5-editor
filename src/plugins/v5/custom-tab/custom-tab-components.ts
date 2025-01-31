@@ -1,7 +1,7 @@
-import { Editor, PluginOptions } from "grapesjs";
+import { Editor, PluginOptions, Trait } from "grapesjs";
 import { BaseLoadComponents } from "../common/base";
 import { BaseTraitsFactory } from "../common/traits-factory";
-import { TAB_TYPES, TAB_HEIGHT } from "./constants";
+import { TAB_TYPES, TAB_HEIGHT, TAB_BORDER_COLOR, TAB_ACTIVE_BORDER_COLOR } from "./constants";
 
 
 
@@ -17,7 +17,8 @@ class CustomTabTraitsFactory extends BaseTraitsFactory {
             type: 'color',
             label: '边框颜色',
             name: 'border-color',
-            default: '#dfd2af'
+            default: TAB_BORDER_COLOR,
+            changeProp: true
         };
     }
 
@@ -27,7 +28,8 @@ class CustomTabTraitsFactory extends BaseTraitsFactory {
             type: 'color',
             label: '激活边框颜色',
             name: 'active-border-color',
-            default: '#b99d61'
+            default: TAB_ACTIVE_BORDER_COLOR,
+            changeProp: true
         };
     }
 
@@ -37,7 +39,8 @@ class CustomTabTraitsFactory extends BaseTraitsFactory {
             type: 'text',
             label: '标签标题',
             name: 'tab-title',
-            default: '标签页'
+            default: '标签页',
+            changeProp: true
         };
     }
 
@@ -94,10 +97,38 @@ export class CustomTabComponents extends BaseLoadComponents {
                         CustomTabTraitsFactory.getAddTabTrait(),
                         CustomTabTraitsFactory.getRemoveTabTrait()
                     ],
-                    script: function() {
+                    'script-props': ['border-color', 'active-border-color'],
+                    script: function(props) {
+                        console.log('TabContainer script:', props);
                         const el = this as HTMLElement;
                         const tabs = el.querySelectorAll('[role="tab"]');
                         
+                        // 设置边框颜色
+                        const tabsEl = el.querySelector('.nav-underline') as HTMLElement;
+                        if (tabsEl) {
+                            const borderColor = props['border-color'] || TAB_BORDER_COLOR;
+                            tabsEl.style.borderTop = `2px solid ${borderColor}`;
+                            tabsEl.style.borderBottom = `2px solid ${borderColor}`;
+                        }
+
+                        // 设置激活状态的边框颜色
+                        const activeBorderColor = props['active-border-color'] || TAB_ACTIVE_BORDER_COLOR;
+                        const styleEl = el.querySelector('style[data-tab-style]');
+                        const styleContent = `
+                            #${el.id} .nav-link.active {
+                                border-bottom-color: ${activeBorderColor} !important;
+                            }
+                        `;
+
+                        if (!styleEl) {
+                            const newStyleEl = document.createElement('style');
+                            newStyleEl.setAttribute('data-tab-style', '');
+                            newStyleEl.textContent = styleContent;
+                            el.appendChild(newStyleEl);
+                        } else {
+                            styleEl.textContent = styleContent;
+                        }
+
                         tabs.forEach(tab => {
                             tab.addEventListener('click', e => {
                                 e.preventDefault();
@@ -129,26 +160,18 @@ export class CustomTabComponents extends BaseLoadComponents {
                 },
 
                 init() {
-                    this.on('change:traits', this.handleTraitChange);
-                    this.on('change:attributes:data-tab-count', this.handleTabCountChange);
-                },
-
-                handleTraitChange() {
-                    const borderColor = this.getTrait('border-color').getValue();
-                    const tabsEl = this.view.el.querySelector('.nav-tabs');
-                    if (tabsEl) {
-                        tabsEl.style.borderColor = borderColor;
-                    }
+                    // 不需要手动更新script-props，trait的值会自动传递给script函数
+                    // 只需要保留添加和删除标签页的功能即可
                 },
 
                 addNewTab() {
                     // 获取tabs容器
-                    const tabsContainer = this.components().find(comp => 
+                    const tabsContainer = this.components().find(comp =>
                         comp.get('type') === TAB_TYPES['tabs']
                     );
 
                     // 获取contents容器
-                    const contentsContainer = this.components().find(comp => 
+                    const contentsContainer = this.components().find(comp =>
                         comp.get('type') === TAB_TYPES['tab-contents']
                     );
 
@@ -162,7 +185,8 @@ export class CustomTabComponents extends BaseLoadComponents {
                         tabsContainer.components().add({
                             type: TAB_TYPES['tab'],
                             classes: ['nav-item', 'nav-link'],
-                            content: `标签页 ${newIndex}`,
+                            traits: [CustomTabTraitsFactory.getTabTitleTrait()],
+                            content: '标签页',  // 使用与trait默认值相同的标题
                             attributes: {
                                 role: 'tab',
                                 'data-bs-toggle': 'tab',
@@ -182,7 +206,7 @@ export class CustomTabComponents extends BaseLoadComponents {
                             components: [
                                 {
                                     type: 'text',
-                                    content: `标签页 ${newIndex} 内容`
+                                    content: '标签页 内容'
                                 }
                             ]
                         });
@@ -198,12 +222,12 @@ export class CustomTabComponents extends BaseLoadComponents {
                     if (!targetId) return;
 
                     // 获取tabs容器
-                    const tabsContainer = this.components().find(comp => 
+                    const tabsContainer = this.components().find(comp =>
                         comp.get('type') === TAB_TYPES['tabs']
                     );
 
                     // 获取contents容器
-                    const contentsContainer = this.components().find(comp => 
+                    const contentsContainer = this.components().find(comp =>
                         comp.get('type') === TAB_TYPES['tab-contents']
                     );
 
@@ -215,7 +239,7 @@ export class CustomTabComponents extends BaseLoadComponents {
                         }
 
                         // 删除当前tab
-                        const tabComponent = tabsContainer.components().find(comp => 
+                        const tabComponent = tabsContainer.components().find(comp =>
                             comp.view.el === activeTab
                         );
                         if (tabComponent) {
@@ -227,7 +251,7 @@ export class CustomTabComponents extends BaseLoadComponents {
                                 const nextTarget = nextTab.getAttributes()['data-bs-target'];
                                 nextTab.addClass('active');
                                 nextTab.setAttributes({ 'aria-selected': 'true' });
-                                const nextContent = contentsContainer.components().find(comp => 
+                                const nextContent = contentsContainer.components().find(comp =>
                                     comp.getAttributes().id === nextTarget.substring(1)
                                 );
                                 if (nextContent) {
@@ -240,7 +264,7 @@ export class CustomTabComponents extends BaseLoadComponents {
                         }
 
                         // 删除对应的content
-                        const contentComponent = contentsContainer.components().find(comp => 
+                        const contentComponent = contentsContainer.components().find(comp =>
                             comp.getAttributes().id === targetId.substring(1)
                         );
                         if (contentComponent) {
@@ -265,8 +289,8 @@ export class CustomTabComponents extends BaseLoadComponents {
                         'justify-content': 'center',
                         padding: '0 8%',
                         'min-height': `${TAB_HEIGHT}px`,
-                        'border-top': `2px solid #dfd2af`,
-                        'border-bottom': `2px solid #dfd2af`,
+                        'border-top': '2px solid',
+                        'border-bottom': '2px solid',
                         'background-color': 'transparent'
                     },
                     attributes: {
@@ -283,6 +307,13 @@ export class CustomTabComponents extends BaseLoadComponents {
                     tagName: 'li',
                     classes: ['nav-item', 'nav-link'],
                     traits: [CustomTabTraitsFactory.getTabTitleTrait()],
+                    'script-props': ['tab-title'],
+                    script: function(props) {
+                        const el = this as HTMLElement;
+                        if (props['tab-title']) {
+                            el.textContent = props['tab-title'];
+                        }
+                    },
                     style: {
                         'background': 'none',
                         'padding': '0',
@@ -300,15 +331,6 @@ export class CustomTabComponents extends BaseLoadComponents {
                         'data-bs-toggle': 'tab',
                         'aria-selected': 'false'
                     }
-                },
-
-                init() {
-                    this.on('change:traits', this.handleTraitChange);
-                },
-
-                handleTraitChange() {
-                    const title = this.getTrait('tab-title').getValue();
-                    this.set('content', title);
                 }
             }
         });

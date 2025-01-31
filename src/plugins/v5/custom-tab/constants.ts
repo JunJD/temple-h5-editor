@@ -8,3 +8,6 @@ export const TAB_TYPES = {
 
 
 export const TAB_HEIGHT = 60
+
+export const TAB_BORDER_COLOR = '#dfd2af'
+export const TAB_ACTIVE_BORDER_COLOR = '#b99d61'
