@@ -1,23 +1,211 @@
 import { Editor, PluginOptions } from "grapesjs";
 import { GRID_BLOCKS } from "./constants";
 import { BaseLoadComponents } from "../base";
+import type { TraitProperties } from "grapesjs";
 
-type TraitOption = {
-    id: string;
-    name: string;
+// 选项类型定义
+interface SelectOption {
     value: string;
+    name: string;
+}
+
+// Traits工厂类
+export class TraitsFactory {
+    // 创建trait选项
+    private static createTraitOptions(options: SelectOption[]): any[] {
+        return options.map(opt => ({
+            id: opt.value || 'default',
+            label: opt.name,
+            name: opt.value,
+            value: opt.value
+        }));
+    }
+
+    // 创建基础select trait配置
+    private static createSelectTrait(
+        label: string,
+        name: string,
+        options: SelectOption[],
+        changeProp: boolean = false
+    ): Partial<TraitProperties> {
+        return {
+            type: 'select',
+            label,
+            name,
+            options: this.createTraitOptions(options),
+            changeProp
+        };
+    }
+
+    // 列宽相关traits
+    static getColumnWidthTraits(): Partial<TraitProperties> {
+        return this.createSelectTrait(
+            '基础列宽',
+            'col-base',
+            [
+                { value: 'col', name: '自动' },
+                { value: 'col-1', name: '1/12' },
+                { value: 'col-2', name: '2/12' },
+                { value: 'col-3', name: '3/12' },
+                { value: 'col-4', name: '4/12' },
+                { value: 'col-5', name: '5/12' },
+                { value: 'col-6', name: '6/12' },
+                { value: 'col-7', name: '7/12' },
+                { value: 'col-8', name: '8/12' },
+                { value: 'col-9', name: '9/12' },
+                { value: 'col-10', name: '10/12' },
+                { value: 'col-11', name: '11/12' },
+                { value: 'col-12', name: '12/12' },
+                { value: 'col-auto', name: '内容宽度' },
+            ]
+        );
+    }
+
+    // 间距相关traits
+    static getSpacingTraits(): Partial<TraitProperties>[] {
+        return [
+            this.createSelectTrait(
+                '水平间距',
+                'gx',
+                [
+                    { value: '', name: '默认' },
+                    { value: 'gx-0', name: '无间距' },
+                    { value: 'gx-1', name: '小' },
+                    { value: 'gx-2', name: '中' },
+                    { value: 'gx-3', name: '大' },
+                    { value: 'gx-4', name: '特大' },
+                    { value: 'gx-5', name: '超大' },
+                ],
+                true
+            ),
+            this.createSelectTrait(
+                '垂直间距',
+                'gy',
+                [
+                    { value: '', name: '默认' },
+                    { value: 'gy-0', name: '无间距' },
+                    { value: 'gy-1', name: '小' },
+                    { value: 'gy-2', name: '中' },
+                    { value: 'gy-3', name: '大' },
+                    { value: 'gy-4', name: '特大' },
+                    { value: 'gy-5', name: '超大' },
+                ],
+                true
+            )
+        ];
+    }
+
+    // 行列数相关traits
+    static getRowColsTraits(): Partial<TraitProperties> {
+        return this.createSelectTrait(
+            '列数',
+            'row-cols',
+            [
+                { value: '', name: '自动' },
+                { value: 'row-cols-1', name: '1列' },
+                { value: 'row-cols-2', name: '2列' },
+                { value: 'row-cols-3', name: '3列' },
+                { value: 'row-cols-4', name: '4列' },
+                { value: 'row-cols-5', name: '5列' },
+                { value: 'row-cols-6', name: '6列' },
+                { value: 'row-cols-auto', name: '自动宽度' },
+            ],
+            true
+        );
+    }
+
+    // 对齐相关traits
+    static getAlignmentTraits(): Partial<TraitProperties> {
+        return this.createSelectTrait(
+            '垂直对齐',
+            'align-self',
+            [
+                { value: '', name: '默认' },
+                { value: 'align-self-start', name: '顶部对齐' },
+                { value: 'align-self-center', name: '居中对齐' },
+                { value: 'align-self-end', name: '底部对齐' },
+            ]
+        );
+    }
+
+    // 偏移相关traits
+    static getOffsetTraits(): Partial<TraitProperties> {
+        return this.createSelectTrait(
+            '列偏移',
+            'offset',
+            [
+                { value: '', name: '无偏移' },
+                { value: 'offset-1', name: '偏移1格' },
+                { value: 'offset-2', name: '偏移2格' },
+                { value: 'offset-3', name: '偏移3格' },
+                { value: 'offset-4', name: '偏移4格' },
+                { value: 'offset-5', name: '偏移5格' },
+                { value: 'offset-6', name: '偏移6格' },
+                { value: 'offset-7', name: '偏移7格' },
+                { value: 'offset-8', name: '偏移8格' },
+                { value: 'offset-9', name: '偏移9格' },
+                { value: 'offset-10', name: '偏移10格' },
+                { value: 'offset-11', name: '偏移11格' },
+            ]
+        );
+    }
+
+    // 排序相关traits
+    static getOrderTraits(): Partial<TraitProperties> {
+        return this.createSelectTrait(
+            '排序',
+            'order',
+            [
+                { value: '', name: '默认' },
+                { value: 'order-first', name: '最前' },
+                { value: 'order-last', name: '最后' },
+                { value: 'order-0', name: '0' },
+                { value: 'order-1', name: '1' },
+                { value: 'order-2', name: '2' },
+                { value: 'order-3', name: '3' },
+                { value: 'order-4', name: '4' },
+                { value: 'order-5', name: '5' },
+            ]
+        );
+    }
+
+    // 外边距相关traits
+    static getMarginTraits(): Partial<TraitProperties> {
+        return this.createSelectTrait(
+            '外边距',
+            'margin',
+            [
+                { value: '', name: '默认' },
+                { value: 'ms-auto', name: '左侧自动' },
+                { value: 'me-auto', name: '右侧自动' },
+                { value: 'mx-auto', name: '水平居中' },
+            ]
+        );
+    }
+
+    // 获取行组件的所有traits
+    static getRowTraits(): Partial<TraitProperties>[] {
+        return [
+            this.getRowColsTraits(),
+            ...this.getSpacingTraits()
+        ];
+    }
+
+    // 获取列组件的所有traits
+    static getColumnTraits(): Partial<TraitProperties>[] {
+        return [
+            this.getColumnWidthTraits(),
+            this.getAlignmentTraits(),
+            this.getOffsetTraits(),
+            this.getOrderTraits(),
+            this.getMarginTraits()
+        ];
+    }
 }
 
 export class GridComponents extends BaseLoadComponents {
     constructor(editor: Editor, options: PluginOptions) {
         super(editor, options);
-    }
-
-    private createTraitOptions(options: { value: string; name: string; }[]): TraitOption[] {
-        return options.map(opt => ({
-            ...opt,
-            id: opt.value || 'default'
-        }));
     }
 
     load() {
@@ -60,62 +248,15 @@ export class GridComponents extends BaseLoadComponents {
                     tagName: 'div',
                     classes: ['row'],
                     droppable: { selector: '.col, [class*="col-"]' },
-                    draggable: true,  // 可以放在任何容器中
-                    'custom-name': '行',  // 在组件树中显示的名称
+                    draggable: true,
+                    'custom-name': '行',
                     attributes: {
                         'data-gjs-highlightable': true,
                         'data-gjs-type': 'grid-row',
                         'draggable': true,
                         'data-dm-category': 'layout'
                     },
-                    traits: [
-                        {
-                            type: 'select',
-                            label: '列数',
-                            name: 'row-cols',
-                            options: this.createTraitOptions([
-                                { value: '', name: '自动' },
-                                { value: 'row-cols-1', name: '1列' },
-                                { value: 'row-cols-2', name: '2列' },
-                                { value: 'row-cols-3', name: '3列' },
-                                { value: 'row-cols-4', name: '4列' },
-                                { value: 'row-cols-5', name: '5列' },
-                                { value: 'row-cols-6', name: '6列' },
-                                { value: 'row-cols-auto', name: '自动宽度' },
-                            ]),
-                            changeProp: true
-                        },
-                        {
-                            type: 'select',
-                            label: '水平间距',
-                            name: 'gx',
-                            options: this.createTraitOptions([
-                                { value: '', name: '默认' },
-                                { value: 'gx-0', name: '无间距' },
-                                { value: 'gx-1', name: '小' },
-                                { value: 'gx-2', name: '中' },
-                                { value: 'gx-3', name: '大' },
-                                { value: 'gx-4', name: '特大' },
-                                { value: 'gx-5', name: '超大' },
-                            ]),
-                            changeProp: true
-                        },
-                        {
-                            type: 'select',
-                            label: '垂直间距',
-                            name: 'gy',
-                            options: this.createTraitOptions([
-                                { value: '', name: '默认' },
-                                { value: 'gy-0', name: '无间距' },
-                                { value: 'gy-1', name: '小' },
-                                { value: 'gy-2', name: '中' },
-                                { value: 'gy-3', name: '大' },
-                                { value: 'gy-4', name: '特大' },
-                                { value: 'gy-5', name: '超大' },
-                            ]),
-                            changeProp: true
-                        }
-                    ]
+                    traits: TraitsFactory.getRowTraits()
                 },
 
                 init() {
@@ -221,43 +362,72 @@ export class GridComponents extends BaseLoadComponents {
                         'draggable': true,
                         'data-dm-category': 'layout'
                     },
-                    traits: [
-                        {
-                            type: 'select',
-                            label: '基础列宽',
-                            name: 'col-base',
-                            options: this.createTraitOptions([
-                                { value: 'col', name: '自动' },
-                                { value: 'col-1', name: '1/12' },
-                                { value: 'col-2', name: '2/12' },
-                                { value: 'col-3', name: '3/12' },
-                                { value: 'col-4', name: '4/12' },
-                                { value: 'col-5', name: '5/12' },
-                                { value: 'col-6', name: '6/12' },
-                                { value: 'col-7', name: '7/12' },
-                                { value: 'col-8', name: '8/12' },
-                                { value: 'col-9', name: '9/12' },
-                                { value: 'col-10', name: '10/12' },
-                                { value: 'col-11', name: '11/12' },
-                                { value: 'col-12', name: '12/12' },
-                                { value: 'col-auto', name: '内容宽度' },
-                            ]),
-                            changeProp: true
-                        }
-                    ],
-                    'custom-name': '列'  // 在组件树中显示的名称
+                    traits: TraitsFactory.getColumnTraits(),
+                    'custom-name': '列'
                 },
 
                 init() {
                     this.on('change:col-base', this.handleColBaseChange);
+                    this.on('change:align-self', this.handleAlignSelfChange);
+                    this.on('change:offset', this.handleOffsetChange);
+                    this.on('change:order', this.handleOrderChange);
+                    this.on('change:margin', this.handleMarginChange);
                 },
 
                 handleColBaseChange() {
                     const value = this.get('col-base');
-                    // 移除所有现有的 col 类
+                    // 移除所有现有的 col- 类
                     const classes = this.getClasses();
-                    const colClasses = classes.filter(cls => cls === 'col' || cls.startsWith('col-'));
+                    const colClasses = classes.filter(cls => cls.startsWith('col-') || cls === 'col');
                     this.removeClass(colClasses);
+                    // 添加新的类
+                    if (value) {
+                        this.addClass(value);
+                    }
+                },
+
+                handleAlignSelfChange() {
+                    const value = this.get('align-self');
+                    // 移除所有现有的 align-self 类
+                    const classes = this.getClasses();
+                    const alignClasses = classes.filter(cls => cls.startsWith('align-self-'));
+                    this.removeClass(alignClasses);
+                    // 添加新的类
+                    if (value) {
+                        this.addClass(value);
+                    }
+                },
+
+                handleOffsetChange() {
+                    const value = this.get('offset');
+                    // 移除所有现有的 offset 类
+                    const classes = this.getClasses();
+                    const offsetClasses = classes.filter(cls => cls.startsWith('offset-'));
+                    this.removeClass(offsetClasses);
+                    // 添加新的类
+                    if (value) {
+                        this.addClass(value);
+                    }
+                },
+
+                handleOrderChange() {
+                    const value = this.get('order');
+                    // 移除所有现有的 order 类
+                    const classes = this.getClasses();
+                    const orderClasses = classes.filter(cls => cls.startsWith('order-'));
+                    this.removeClass(orderClasses);
+                    // 添加新的类
+                    if (value) {
+                        this.addClass(value);
+                    }
+                },
+
+                handleMarginChange() {
+                    const value = this.get('margin');
+                    // 移除所有现有的 margin 类
+                    const classes = this.getClasses();
+                    const marginClasses = classes.filter(cls => cls === 'ms-auto' || cls === 'me-auto' || cls === 'mx-auto');
+                    this.removeClass(marginClasses);
                     // 添加新的类
                     if (value) {
                         this.addClass(value);
