@@ -20,7 +20,7 @@ import gjsStyleEasing from 'grapesjs-style-easing';
 import formatTempList from '@/plugins/formatTempList'
 // import customCodePlugin from "grapesjs-custom-code";
 // import grapesjsTabs from 'grapesjs-tabs';
-import grapesRulers from 'grapesjs-rulers';
+import grapesRulers from '@/plugins/customRules';
 // import grapesUserBlocks from 'grapesjs-user-blocks';
 // @ts-ignore
 import gjsPluginExport from 'grapesjs-plugin-export';
@@ -35,18 +35,10 @@ import '@/styles/grapesjs.css';
 import '@/styles/fonts.css';
 
 export default function BuilderEditor({ children, projectData, id }: { children: React.ReactNode, projectData: ObjectAny, id: string }) {
-  const [isLoading, setIsLoading] = useState(true)
 
   const onEditor = (editor: Editor) => {
-    console.log('Editor loaded')
-      ; (window as any).editor = editor
-
     // 注册组件
     registerComponents(editor)
-  }
-
-  const onReady = (editor: Editor) => {
-    setIsLoading(false)
   }
 
   return (
@@ -96,8 +88,7 @@ export default function BuilderEditor({ children, projectData, id }: { children:
           gjsStyleGradient,
           gjsTuiImageEditor,
         ]}
-        onEditor={onEditor}
-        onReady={onReady}
+        onReady={onEditor}
       >
         {children}
       </GjsEditor>
