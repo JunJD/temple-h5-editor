@@ -100,15 +100,15 @@ export default class Ruler {
     constructor(options: RulerOptions) {
         this.canvasPointerEvents = options.canvas.style.pointerEvents;
         this.options = {
-            rulerHeight: 15,
-            fontFamily: 'arial',
-            fontSize: '8px',
-            strokeStyle: 'gray',
+                rulerHeight: 15,
+                fontFamily: 'arial',
+                fontSize: '8px',
+                strokeStyle: 'gray',
             fillStyle: 'white',
-            sides: ['top', 'left'],
-            cornerSides: ['TL'],
-            lineWidth: 1,
-            enableMouseTracking: true,
+                sides: ['top', 'left'],
+                cornerSides: ['TL'],
+                lineWidth: 1,
+                enableMouseTracking: true,
             enableToolTip: true,
             cornerIcon: '',
             container: options.container,
@@ -247,43 +247,43 @@ export default class Ruler {
     };
 
     private rotateRuler = (curRuler, angle) => {
-        const rotation = 'rotate(' + angle + 'deg)';
-        const origin = this.utils.pixelize(Math.abs(parseInt(curRuler.canvas.style.left))) + ' 100%';
-        curRuler.canvas.style.webkitTransform = rotation;
-        curRuler.canvas.style.MozTransform = rotation;
-        curRuler.canvas.style.OTransform = rotation;
-        curRuler.canvas.style.msTransform = rotation;
-        curRuler.canvas.style.transform = rotation;
-        curRuler.canvas.style.webkitTransformOrigin = origin;
-        curRuler.canvas.style.MozTransformOrigin = origin;
-        curRuler.canvas.style.OTransformOrigin = origin;
-        curRuler.canvas.style.msTransformOrigin = origin;
-        curRuler.canvas.style.transformOrigin = origin;
-    };
+            const rotation = 'rotate(' + angle + 'deg)';
+            const origin = this.utils.pixelize(Math.abs(parseInt(curRuler.canvas.style.left))) + ' 100%';
+            curRuler.canvas.style.webkitTransform = rotation;
+            curRuler.canvas.style.MozTransform = rotation;
+            curRuler.canvas.style.OTransform = rotation;
+            curRuler.canvas.style.msTransform = rotation;
+            curRuler.canvas.style.transform = rotation;
+            curRuler.canvas.style.webkitTransformOrigin = origin;
+            curRuler.canvas.style.MozTransformOrigin = origin;
+            curRuler.canvas.style.OTransformOrigin = origin;
+            curRuler.canvas.style.msTransformOrigin = origin;
+            curRuler.canvas.style.transformOrigin = origin;
+        };
 
     private constructCorner = (container, cornerSides) => {
         const cornerDraw = (container: HTMLElement, side: string): Corner => {
-            const corner = document.createElement('div'),
-                cornerStyle = 'rul_corner' + side.toUpperCase();
+                const corner = document.createElement('div'),
+                    cornerStyle = 'rul_corner' + side.toUpperCase();
 
-            corner.title = 'Clear Guide lines';
+                corner.title = 'Clear Guide lines';
             this.utils.addClasss(corner, ['rul_corner', cornerStyle, this.options.cornerIcon]);
             corner.style.width = this.utils.pixelize(this.options.rulerHeight + 1);
             corner.style.height = this.utils.pixelize(this.options.rulerHeight);
             corner.style.lineHeight = this.utils.pixelize(this.options.rulerHeight);
-            return container.appendChild(corner);
-        }
+                return container.appendChild(corner);
+            }
 
         const mousedown = (e: MouseEvent) => {
-            e.stopPropagation();
+                e.stopPropagation();
             this.clearGuides();
-        }
+            }
 
-        cornerSides.forEach(function (side) {
-            const corner = cornerDraw(container, side);
-            corner.addEventListener('mousedown', mousedown);
-            corner.destroy = function () {
-                corner.removeEventListener('mousedown', mousedown);
+                cornerSides.forEach(function (side) {
+                    const corner = cornerDraw(container, side);
+                    corner.addEventListener('mousedown', mousedown);
+                    corner.destroy = function () {
+                        corner.removeEventListener('mousedown', mousedown);
                 corner.parentNode?.removeChild(corner);
             };
             this.corners.push(corner);
@@ -292,8 +292,8 @@ export default class Ruler {
 
     private clearGuides = () => {
         this.guides.forEach(function (guide) {
-            guide.line.destroy();
-        });
+                guide.line.destroy();
+            });
         this.guides = [];
     };
 
@@ -304,16 +304,16 @@ export default class Ruler {
     };
 
     private toggleGuideVisibility = (val: boolean): void => {
-        const func = val ? 'show' : 'hide';
+            const func = val ? 'show' : 'hide';
         this.guides.forEach((guide) => {
             if (guide.line && typeof guide.line[func] === 'function') {
                 guide.line[func]();
             }
-        });
-    };
+            });
+        };
 
     private toggleRulerVisibility = (val: boolean): void => {
-        const state = val ? 'block' : 'none';
+            const state = val ? 'block' : 'none';
         if (this.theRulerDOM) {
             this.theRulerDOM.style.display = state;
         }
@@ -327,19 +327,19 @@ export default class Ruler {
 
     private getGuides = () => {
         return this.guides.map(function (guide) {
-            return {
+                return {
                 posX: Math.round((parseInt(guide.line.guideLine.style.left) - this.options.rulerHeight + this.SCROLL_X) * this.CUR_SCALE),
                 posY: Math.round((parseInt(guide.line.guideLine.style.top) - this.options.rulerHeight + this.SCROLL_Y) * this.CUR_SCALE),
-                dimension: guide.dimension
-            }
+                    dimension: guide.dimension
+                }
         }.bind(this));
-    };
+        };
 
     private setGuides = (_guides) => {
-        if (!_guides || !_guides.length) {
-            return
-        }
-        _guides.forEach(function (guide) {
+            if (!_guides || !_guides.length) {
+                return
+            }
+            _guides.forEach(function (guide) {
             this.constructGuide(guide.dimension, guide.posX, guide.posY, null, true)
         }.bind(this));
     };
@@ -525,18 +525,18 @@ export default class Ruler {
         };
 
         const draggable = {
-            cv: () => {
-                return this.options.canvas;
-            },
+                cv: () => {
+                    return this.options.canvas;
+                },
             move: (xpos: number, ypos: number) => {
-                guideLine.style.left = this.utils.pixelize(xpos);
-                guideLine.style.top = this.utils.pixelize(ypos);
+                    guideLine.style.left = this.utils.pixelize(xpos);
+                    guideLine.style.top = this.utils.pixelize(ypos);
                 this.updateToolTip(xpos, ypos);
                 _moveCB(self, xpos, ypos);
-            },
+                },
             startMoving: (evt: MouseEvent) => {
-                draggable.cv().style.pointerEvents = 'none';
-                this.utils.addClasss(guideLine, ['rul_line_dragged']);
+                    draggable.cv().style.pointerEvents = 'none';
+                    this.utils.addClasss(guideLine, ['rul_line_dragged']);
                 const posX = evt ? evt.clientX : 0;
                 const posY = evt ? evt.clientY : 0;
                 const divTop = parseInt(guideLine.style.top || '0');
@@ -548,7 +548,7 @@ export default class Ruler {
                 const cursor = dimension === 2 ? 'ns-resize' : 'ew-resize';
 
                 this.options.container.style.cursor = cursor;
-                guideLine.style.cursor = cursor;
+                    guideLine.style.cursor = cursor;
                 const diffX = posX - divLeft;
                 const diffY = posY - divTop;
 
@@ -563,17 +563,17 @@ export default class Ruler {
                     if (aX + eWi > cWi) aX = cWi - eWi;
                     if (aY + eHe > cHe) aY = cHe - eHe;
 
-                    draggable.move(aX, aY);
-                };
+                        draggable.move(aX, aY);
+                    };
                 this.showToolTip(evt);
-            },
-            stopMoving: () => {
-                draggable.cv().style.pointerEvents = this.canvasPointerEvents;
+                },
+                stopMoving: () => {
+                    draggable.cv().style.pointerEvents = this.canvasPointerEvents;
                 this.options.container.style.cursor = '';
                 guideLine.style.cursor = '';
                 document.onmousemove = null;
                 this.hideToolTip(new MouseEvent('mouseout'));
-                this.utils.removeClasss(guideLine, ['rul_line_dragged']);
+                    this.utils.removeClasss(guideLine, ['rul_line_dragged']);
             }
         };
 

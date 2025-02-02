@@ -3,10 +3,85 @@
 import type { Editor } from 'grapesjs';
 
 export const typeFormatTempList = 'format-temp-list';
+export const typeFormatTempItem = 'format-temp-item';
+
+interface TraitOption {
+  id: string;
+  name: string;
+  value: string;
+}
 
 export default function (editor: Editor) {
   const { Components } = editor;
 
+  // 列表项组件
+  Components.addType(typeFormatTempItem, {
+    isComponent: el => el.classList?.contains('format-temp-item'),
+    model: {
+      defaults: {
+        name: '列表项',
+        tagName: 'li',
+        droppable: false,
+        classes: ['format-temp-item'],
+        traits: [
+          {
+            type: 'select',
+            name: 'textAlign',
+            label: '文字对齐',
+            options: [
+              { id: 'left', value: 'left', name: '左对齐' },
+              { id: 'center', value: 'center', name: '居中' },
+              { id: 'right', value: 'right', name: '右对齐' },
+            ],
+            default: 'left',
+          },
+          {
+            type: 'color',
+            name: 'color',
+            label: '文字颜色',
+            default: '#212529',
+          },
+          {
+            type: 'number',
+            name: 'fontSize',
+            label: '字体大小',
+            default: 16,
+            min: 12,
+            max: 72,
+          },
+          {
+            type: 'select',
+            name: 'fontWeight',
+            label: '字体粗细',
+            options: [
+              { id: '400', value: '400', name: '常规' },
+              { id: '500', value: '500', name: '中等' },
+              { id: '600', value: '600', name: '加粗' },
+              { id: '700', value: '700', name: '粗体' },
+            ],
+            default: '400',
+          }
+        ],
+        styles: `
+          .format-temp-item {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            transition: all 0.2s ease-in-out;
+          }
+          .format-temp-item:hover {
+            background-color: #e9ecef;
+            border-color: #ced4da;
+            transform: translateY(-1px);
+          }
+        `
+      }
+    }
+  });
+
+  // 列表容器组件
   Components.addType(typeFormatTempList, {
     isComponent: el => el.classList?.contains('format-temp-list'),
     model: {
@@ -29,36 +104,117 @@ export default function (editor: Editor) {
             changeProp: true,
           },
           {
-            type: 'text',
+            type: 'rich-input',
             name: 'template',
             label: '格式化模板',
-            default: '${name}: ${value}',
+            default: '<span class="temp-item-name">${name}</span>: <span class="temp-item-value">${value}</span>',
             changeProp: true,
-          }
+          },
+          {
+            type: 'select',
+            name: 'textAlign',
+            label: '文字对齐',
+            options: [
+              { id: 'left', value: 'left', name: '左对齐' },
+              { id: 'center', value: 'center', name: '居中' },
+              { id: 'right', value: 'right', name: '右对齐' },
+            ],
+            default: 'left',
+            changeProp: true,
+          },
+          {
+            type: 'color',
+            name: 'textColor',
+            label: '文字颜色',
+            default: '#212529',
+            changeProp: true,
+          },
+          {
+            type: 'number',
+            name: 'fontSize',
+            label: '字体大小',
+            default: 16,
+            min: 12,
+            max: 72,
+            changeProp: true,
+          },
+          {
+            type: 'select',
+            name: 'fontWeight',
+            label: '字体粗细',
+            options: [
+              { id: '400', value: '400', name: '常规' },
+              { id: '500', value: '500', name: '中等' },
+              { id: '600', value: '600', name: '加粗' },
+              { id: '700', value: '700', name: '粗体' },
+            ],
+            default: '400',
+            changeProp: true,
+          },
+          {
+            type: 'color',
+            name: 'backgroundColor',
+            label: '背景颜色',
+            default: '#f8f9fa',
+            changeProp: true,
+          },
+          {
+            type: 'color',
+            name: 'borderColor',
+            label: '边框颜色',
+            default: '#dee2e6',
+            changeProp: true,
+          },
         ],
         styles: `
+          .format-temp-list {
+            height: 100%;
+            background: #fff;
+            border-radius: 0.375rem;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            overflow: hidden;
+          }
+
           .format-temp-list .infinite-scroll {
             height: 100%;
             overflow-y: auto;
+            padding: 1rem;
           }
 
-        .format-temp-list .infinite-scroll::-webkit-scrollbar {
+          .format-temp-list .infinite-scroll::-webkit-scrollbar {
             display: none;
-        }
+          }
 
-        .format-temp-list .infinite-scroll ul {
+          .format-temp-list .infinite-scroll ul {
             list-style-type: none;
-            font-size: 40px;
+            padding: 0;
+            margin: 0;
+          }
+
+          .format-temp-list .infinite-scroll ul li {
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.5rem;
+            border-radius: 0.25rem;
+            transition: all 0.2s ease-in-out;
+          }
+
+          .format-temp-list .infinite-scroll ul li:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
           }
         `,
-        'script-props': ['apiUrl', 'template', 'autoScroll'],
+        'script-props': ['apiUrl', 'template', 'template', 'autoScroll', 'textAlign', 'textColor', 'fontSize', 'fontWeight', 'backgroundColor', 'borderColor'],
         script: function (props) {
           const el = this;
           const apiUrl = props.apiUrl || '/api/list';
-          const template = props.template || '${name}: ${value}';
+          const template = props.template || '<span class="temp-item-name">${name}</span>: <span class="temp-item-value">${value}</span>';
           const autoScroll = props.autoScroll || true;
-          let scrollAnimation: number;
-          let isPaused = false;
+          const textAlign = props.textAlign || 'left';
+          const textColor = props.textColor || '#212529';
+          const fontSize = props.fontSize || 16;
+          const fontWeight = props.fontWeight || '400';
+          const backgroundColor = props.backgroundColor || '#f8f9fa';
+          const borderColor = props.borderColor || '#dee2e6';
 
           const fetchAndRender = async () => {
             try {
@@ -79,21 +235,27 @@ export default function (editor: Editor) {
               const container = document.createElement('div');
               container.className = 'infinite-scroll';
 
+              console.log('textAlign => ', textAlign);
+              console.log('fontWeight => ', fontWeight);
+
               const createList = () => {
                 const ul = document.createElement('ul');
                 data.forEach(item => {
                   const li = document.createElement('li');
-                  li.textContent = template.replace(/\${(\w+)}/g, (_, key) => item[key] || '');
+                  li.style.textAlign = textAlign;
+                  li.style.color = textColor;
+                  li.style.fontSize = fontSize + 'px';
+                  li.style.fontWeight = fontWeight;
+                  li.style.backgroundColor = backgroundColor;
+                  li.style.border = '1px solid ' + borderColor;
+                  li.innerHTML = template.replace(/\${(\w+)}/g, (_, key) => item[key] || '');
                   ul.appendChild(li);
                 });
                 return ul;
               };
 
-              // 添加两个相同的列表
               const list1 = createList();
-
               container.appendChild(list1);
-
               el.innerHTML = '';
               el.appendChild(container);
 
@@ -111,34 +273,26 @@ export default function (editor: Editor) {
                   appendToUp();
                 }
 
-
-                // moving to the center of the list
                 container.scrollTop = ulDefaultHeight / 2;
 
                 container.addEventListener("scroll", event => {
                   const currentScroll = container.scrollTop;
 
-                  // to scroll down
                   if (
                     currentScroll > (container.offsetHeight * 3) / 4 &&
                     list1.offsetHeight - container.offsetHeight < currentScroll
                   ) {
                     appendToDown();
-
-                    // removing the top elements so that the code page doesn't fill up
                     for (let i = 0; i < liDefaultValues.length; i++) {
                       container.querySelector('ul li')?.remove();
                     }
                   }
 
-                  // to scroll up
                   if (
                     currentScroll < container.offsetHeight / 4 &&
                     container.scrollTop < container.offsetHeight - ulDefaultHeight
                   ) {
                     appendToUp();
-
-                    // removing the bottom elements so that the code page doesn't fill up
                     for (let i = 0; i < liDefaultValues.length; i++) {
                       container.querySelector('ul li')?.remove();
                     }

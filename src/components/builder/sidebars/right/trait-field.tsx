@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { PopoverPicker } from './PopoverPicker'
+import { RichInput } from '@/components/ui/rich-input'
 
 interface TraitFieldProps {
   trait: Trait
@@ -175,6 +176,14 @@ export function TraitField({ trait }: TraitFieldProps) {
             onChange={(color) => handleChange(color)}
           />
         </div>
+      )
+
+    case 'rich-input':
+      return (
+        <RichInput
+          content={value}
+          onChange={(value) => handleChange(value)}
+        />
       )
 
     default:
