@@ -155,30 +155,28 @@ export default function (editor: Editor) {
             type: 'color',
             name: 'backgroundColor',
             label: '背景颜色',
-            default: '#f8f9fa',
+            default: 'transparent',
             changeProp: true,
           },
           {
             type: 'color',
             name: 'borderColor',
             label: '边框颜色',
-            default: '#dee2e6',
+            default: 'transparent',
             changeProp: true,
           },
         ],
         styles: `
           .format-temp-list {
             height: 100%;
-            background: #fff;
-            border-radius: 0.375rem;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            background: transparent;
             overflow: hidden;
           }
 
           .format-temp-list .infinite-scroll {
             height: 100%;
             overflow-y: auto;
-            padding: 1rem;
+            padding: 0.5rem;
           }
 
           .format-temp-list .infinite-scroll::-webkit-scrollbar {
@@ -192,15 +190,9 @@ export default function (editor: Editor) {
           }
 
           .format-temp-list .infinite-scroll ul li {
-            padding: 0.75rem 1rem;
-            margin-bottom: 0.5rem;
-            border-radius: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            margin-bottom: 0.25rem;
             transition: all 0.2s ease-in-out;
-          }
-
-          .format-temp-list .infinite-scroll ul li:hover {
-            transform: translateY(-1px);
-            opacity: 0.9;
           }
         `,
         'script-props': ['apiUrl', 'template', 'template', 'autoScroll', 'textAlign', 'textColor', 'fontSize', 'fontWeight', 'backgroundColor', 'borderColor'],
