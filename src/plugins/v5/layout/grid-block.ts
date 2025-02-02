@@ -29,7 +29,12 @@ class LayoutBlockFactory {
                         backgroundColor: 'rgba(0, 0, 0, 0.05)',
                         border: '1px solid rgba(0, 0, 0, 0.1)'
                     },
-                    content
+                    components: [
+                        {
+                            tagName: 'span',
+                            content
+                        }
+                    ]
                 }
             ]
         };

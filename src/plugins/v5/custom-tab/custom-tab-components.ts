@@ -98,11 +98,11 @@ export class CustomTabComponents extends BaseLoadComponents {
                         CustomTabTraitsFactory.getRemoveTabTrait()
                     ],
                     'script-props': ['border-color', 'active-border-color'],
-                    script: function(props) {
+                    script: function (props) {
                         console.log('TabContainer script:', props);
                         const el = this as HTMLElement;
                         const tabs = el.querySelectorAll('[role="tab"]');
-                        
+
                         // 设置边框颜色
                         const tabsEl = el.querySelector('.nav-underline') as HTMLElement;
                         if (tabsEl) {
@@ -115,8 +115,17 @@ export class CustomTabComponents extends BaseLoadComponents {
                         const activeBorderColor = props['active-border-color'] || TAB_ACTIVE_BORDER_COLOR;
                         const styleEl = el.querySelector('style[data-tab-style]');
                         const styleContent = `
+                            #${el.id} .nav-link {
+                                border-bottom: 3px solid transparent !important;
+                                transform: translateY(2px);
+                            }
                             #${el.id} .nav-link.active {
-                                border-bottom-color: ${activeBorderColor} !important;
+                                border-bottom: 3px solid ${activeBorderColor} !important;
+                                transform: translateY(2px);
+                            }
+                            #${el.id} .nav-link:hover {
+                                border-bottom: 3px solid ${activeBorderColor} !important;
+                                transform: translateY(2px);
                             }
                         `;
 
@@ -139,11 +148,11 @@ export class CustomTabComponents extends BaseLoadComponents {
                                         t.classList.remove('active');
                                         t.setAttribute('aria-selected', 'false');
                                     });
-                                    
+
                                     // 设置当前tab为active
                                     tab.classList.add('active');
                                     tab.setAttribute('aria-selected', 'true');
-                                    
+
                                     // 切换内容区域
                                     const contents = el.querySelectorAll('.tab-pane');
                                     contents.forEach(content => {
@@ -308,7 +317,7 @@ export class CustomTabComponents extends BaseLoadComponents {
                     classes: ['nav-item', 'nav-link'],
                     traits: [CustomTabTraitsFactory.getTabTitleTrait()],
                     'script-props': ['tab-title'],
-                    script: function(props) {
+                    script: function (props) {
                         const el = this as HTMLElement;
                         if (props['tab-title']) {
                             el.textContent = props['tab-title'];

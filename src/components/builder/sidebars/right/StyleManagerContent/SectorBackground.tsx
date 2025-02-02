@@ -13,15 +13,13 @@ import { Separator } from "@/components/ui/separator"
 import { Button } from "@/components/ui/button"
 import { 
   GoImage,
-  GoGrabber,
   GoSquareFill 
 } from "react-icons/go"
-import { GradientPicker } from '@/components/ui/GradientPicker'
-import { parseGradient } from '@/components/builder/utils/parseGradient'
 import StackField from '@/components/ui/StackField'
 import PropertyComposite from './PropertyComposite'
 import functionName from '@/lib/parsers/functionName'
 import { X } from 'lucide-react'
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 
 export interface Props extends React.HTMLProps<HTMLDivElement> {
   sector: any
@@ -29,7 +27,6 @@ export interface Props extends React.HTMLProps<HTMLDivElement> {
 
 export enum BackgroundType {
   Image = 'image',
-  Gradient = 'gradient',
   Color = 'color',
 }
 
@@ -48,11 +45,11 @@ const bgDef = {
   'background-position': '0px 0px',
 }
 
-const getColorValueFromImage = (value: string) => {
-  const result = value.includes('gradient(') ? 
-    parseGradient(value).colorStops[0].color : 
-    value
-  return result || ''
+const getColorValueFromImage = (value: string) => value || ''
+
+const getImageUrl = (value: string) => {
+  const { value: url } = functionName(value)
+  return url.replace(/^"(.+)"$/, '$1') // 移除首尾的双引号
 }
 
 export default function SectorBackground({ sector }: Props) {
@@ -67,21 +64,47 @@ export default function SectorBackground({ sector }: Props) {
   const propRepeat = propBg.getProperty('background-repeat')
   const propAttachment = propBg.getProperty('background-attachment')
   const propOrigin = propBg.getProperty('background-origin')
-  const layerIndex = propBg.getSelectedLayer()?.getIndex() || -1
 
   const propTypeValue = propType.getValue()
   const isImage = propTypeValue === 'image'
   const propImageValue = propImage.getValue()
 
   const openAssets = () => {
-    const am = editor.Assets
+    const am = editor.Assets;
+    if (!am) {
+      console.error('资产管理器未初始化');
+      return;
+    }
+
     am.open({
-      select(asset: any) {
-        const src = asset.getSrc()
-        propImage.upValue(`url("${src}")`)
-        am.close()
+      types: ['image'],
+      select(asset: { getSrc: () => string; getType: () => string }) {
+        try {
+          // 验证资产类型
+          if (asset.getType() !== 'image') {
+            console.error('请选择图片类型的资产');
+            return;
+          }
+
+          const src = asset.getSrc();
+          if (!src) {
+            console.error('无效的图片源');
+            return;
+          }
+
+          // 更新背景图片
+          const selectedComponent = editor.getSelected();
+          if (selectedComponent) {
+            selectedComponent.addStyle({
+              'background-image': `url("${src}")`,
+            });
+          }
+          am.close();
+        } catch (error) {
+          console.error('选择图片时发生错误:', error);
+        }
       }
-    })
+    });
   }
 
   const onTypeChange = (value: string) => {
@@ -90,8 +113,6 @@ export default function SectorBackground({ sector }: Props) {
     if (value === BackgroundType.Image) {
       image = `url("${BG_IMAGE}")`
       bgSize = BG_IMAGE_SIZE
-    } else if (value === BackgroundType.Gradient) {
-      image = 'linear-gradient(90deg, black 10%, white 90%)'
     } else if (value === BackgroundType.Color) {
       image = 'rgba(0, 0, 0, 0.5)'
     }
@@ -100,6 +121,62 @@ export default function SectorBackground({ sector }: Props) {
     propPos.upValue('0 0')
     propSize.upValue(`${bgSize} ${bgSize}`)
   }
+
+  const backgroundOptions = {
+    repeat: [
+      { id: 'repeat', label: '重复(Repeat)' },
+      { id: 'repeat-x', label: '水平重复(Repeat X)' },
+      { id: 'repeat-y', label: '垂直重复(Repeat Y)' },
+      { id: 'no-repeat', label: '不重复(No Repeat)' },
+      { id: 'space', label: '等间距(Space)' },
+      { id: 'round', label: '自适应(Round)' },
+    ],
+    attachment: [
+      { id: 'scroll', label: '滚动(Scroll)' },
+      { id: 'fixed', label: '固定(Fixed)' },
+      { id: 'local', label: '局部滚动(Local)' },
+    ],
+    origin: [
+      { id: 'padding-box', label: '内边距框(Padding Box)' },
+      { id: 'border-box', label: '边框框(Border Box)' },
+      { id: 'content-box', label: '内容框(Content Box)' },
+    ],
+    clip: [
+      { id: 'border-box', label: '边框框(Border Box)' },
+      { id: 'padding-box', label: '内边距框(Padding Box)' },
+      { id: 'content-box', label: '内容框(Content Box)' },
+      { id: 'text', label: '文本(Text)' },
+    ],
+  }
+
+  const renderBackgroundField = (prop: any, type: 'repeat' | 'attachment' | 'origin' | 'clip') => (
+    <div className="space-y-1.5">
+      <Label className="text-xs font-medium text-foreground/70">
+        {type === 'repeat' && '背景重复'}
+        {type === 'attachment' && '背景附着'}
+        {type === 'origin' && '背景原点'}
+        {type === 'clip' && '背景裁剪'}
+      </Label>
+      <Select
+        value={prop.getValue()}
+        onValueChange={value => prop.upValue(value)}
+      >
+        <SelectTrigger>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {backgroundOptions[type].map((opt) => (
+            <SelectItem 
+              key={opt.id} 
+              value={opt.id}
+            >
+              {opt.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  )
 
   const renderField = (prop: any, type: 'color' | 'select', label?: string) => (
     <div className="space-y-1.5">
@@ -149,20 +226,13 @@ export default function SectorBackground({ sector }: Props) {
         previewStyle={l => propBg.getStyleFromLayer(l, { camelCase: true })}
       >
         {/* Background Type */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 mb-4">
           <Button
             variant={propTypeValue === BackgroundType.Image ? 'default' : 'outline'}
             size="icon"
             onClick={() => onTypeChange(BackgroundType.Image)}
           >
             <GoImage className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={propTypeValue === BackgroundType.Gradient ? 'default' : 'outline'}
-            size="icon"
-            onClick={() => onTypeChange(BackgroundType.Gradient)}
-          >
-            <GoGrabber className="h-4 w-4" />
           </Button>
           <Button
             variant={propTypeValue === BackgroundType.Color ? 'default' : 'outline'}
@@ -175,16 +245,76 @@ export default function SectorBackground({ sector }: Props) {
 
         {/* Background Value */}
         {isImage && (
-          <Button 
-            variant="outline" 
-            className="w-full"
-            onClick={openAssets}
-          >
-            {functionName(propImageValue).value || '选择图片'}
-          </Button>
+          <div className="space-y-4">
+            <div className="p-2 border rounded-lg bg-muted/30">
+              <div className="flex flex-col gap-2">
+                <div className="flex justify-center">
+                  <Avatar className="w-16 h-16 border">
+                    <AvatarImage src={getImageUrl(propImageValue)} className="object-cover" />
+                    <AvatarFallback>图片</AvatarFallback>
+                  </Avatar>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="w-full"
+                  onClick={openAssets}
+                >
+                  选择图片
+                </Button>
+                <p className="text-xs text-muted-foreground truncate text-center">
+                  {getImageUrl(propImageValue)}
+                </p>
+              </div>
+            </div>
+
+            {/* Image Position & Size */}
+            <div className="space-y-4 p-3 border rounded-lg">
+              <PropertyComposite property={propPos} />
+              <div className="space-y-1.5">
+                <Label className="text-xs font-medium text-foreground/70">
+                  背景尺寸
+                </Label>
+                <Select
+                  value={propSize.getValue()}
+                  onValueChange={value => {
+                    if (value === 'custom') {
+                      propSize.upValue('100% 100%');
+                    } else {
+                      propSize.upValue(value);
+                    }
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="cover">填充(Cover)</SelectItem>
+                    <SelectItem value="contain">包含(Contain)</SelectItem>
+                    <SelectItem value="100% 100%">拉伸(100%)</SelectItem>
+                    <SelectItem value="auto">自动</SelectItem>
+                    <SelectItem value="custom">自定义</SelectItem>
+                  </SelectContent>
+                </Select>
+                {propSize.getValue() === 'custom' && (
+                  <PropertyComposite property={propSize} />
+                )}
+              </div>
+            </div>
+
+            {/* Image Display Settings */}
+            <div className="space-y-4 p-3 border rounded-lg">
+              <div className="grid grid-cols-2 gap-4">
+                {renderBackgroundField(propRepeat, 'repeat')}
+                {renderBackgroundField(propAttachment, 'attachment')}
+              </div>
+              {renderBackgroundField(propOrigin, 'origin')}
+            </div>
+          </div>
         )}
+
         {propTypeValue === BackgroundType.Color && (
-          <div>
+          <div className="p-3 border rounded-lg">
             <div className="flex items-center justify-between mb-1.5">
               <Label className="text-xs font-medium text-foreground/70">
                 颜色
@@ -209,26 +339,6 @@ export default function SectorBackground({ sector }: Props) {
             />
           </div>
         )}
-        {propTypeValue === BackgroundType.Gradient && (
-          <GradientPicker
-            key={layerIndex}
-            value={propImageValue}
-            onChange={(v, partial) => propImage.upValue(v, { partial })}
-          />
-        )}
-
-        {/* Image Settings */}
-        {isImage && (
-          <>
-            <PropertyComposite property={propPos} />
-            <PropertyComposite property={propSize} />
-            <div className="grid grid-cols-2 gap-4">
-              {renderField(propRepeat, 'select')}
-              {renderField(propAttachment, 'select')}
-            </div>
-            {renderField(propOrigin, 'select')}
-          </>
-        )}
       </StackField>
 
       <Separator />
@@ -236,7 +346,7 @@ export default function SectorBackground({ sector }: Props) {
       {/* Background Color & Clip */}
       <div className="grid grid-cols-2 gap-4">
         {renderField(propBgColor, 'color')}
-        {renderField(propBgClip, 'select')}
+        {renderBackgroundField(propBgClip, 'clip')}
       </div>
     </div>
   )
