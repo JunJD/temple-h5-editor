@@ -109,6 +109,13 @@ export class CascadeSelectorTraitsFactory extends BaseTraitsFactory {
                 name: 'label',
                 default: '新选项',
                 changeProp: true
+            },
+            {
+                type: 'text',
+                label: '选项值',
+                name: 'value',
+                default: '',
+                changeProp: true
             }
         ];
     }

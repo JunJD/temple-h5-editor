@@ -28,7 +28,11 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         const el = this;
                         const selectedData = {
                             level1: null,
-                            level2: null
+                            level2: null,
+                            value: {
+                                level1: null,
+                                level2: null
+                            }
                         };
 
                         // 处理选项组选择事件
@@ -39,6 +43,8 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             if (level === '1') {
                                 selectedData.level1 = selectedOption;
                                 selectedData.level2 = null; // 清空二级选中
+                                selectedData.value.level1 = selectedOption.value;
+                                selectedData.value.level2 = null;
                                 
                                 // 获取所有二级选项组
                                 const level2Groups = el.querySelectorAll('.level-2-group > .row');
@@ -60,14 +66,23 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 });
                             } else if (level === '2') {
                                 selectedData.level2 = selectedOption;
+                                selectedData.value.level2 = selectedOption.value;
                             }
 
+                            console.log({
+                                selectedData,
+                                currentLevel: level,
+                                currentSelection: selectedOption,
+                                value: selectedData.value
+                            })
+                            
                             // 触发选择变化事件
                             el.dispatchEvent(new CustomEvent('cascade-selection-change', {
                                 detail: {
                                     selectedData,
                                     currentLevel: level,
-                                    currentSelection: selectedOption
+                                    currentSelection: selectedOption,
+                                    value: selectedData.value
                                 }
                             }));
                         });
@@ -492,7 +507,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                     ],
                     'script-props': [
                         'label', 'image', 'object-fit', 'defaultImage',
-                        'button-type', 'button-size'
+                        'button-type', 'button-size', 'value'
                     ],
                     style: {
                         'text-align': 'center',
@@ -508,7 +523,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         const el = this;
                         const parent = el.closest('.level-1-group, .level-2-group');
                         const mode = parent?.getAttribute('display-mode') || 'image';
-
+                        
                         if (mode === 'image') {
                             const imageOptionStyle = {
                                 display: 'flex',
@@ -599,6 +614,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     id: el.dataset.id,
                                     label: props.label,
                                     image: props.image,
+                                    value: props.value || props.label,
                                     level: el.dataset.level
                                 },
                                 bubbles: true
