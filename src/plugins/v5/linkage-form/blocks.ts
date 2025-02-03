@@ -1,6 +1,8 @@
 import { Editor, PluginOptions } from "grapesjs";
 import { BaseLoadBlocks } from "../common/base";
 import { LINKAGE_FORM_TYPES, PRESETS } from "./constants";
+import { CASCADE_SELECTOR_TYPES } from "./constants";
+
 
 export class LinkageFormBlocks extends BaseLoadBlocks {
     constructor(editor: Editor, options: PluginOptions) {
@@ -47,6 +49,24 @@ export class LinkageFormBlocks extends BaseLoadBlocks {
                 'input-type': PRESETS.name.type
             },
             attributes: { class: 'fa fa-user' }
+        });
+
+        // 添加级联选择器block
+        blockManager.add('cascade-selector', {
+            label: '级联选择器',
+            category: '表单组件',
+            content: {
+                type: CASCADE_SELECTOR_TYPES['cascade-selector'],
+                style: {
+                    padding: '23px 5%',
+                    border: '1px solid #ccc',
+                    'background-color': '#fff',
+                    'border-radius': '10px',
+                    display: 'flex',
+                    'flex-direction': 'column',
+                    gap: '20px'
+                }
+            }
         });
 
         // 添加演示表单block
