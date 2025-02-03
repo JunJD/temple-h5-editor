@@ -97,7 +97,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                                 type: CASCADE_SELECTOR_TYPES['option'],
                                                 attributes: { 'data-id': 'l1_1', 'data-level': 1 },
                                                 label: '花果供佛',
-                                                image: 'https://example.com/flower.jpg',
+                                                image: DEFAULT_OPTION_IMAGE,
                                                 defaultImage: DEFAULT_OPTION_IMAGE
                                             }
                                         ]
@@ -109,7 +109,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                                 type: CASCADE_SELECTOR_TYPES['option'],
                                                 attributes: { 'data-id': 'l1_2', 'data-level': 1 },
                                                 label: '敬香供灯',
-                                                image: 'https://example.com/incense.jpg',
+                                                image: DEFAULT_OPTION_IMAGE,
                                                 defaultImage: DEFAULT_OPTION_IMAGE
                                             }
                                         ]
@@ -121,7 +121,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                                 type: CASCADE_SELECTOR_TYPES['option'],
                                                 attributes: { 'data-id': 'l1_3', 'data-level': 1 },
                                                 label: '供斋纳福',
-                                                image: 'https://example.com/food.jpg',
+                                                image: DEFAULT_OPTION_IMAGE,
                                                 defaultImage: DEFAULT_OPTION_IMAGE
                                             }
                                         ]
