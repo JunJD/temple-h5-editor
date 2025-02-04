@@ -103,6 +103,102 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 'data-level': '1',
                                 'display-mode': 'image'
                             },
+                            traits: [
+                                {
+                                    type: 'select',
+                                    name: 'display-mode',
+                                    label: '显示模式',
+                                    options: [
+                                        { id: 'image', value: 'image', name: '图片' },
+                                        { id: 'button', value: 'button', name: '按钮' }
+                                    ],
+                                    default: 'image',
+                                    changeProp: true,
+                                },
+                                {
+                                    changeProp: true,
+                                    type: 'button',
+                                    text: '添加选项',
+                                    name: 'add-option',
+                                    label: '添加选项',
+                                    command: (editor, trait) => {
+                                        const component = trait.target;
+                                        if (!component) return;
+
+                                        // 一级选项的处理逻辑
+                                        let row = component.find('.row')[0];
+
+                                        // 如果没有 row，创建一个新的
+                                        if (!row) {
+                                            row = component.append({
+                                                type: 'bs-row',
+                                                attributes: {
+                                                    class: 'level-1-row',
+                                                    'display-mode': component.getAttributes()['display-mode'] || 'image'
+                                                }
+                                            })[0];
+                                        }
+
+                                        const timestamp = Date.now();
+                                        const optionId = `l1_${timestamp}`;
+
+                                        // 创建新的列
+                                        const col = {
+                                            type: 'bs-col',
+                                            style: {
+                                                padding: 0,
+                                                'border-color': 'transparent'
+                                            },
+                                            components: [{
+                                                type: CASCADE_SELECTOR_TYPES['option'],
+                                                attributes: {
+                                                    'data-id': optionId,
+                                                    'data-level': 1
+                                                },
+                                                label: '新选项',
+                                                defaultImage: DEFAULT_OPTION_IMAGE
+                                            }]
+                                        };
+
+                                        // 如果是一级选项，需要同时创建对应的二级选项组
+                                        const cascadeSelector = component.closest('[data-gjs-type="cascade-selector"]');
+                                        if (cascadeSelector) {
+                                            const level2Group = cascadeSelector.find('.level-2-group')[0];
+                                            if (level2Group) {
+                                                // 创建新的二级选项行
+                                                const level2Row = {
+                                                    type: 'bs-row',
+                                                    attributes: {
+                                                        class: 'level-2-row',
+                                                        'data-parent-id': optionId,
+                                                        style: 'display: none'
+                                                    },
+                                                    components: [
+                                                        {
+                                                            type: 'bs-col',
+                                                            components: [{
+                                                                type: CASCADE_SELECTOR_TYPES['option'],
+                                                                attributes: {
+                                                                    'data-id': `${optionId}_1`,
+                                                                    'data-level': '2'
+                                                                },
+                                                                label: '子选项1',
+                                                                defaultImage: DEFAULT_OPTION_IMAGE
+                                                            }]
+                                                        }
+                                                    ]
+                                                };
+
+                                                // 添加到二级选项组
+                                                level2Group.append(level2Row);
+                                            }
+                                        }
+
+                                        // 添加新列到行
+                                        row.append(col);
+                                    }
+                                }
+                            ],
                             components: [{
                                 type: 'bs-row',
                                 attributes: { class: 'level-1-group', 'display-mode': 'image' },
@@ -166,6 +262,57 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 'data-level': '2',
                                 'display-mode': 'button'
                             },
+                            traits: [
+                                {
+                                    type: 'select',
+                                    name: 'display-mode',
+                                    label: '显示模式',
+                                    options: [
+                                        { id: 'image', value: 'image', name: '图片' },
+                                        { id: 'button', value: 'button', name: '按钮' }
+                                    ],
+                                    default: 'button',
+                                    changeProp: true,
+                                },
+                                {
+                                    changeProp: true,
+                                    type: 'button',
+                                    text: '添加选项',
+                                    name: 'add-option',
+                                    label: '添加选项',
+                                    command: (editor, trait) => {
+                                        const component = trait.target;
+                                        if (!component) return;
+
+                                        const visibleRow = component.find('.row[style*="display: flex"]')[0];
+                                        if (visibleRow) {
+                                            const timestamp = Date.now();
+                                            const optionId = `l2_${timestamp}`;
+
+                                            // 创建新的列
+                                            const col = {
+                                                type: 'bs-col',
+                                                style: {
+                                                    padding: 0,
+                                                    'border-color': 'transparent'
+                                                },
+                                                components: [{
+                                                    type: CASCADE_SELECTOR_TYPES['option'],
+                                                    attributes: {
+                                                        'data-id': optionId,
+                                                        'data-level': 2
+                                                    },
+                                                    label: '新选项',
+                                                    defaultImage: DEFAULT_OPTION_IMAGE
+                                                }]
+                                            };
+
+                                            // 添加新列到当前显示的行
+                                            visibleRow.append(col);
+                                        }
+                                    }
+                                }
+                            ],
                             components: [
                                 {
                                     type: 'bs-row',
@@ -342,135 +489,6 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
             model: {
                 defaults: {
                     droppable: true,
-                    traits: [
-                        {
-                            type: 'select',
-                            name: 'display-mode',
-                            label: '显示模式',
-                            options: [
-                                { id: 'image', value: 'image', name: '图片' },
-                                { id: 'button', value: 'button', name: '按钮' }
-                            ],
-                            default: 'image',
-                            changeProp: true,
-                        },
-                        {
-                            changeProp: true,
-                            type: 'button',
-                            text: '添加选项',
-                            name: 'add-option',
-                            label: '添加选项',
-                            command: (editor, trait) => {
-                                const component = trait.target;
-                                if (!component) return;
-
-                                const level = component.getAttributes()['data-level'];
-
-                                // 如果是二级选项组，需要找到当前显示的行
-                                if (level === '2') {
-                                    const visibleRow = component.find('.row[style*="display: flex"]')[0];
-                                    if (visibleRow) {
-                                        const timestamp = Date.now();
-                                        const optionId = `l2_${timestamp}`;
-
-                                        // 创建新的列
-                                        const col = {
-                                            type: 'bs-col',
-                                            style: {
-                                                padding: 0,
-                                                'border-color': 'transparent'
-                                            },
-                                            components: [{
-                                                type: CASCADE_SELECTOR_TYPES['option'],
-                                                attributes: {
-                                                    'data-id': optionId,
-                                                    'data-level': level
-                                                },
-                                                label: '新选项',
-                                                defaultImage: DEFAULT_OPTION_IMAGE
-                                            }]
-                                        };
-
-                                        // 添加新列到当前显示的行
-                                        visibleRow.append(col);
-                                        return;
-                                    }
-                                }
-
-                                // 一级选项的处理逻辑
-                                let row = component.find('.row')[0];
-
-                                // 如果没有 row，创建一个新的
-                                if (!row) {
-                                    row = component.append({
-                                        type: 'bs-row',
-                                        attributes: {
-                                            class: 'level-1-row',
-                                            'display-mode': component.getAttributes()['display-mode'] || 'image'
-                                        }
-                                    })[0];
-                                }
-
-                                const timestamp = Date.now();
-                                const optionId = `l1_${timestamp}`;
-
-                                // 创建新的列
-                                const col = {
-                                    type: 'bs-col',
-                                    style: {
-                                        padding: 0,
-                                        'border-color': 'transparent'
-                                    },
-                                    components: [{
-                                        type: CASCADE_SELECTOR_TYPES['option'],
-                                        attributes: {
-                                            'data-id': optionId,
-                                            'data-level': level
-                                        },
-                                        label: '新选项',
-                                        defaultImage: DEFAULT_OPTION_IMAGE
-                                    }]
-                                };
-
-                                // 如果是一级选项，需要同时创建对应的二级选项组
-                                const cascadeSelector = component.closest('[data-gjs-type="cascade-selector"]');
-                                if (cascadeSelector) {
-                                    const level2Group = cascadeSelector.find('.level-2-group')[0];
-                                    if (level2Group) {
-                                        // 创建新的二级选项行
-                                        const level2Row = {
-                                            type: 'bs-row',
-                                            attributes: {
-                                                class: 'level-2-row',
-                                                'data-parent-id': optionId,
-                                                style: 'display: none'
-                                            },
-                                            components: [
-                                                {
-                                                    type: 'bs-col',
-                                                    components: [{
-                                                        type: CASCADE_SELECTOR_TYPES['option'],
-                                                        attributes: {
-                                                            'data-id': `${optionId}_1`,
-                                                            'data-level': '2'
-                                                        },
-                                                        label: '子选项1',
-                                                        defaultImage: DEFAULT_OPTION_IMAGE
-                                                    }]
-                                                }
-                                            ]
-                                        };
-
-                                        // 添加到二级选项组
-                                        level2Group.append(level2Row);
-                                    }
-                                }
-
-                                // 添加新列到行
-                                row.append(col);
-                            }
-                        }
-                    ],
                     'script-props': [
                         'display-mode'
                     ],
@@ -514,7 +532,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         updateOptionsDisplayMode();
 
                         // 当 props 变化时更新显示模式
-                        el.__onPropsChange = function(changedProps) {
+                        el.__onPropsChange = function (changedProps) {
                             if (changedProps['display-mode'] !== undefined) {
                                 el.setAttribute('display-mode', changedProps['display-mode']);
                                 updateOptionsDisplayMode();
@@ -591,7 +609,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         const el = this;
                         const parent = el.closest('.level-1-group, .level-2-group');
                         const mode = parent?.getAttribute('display-mode') || 'image';
-                        
+
                         if (mode === 'image') {
                             const imageOptionStyle = {
                                 display: 'flex',
