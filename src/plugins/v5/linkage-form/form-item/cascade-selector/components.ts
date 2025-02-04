@@ -91,6 +91,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 'data-level': '1',
                                 'display-mode': 'image'
                             },
+                            'selected-color': '#a67c37',
                             'display-mode': 'image',
                             components: [{
                                 type: 'bs-row',
@@ -155,6 +156,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 'data-level': '2',
                                 'display-mode': 'button'
                             },
+                            'selected-color': '#a67c37',
                             'display-mode': 'button',
                             components: [
                                 {
@@ -433,22 +435,49 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
             model: {
                 defaults: {
                     droppable: true,
-                    traits: [],
+                    traits: [
+                        {
+                            type: 'color',
+                            name: 'selected-color',
+                            label: '选中颜色',
+                            default: '#a67c37',
+                            changeProp: true
+                        }
+                    ],
+                    'script-props': ['selected-color'],
                     script: function (props) {
                         const el = this;
                         const level = el.getAttribute('data-level');
+                        const selectedColor = props['selected-color'] || '#a67c37';
+                        console.log('props in script:', props);
                         const state = {
                             selectedId: null,
                             visibleParentId: level === '2' ? 'l1_1' : null
                         };
+
+                        // 设置 CSS 变量
+                        el.style.setProperty('--selected-color', selectedColor);
 
                         // 处理选项点击事件
                         el.addEventListener('option-click', (event) => {
                             const detail = event.detail;
                             state.selectedId = detail.id;
                             
-                            // 更新选项的选中状态
-                            updateOptionsSelection();
+                            // 移除所有选项的选中状态
+                            const options = el.querySelectorAll('[data-gjs-type="option"]');
+                            options.forEach((opt) => {
+                                opt.classList.remove('selected');
+                                // 移除选中样式
+                                opt.style.borderColor = 'transparent';
+                            });
+                            
+                            // 为当前选中项添加选中状态
+                            const selectedOption = el.querySelector(`[data-id="${detail.id}"]`);
+                            if (selectedOption) {
+                                selectedOption.classList.add('selected');
+                                // 添加选中样式
+                                selectedOption.style.borderColor = 'var(--selected-color)';
+                            }
 
                             // 触发选项组的选择事件
                             el.dispatchEvent(new CustomEvent('group-option-selected', {
@@ -464,7 +493,13 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         // 处理选中状态更新事件
                         el.addEventListener('update-selection', (event) => {
                             state.selectedId = event.detail.selectedId;
-                            updateOptionsSelection();
+                            const options = el.querySelectorAll('[data-gjs-type="option"]');
+                            options.forEach((opt) => {
+                                const isSelected = opt.getAttribute('data-id') === state.selectedId;
+                                opt.classList.toggle('selected', isSelected);
+                                // 更新选中样式
+                                opt.style.borderColor = isSelected ? selectedColor : 'transparent';
+                            });
                         });
 
                         // 处理二级选项组显示状态更新事件
@@ -472,15 +507,6 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             el.addEventListener('update-visible-options', (event) => {
                                 state.visibleParentId = event.detail.parentId;
                                 updateVisibleOptions();
-                            });
-                        }
-
-                        // 更新选项的选中状态
-                        function updateOptionsSelection() {
-                            el.querySelectorAll('.option').forEach((opt) => {
-                                const isSelected = opt.getAttribute('data-id') === state.selectedId;
-                                opt.classList.toggle('selected', isSelected);
-                                opt.classList.toggle('style-selected', isSelected);
                             });
                         }
 
@@ -498,6 +524,11 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         if (level === '2') {
                             updateVisibleOptions();
                         }
+                    },
+
+                    init() {
+                        // 初始化时设置默认值
+                        this.set('selected-color', '#a67c37');
                     }
                 }
             }
@@ -539,7 +570,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                     ],
                     'script-props': [
                         'label', 'image', 'object-fit', 'defaultImage',
-                        'button-type', 'button-size', 'value'
+                        'button-type', 'button-size', 'value', 'selected'
                     ],
                     style: {
                         'text-align': 'center',
@@ -550,16 +581,16 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         'align-items': 'center',
                         'justify-content': 'center',
                         'border': '2px solid transparent',
-                        'transition': 'all 0.3s'
-                    },
-                    'style-selected': {
-                        'border-color': '#a67c37'
+                        'transition': 'all 0.3s ease',
+                        'box-sizing': 'border-box',
+                        'border-radius': '4px',
                     },
                     defaultImage: DEFAULT_OPTION_IMAGE,
                     script: function (props) {
                         const el = this;
                         const parent = el.closest('.level-1-group, .level-2-group');
                         const mode = parent?.getAttribute('display-mode') || 'image';
+                        const optionId = el.getAttribute('data-id');
 
                         function renderOption() {
                             if (mode === 'image') {
@@ -595,37 +626,34 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 const buttonSize = props['button-size'] || 'middle';
 
                                 const buttonStyle = {
+                                    borderColor: 'transparent',
                                     width: '100%',
                                     padding: buttonSize === 'small' ? '4px 8px' : buttonSize === 'large' ? '12px 24px' : '8px 16px',
-                                    border: buttonType === 'dashed' ? '1px dashed #d9d9d9' : buttonType === 'text' || buttonType === 'link' ? 'none' : '1px solid #d9d9d9',
                                     'border-radius': '4px',
                                     background: buttonType === 'primary' ? '#1890ff' : 'white',
-                                    color: buttonType === 'primary' ? 'white' : buttonType === 'link' ? '#1890ff' : '#000000d9',
+                                    color: el.classList.contains('selected') ? 'var(--selected-color)' : 
+                                        (buttonType === 'primary' ? 'white' : buttonType === 'link' ? '#1890ff' : '#000000d9'),
                                     'font-size': buttonSize === 'small' ? '12px' : buttonSize === 'large' ? '16px' : '14px',
                                     cursor: 'pointer',
-                                    'text-decoration': buttonType === 'link' ? 'underline' : 'none'
+                                    transition: 'all 0.3s ease'
                                 };
+
+                                if (el.classList.contains('selected')) {
+                                    if (buttonType === 'primary') {
+                                        buttonStyle.background = 'var(--selected-color)';
+                                        buttonStyle.borderColor = 'var(--selected-color)';
+                                    } else {
+                                        buttonStyle.color = 'var(--selected-color)';
+                                        buttonStyle.borderColor = 'var(--selected-color)';
+                                    }
+                                }
 
                                 el.innerHTML = `<button style="${Object.entries(buttonStyle).map(([k, v]) => `${k}:${v}`).join(';')}">${props.label}</button>`;
                             }
 
-                            // 设置选中状态的样式
+                            // 如果是选中状态，添加边框颜色
                             if (el.classList.contains('selected')) {
-                                el.classList.add('style-selected');
-                                if (mode === 'button') {
-                                    const button = el.querySelector('button');
-                                    if (button) {
-                                        const buttonType = props['button-type'] || 'default';
-                                        if (buttonType !== 'primary') {
-                                            button.style.color = '#a67c37';
-                                        } else {
-                                            button.style.background = '#a67c37';
-                                            button.style.borderColor = '#a67c37';
-                                        }
-                                    }
-                                }
-                            } else {
-                                el.classList.remove('style-selected');
+                                el.style.borderColor = 'var(--selected-color)';
                             }
                         }
 
@@ -635,7 +663,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         el.onclick = () => {
                             el.dispatchEvent(new CustomEvent('option-click', {
                                 detail: {
-                                    id: el.dataset.id,
+                                    id: optionId,
                                     label: props.label,
                                     image: props.image,
                                     value: props.value || props.label,

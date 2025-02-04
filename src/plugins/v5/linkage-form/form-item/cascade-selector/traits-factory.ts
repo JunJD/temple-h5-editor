@@ -201,6 +201,13 @@ export class CascadeSelectorTraitsFactory extends BaseTraitsFactory {
                 name: 'cascade-label',
                 default: '级联选择器'
             },
+            // 选中颜色设置
+            {
+                type: 'color',
+                name: 'selected-color',
+                label: '选中颜色',
+                default: '#a67c37'
+            },
             // 一级选项管理
             {
                 type: 'custom-options-manager',
