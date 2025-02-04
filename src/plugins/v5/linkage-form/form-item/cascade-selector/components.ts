@@ -99,6 +99,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 components: [
                                     {
                                         type: 'bs-col',
+                                        'col-base': 'col-4',
                                         style: {
                                             padding: 0,
                                             'border-color': 'transparent'
@@ -116,6 +117,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     },
                                     {
                                         type: 'bs-col',
+                                        'col-base': 'col-4',
                                         style: {
                                             padding: 0,
                                             'border-color': 'transparent'
@@ -132,6 +134,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     },
                                     {
                                         type: 'bs-col',
+                                        'col-base': 'col-4',
                                         style: {
                                             padding: 0,
                                             'border-color': 'transparent'
@@ -165,6 +168,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     components: [
                                         {
                                             type: 'bs-col',
+                                            'col-base': 'col-4',
                                             style: {
                                                 padding: 0,
                                                 'border-color': 'transparent'
@@ -180,6 +184,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                         },
                                         {
                                             type: 'bs-col',
+                                            'col-base': 'col-4',
                                             style: {
                                                 padding: 0,
                                                 'border-color': 'transparent'
@@ -195,6 +200,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                         },
                                         {
                                             type: 'bs-col',
+                                            'col-base': 'col-4',
                                             style: {
                                                 padding: 0,
                                                 'border-color': 'transparent'
@@ -216,6 +222,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     components: [
                                         {
                                             type: 'bs-col',
+                                            'col-base': 'col-4',
                                             style: {
                                                 padding: 0,
                                                 'border-color': 'transparent'
@@ -231,6 +238,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                         },
                                         {
                                             type: 'bs-col',
+                                            'col-base': 'col-4',
                                             style: {
                                                 padding: 0,
                                                 'border-color': 'transparent'
@@ -246,6 +254,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                         },
                                         {
                                             type: 'bs-col',
+                                            'col-base': 'col-4',
                                             style: {
                                                 padding: 0,
                                                 'border-color': 'transparent'
@@ -267,6 +276,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     components: [
                                         {
                                             type: 'bs-col',
+                                            'col-base': 'col-4',
                                             style: {
                                                 padding: 0,
                                                 'border-color': 'transparent'
@@ -282,6 +292,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                         },
                                         {
                                             type: 'bs-col',
+                                            'col-base': 'col-4',
                                             style: {
                                                 padding: 0,
                                                 'border-color': 'transparent'
@@ -297,6 +308,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                         },
                                         {
                                             type: 'bs-col',
+                                            'col-base': 'col-4',
                                             style: {
                                                 padding: 0,
                                                 'border-color': 'transparent'
@@ -449,7 +461,10 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         const el = this;
                         const level = el.getAttribute('data-level');
                         const selectedColor = props['selected-color'] || '#a67c37';
-                        console.log('props in script:', props);
+                        const groupId = Math.random().toString(36).substr(2, 9);
+                        
+                        el.setAttribute('data-group-id', groupId);
+                        
                         const state = {
                             selectedId: null,
                             visibleParentId: level === '2' ? 'l1_1' : null
@@ -461,6 +476,11 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         // 处理选项点击事件
                         el.addEventListener('option-click', (event) => {
                             const detail = event.detail;
+                            // 检查是否是发给当前 group 的事件
+                            if (detail.groupId !== groupId) {
+                                return;
+                            }
+
                             state.selectedId = detail.id;
                             
                             // 移除所有选项的选中状态
@@ -494,12 +514,26 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         el.addEventListener('update-selection', (event) => {
                             state.selectedId = event.detail.selectedId;
                             const options = el.querySelectorAll('[data-gjs-type="option"]');
+
+                            
                             options.forEach((opt) => {
                                 const isSelected = opt.getAttribute('data-id') === state.selectedId;
+                                const currentLevel = opt.getAttribute('data-level')
                                 opt.classList.toggle('selected', isSelected);
                                 // 更新选中样式
                                 if(level === '1') {
                                     opt.style.borderColor = isSelected ? selectedColor : 'transparent';
+                                    
+                                    // el.dispatchEvent(new CustomEvent('option-click', {
+                                    //     detail: {
+                                    //         id: el.getAttribute('data-id'),
+                                    //         label: props.label,
+                                    //         image: props.image,
+                                    //         value: props.value || props.label,
+                                    //         level: el.dataset.level
+                                    //     },
+                                    //     bubbles: true
+                                    // }));
                                 } else {
                                     if(!opt.querySelector('button')) return 
                                     if(isSelected) {
@@ -570,6 +604,8 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                     ],
                     style: {
                         'text-align': 'center',
+                        border: `1px solid transparent`,
+                        'border-radius': '4px',
                         cursor: 'pointer',
                         width: '100%',
                         height: '100%',
@@ -587,8 +623,11 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         const el = this;
                         const parent = el.closest('.level-1-group, .level-2-group');
                         const mode = parent?.getAttribute('display-mode') || 'image';
+
                         const selectedColor = getComputedStyle(parent).getPropertyValue('--selected-color').trim() || '#a67c37';
 
+                        console.log('selectedColor', selectedColor)
+                        
                         function renderOption() {
                             if (mode === 'image') {
                                 const imageOptionStyle = {
@@ -646,27 +685,19 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         renderOption();
 
                         el.onclick = () => {
+                            const groupId = parent?.getAttribute('data-group-id');
                             el.dispatchEvent(new CustomEvent('option-click', {
                                 detail: {
                                     id: el.getAttribute('data-id'),
                                     label: props.label,
                                     image: props.image,
                                     value: props.value || props.label,
-                                    level: el.dataset.level
+                                    level: el.dataset.level,
+                                    groupId
                                 },
                                 bubbles: true
                             }));
                         };
-                    },
-
-                    init() {
-                        this.on('change:parent-display-mode', this.handleParentDisplayModeChange);
-                    },
-
-                    handleParentDisplayModeChange(mode) {
-                        console.log('handleParentDisplayModeChange', mode);
-                        // 触发重新渲染
-                        this.view.rerender();
                     }
                 }
             }
