@@ -498,7 +498,19 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 const isSelected = opt.getAttribute('data-id') === state.selectedId;
                                 opt.classList.toggle('selected', isSelected);
                                 // 更新选中样式
-                                opt.style.borderColor = isSelected ? selectedColor : 'transparent';
+                                if(level === '1') {
+                                    opt.style.borderColor = isSelected ? selectedColor : 'transparent';
+                                } else {
+                                    if(!opt.querySelector('button')) return 
+                                    if(isSelected) {
+                                        opt.querySelector('button').style.backgroundColor = selectedColor;
+                                        opt.querySelector('button').style.color = '#fff' 
+                                    } else {
+                                        opt.querySelector('button').style.backgroundColor = '#fff';
+                                        opt.querySelector('button').style.color = '#8c8d8d' 
+                                    }
+                                    opt.style.borderColor = 'transparent';
+                                }
                             });
                         });
 
@@ -545,32 +557,16 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         CascadeSelectorTraitsFactory.getRemoveOptionTrait(),
                         {
                             type: 'select',
-                            name: 'button-type',
-                            label: '按钮类型',
-                            options: [
-                                { id: 'default', value: 'default', name: '默认' },
-                                { id: 'primary', value: 'primary', name: '主要' },
-                                { id: 'dashed', value: 'dashed', name: '虚线' },
-                                { id: 'text', value: 'text', name: '文本' },
-                                { id: 'link', value: 'link', name: '链接' }
-                            ],
-                            default: 'default'
-                        },
-                        {
-                            type: 'select',
                             name: 'button-size',
                             label: '按钮大小',
                             options: [
-                                { id: 'small', value: 'small', name: '小' },
-                                { id: 'middle', value: 'middle', name: '中' },
-                                { id: 'large', value: 'large', name: '大' }
+                                { id: 'btn-sm', name: '小', value: 'btn-sm' },
+                                { id: 'btn-md', name: '中', value: '' },
+                                { id: 'btn-lg', name: '大', value: 'btn-lg' }
                             ],
-                            default: 'middle'
+                            default: 'btn-md',
+                            changeProp: true
                         }
-                    ],
-                    'script-props': [
-                        'label', 'image', 'object-fit', 'defaultImage',
-                        'button-type', 'button-size', 'value', 'selected'
                     ],
                     style: {
                         'text-align': 'center',
@@ -580,17 +576,18 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         display: 'flex',
                         'align-items': 'center',
                         'justify-content': 'center',
-                        'border': '2px solid transparent',
-                        'transition': 'all 0.3s ease',
                         'box-sizing': 'border-box',
-                        'border-radius': '4px',
                     },
                     defaultImage: DEFAULT_OPTION_IMAGE,
+                    'script-props': [
+                        'label', 'image', 'object-fit', 'defaultImage',
+                        'button-variant', 'button-size', 'value', 'selected'
+                    ],
                     script: function (props) {
                         const el = this;
                         const parent = el.closest('.level-1-group, .level-2-group');
                         const mode = parent?.getAttribute('display-mode') || 'image';
-                        const optionId = el.getAttribute('data-id');
+                        const selectedColor = getComputedStyle(parent).getPropertyValue('--selected-color').trim() || '#a67c37';
 
                         function renderOption() {
                             if (mode === 'image') {
@@ -622,38 +619,26 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     </div>
                                 `;
                             } else {
-                                const buttonType = props['button-type'] || 'default';
-                                const buttonSize = props['button-size'] || 'middle';
-
+                                // 按钮基础样式
                                 const buttonStyle = {
-                                    borderColor: 'transparent',
-                                    width: '100%',
-                                    padding: buttonSize === 'small' ? '4px 8px' : buttonSize === 'large' ? '12px 24px' : '8px 16px',
-                                    'border-radius': '4px',
-                                    background: buttonType === 'primary' ? '#1890ff' : 'white',
-                                    color: el.classList.contains('selected') ? 'var(--selected-color)' : 
-                                        (buttonType === 'primary' ? 'white' : buttonType === 'link' ? '#1890ff' : '#000000d9'),
-                                    'font-size': buttonSize === 'small' ? '12px' : buttonSize === 'large' ? '16px' : '14px',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.3s ease'
+                                    padding: '7.67px 15.33px', // 0.2rem 0.4rem
+                                    'border-radius': '6px', // 0.15rem
+                                    'text-align': 'center',
+                                    'font-size': '15px', // 0.39rem
+                                    color: '#8c8d8d',
+                                    border: `1px solid ${selectedColor}`,
+                                    'background': 'transparent',
+                                    'transition': 'all 0.3s ease',
+                                    cursor: 'pointer'
                                 };
 
+                                // 选中状态样式
                                 if (el.classList.contains('selected')) {
-                                    if (buttonType === 'primary') {
-                                        buttonStyle.background = 'var(--selected-color)';
-                                        buttonStyle.borderColor = 'var(--selected-color)';
-                                    } else {
-                                        buttonStyle.color = 'var(--selected-color)';
-                                        buttonStyle.borderColor = 'var(--selected-color)';
-                                    }
+                                    buttonStyle.background = selectedColor;
+                                    buttonStyle.color = '#fff';
                                 }
 
                                 el.innerHTML = `<button style="${Object.entries(buttonStyle).map(([k, v]) => `${k}:${v}`).join(';')}">${props.label}</button>`;
-                            }
-
-                            // 如果是选中状态，添加边框颜色
-                            if (el.classList.contains('selected')) {
-                                el.style.borderColor = 'var(--selected-color)';
                             }
                         }
 
@@ -663,7 +648,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         el.onclick = () => {
                             el.dispatchEvent(new CustomEvent('option-click', {
                                 detail: {
-                                    id: optionId,
+                                    id: el.getAttribute('data-id'),
                                     label: props.label,
                                     image: props.image,
                                     value: props.value || props.label,

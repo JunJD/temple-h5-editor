@@ -30,7 +30,8 @@ export class GridTraitsFactory extends BaseTraitsFactory {
                 { value: 'col-11', name: '11/12' },
                 { value: 'col-12', name: '12/12' },
                 { value: 'col-auto', name: '内容宽度' },
-            ]
+            ],
+            true
         );
     }
 
@@ -97,7 +98,8 @@ export class GridTraitsFactory extends BaseTraitsFactory {
                 { value: 'align-self-start', name: '顶部对齐' },
                 { value: 'align-self-center', name: '居中对齐' },
                 { value: 'align-self-end', name: '底部对齐' },
-            ]
+            ],
+            true
         );
     }
 
@@ -119,7 +121,8 @@ export class GridTraitsFactory extends BaseTraitsFactory {
                 { value: 'offset-9', name: '偏移9格' },
                 { value: 'offset-10', name: '偏移10格' },
                 { value: 'offset-11', name: '偏移11格' },
-            ]
+            ], 
+            true
         );
     }
 
@@ -138,7 +141,8 @@ export class GridTraitsFactory extends BaseTraitsFactory {
                 { value: 'order-3', name: '3' },
                 { value: 'order-4', name: '4' },
                 { value: 'order-5', name: '5' },
-            ]
+            ],
+            true
         );
     }
 
@@ -152,7 +156,8 @@ export class GridTraitsFactory extends BaseTraitsFactory {
                 { value: 'ms-auto', name: '左侧自动' },
                 { value: 'me-auto', name: '右侧自动' },
                 { value: 'mx-auto', name: '水平居中' },
-            ]
+            ],
+            true
         );
     }
 
@@ -336,76 +341,87 @@ export class GridComponents extends BaseLoadComponents {
                         'data-dm-category': 'layout'
                     },
                     traits: GridTraitsFactory.getColumnTraits(),
-                    'custom-name': '列'
+                    'custom-name': '列2',
+                    'script-props': ['col-base', 'align-self', 'offset', 'order', 'margin'],
+                    script: function(props) {
+                        console.log('props', props);
+                        const updateClasses = function(props) {
+                            const el = this;
+                            
+                            // 处理 col-base
+                            const colBase = props['col-base'];
+                            console.log(colBase, "colBase !== undefined");
+                            if (colBase !== undefined) {
+                                const colClasses = el.className.split(' ')
+                                    .filter(cls => cls.startsWith('col-') || cls === 'col');
+                                colClasses.forEach(cls => el.classList.remove(cls));
+                                if (colBase) el.classList.add(colBase);
+                            }
+                            
+                            // 处理 align-self
+                            const alignSelf = props['align-self'];
+                            if (alignSelf !== undefined) {
+                                const alignClasses = el.className.split(' ')
+                                    .filter(cls => cls.startsWith('align-self-'));
+                                alignClasses.forEach(cls => el.classList.remove(cls));
+                                if (alignSelf) el.classList.add(alignSelf);
+                            }
+                            
+                            // 处理 offset
+                            const offset = props['offset'];
+                            if (offset !== undefined) {
+                                const offsetClasses = el.className.split(' ')
+                                    .filter(cls => cls.startsWith('offset-'));
+                                offsetClasses.forEach(cls => el.classList.remove(cls));
+                                if (offset) el.classList.add(offset);
+                            }
+                            
+                            // 处理 order
+                            const order = props['order'];
+                            if (order !== undefined) {
+                                const orderClasses = el.className.split(' ')
+                                    .filter(cls => cls.startsWith('order-'));
+                                orderClasses.forEach(cls => el.classList.remove(cls));
+                                if (order) el.classList.add(order);
+                            }
+                            
+                            // 处理 margin
+                            const margin = props['margin'];
+                            if (margin !== undefined) {
+                                const marginClasses = el.className.split(' ')
+                                    .filter(cls => cls === 'ms-auto' || cls === 'me-auto' || cls === 'mx-auto');
+                                marginClasses.forEach(cls => el.classList.remove(cls));
+                                if (margin) el.classList.add(margin);
+                            }
+                        }
+                        
+                        // 初始更新
+                        updateClasses.call(this, props);
+                    },
                 },
 
-                init() {
-                    this.on('change:col-base', this.handleColBaseChange);
-                    this.on('change:align-self', this.handleAlignSelfChange);
-                    this.on('change:offset', this.handleOffsetChange);
-                    this.on('change:order', this.handleOrderChange);
-                    this.on('change:margin', this.handleMarginChange);
-                },
+                // init() {
+                //     // 属性名映射
+                //     const propMapping = {
+                //         'col-base': 'colBase',
+                //         'align-self': 'alignSelf',
+                //         'offset': 'offset',
+                //         'order': 'order',
+                //         'margin': 'margin'
+                //     };
 
-                handleColBaseChange() {
-                    const value = this.get('col-base');
-                    // 移除所有现有的 col- 类
-                    const classes = this.getClasses();
-                    const colClasses = classes.filter(cls => cls.startsWith('col-') || cls === 'col');
-                    this.removeClass(colClasses);
-                    // 添加新的类
-                    if (value) {
-                        this.addClass(value);
-                    }
-                },
+                //     // 统一的属性变化处理器
+                //     const handlePropChange = (prop) => {
+                //         const value = this.get(prop);
+                //         const scriptProp = propMapping[prop];
+                //         this.addAttributes({ 'data-gjs-props': JSON.stringify({ [scriptProp]: value }) });
+                //     };
 
-                handleAlignSelfChange() {
-                    const value = this.get('align-self');
-                    // 移除所有现有的 align-self 类
-                    const classes = this.getClasses();
-                    const alignClasses = classes.filter(cls => cls.startsWith('align-self-'));
-                    this.removeClass(alignClasses);
-                    // 添加新的类
-                    if (value) {
-                        this.addClass(value);
-                    }
-                },
-
-                handleOffsetChange() {
-                    const value = this.get('offset');
-                    // 移除所有现有的 offset 类
-                    const classes = this.getClasses();
-                    const offsetClasses = classes.filter(cls => cls.startsWith('offset-'));
-                    this.removeClass(offsetClasses);
-                    // 添加新的类
-                    if (value) {
-                        this.addClass(value);
-                    }
-                },
-
-                handleOrderChange() {
-                    const value = this.get('order');
-                    // 移除所有现有的 order 类
-                    const classes = this.getClasses();
-                    const orderClasses = classes.filter(cls => cls.startsWith('order-'));
-                    this.removeClass(orderClasses);
-                    // 添加新的类
-                    if (value) {
-                        this.addClass(value);
-                    }
-                },
-
-                handleMarginChange() {
-                    const value = this.get('margin');
-                    // 移除所有现有的 margin 类
-                    const classes = this.getClasses();
-                    const marginClasses = classes.filter(cls => cls === 'ms-auto' || cls === 'me-auto' || cls === 'mx-auto');
-                    this.removeClass(marginClasses);
-                    // 添加新的类
-                    if (value) {
-                        this.addClass(value);
-                    }
-                }
+                //     // 监听所有属性变化
+                //     Object.keys(propMapping).forEach(prop => {
+                //         this.on(`change:${prop}`, () => handlePropChange(prop));
+                //     });
+                // }
             }
         });
     }

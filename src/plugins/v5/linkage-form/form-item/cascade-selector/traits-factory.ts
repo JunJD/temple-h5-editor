@@ -144,54 +144,6 @@ export class CascadeSelectorTraitsFactory extends BaseTraitsFactory {
         ];
     }
 
-    // 按钮样式设置相关的 traits
-    static getButtonStyleTraits() {
-        return [
-            {
-                type: 'number',
-                name: 'button-padding-x',
-                label: '按钮水平内边距',
-                default: 16,
-                changeProp: true
-            },
-            {
-                type: 'number',
-                name: 'button-padding-y',
-                label: '按钮垂直内边距',
-                default: 8,
-                changeProp: true
-            },
-            {
-                type: 'color',
-                name: 'button-bg-color',
-                label: '按钮背景色',
-                default: '#ffffff',
-                changeProp: true
-            },
-            {
-                type: 'color',
-                name: 'button-text-color',
-                label: '按钮文字颜色',
-                default: '#666666',
-                changeProp: true
-            },
-            {
-                type: 'color',
-                name: 'button-border-color',
-                label: '按钮边框颜色',
-                default: '#d9d9d9',
-                changeProp: true
-            },
-            {
-                type: 'number',
-                name: 'button-border-radius',
-                label: '按钮圆角',
-                default: 4,
-                changeProp: true
-            }
-        ];
-    }
-
     static getTraits() {
         return [
             // 基础设置
