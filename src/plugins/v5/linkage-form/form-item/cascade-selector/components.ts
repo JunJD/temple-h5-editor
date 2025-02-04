@@ -24,7 +24,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                     traits: [
                         CascadeSelectorTraitsFactory.getCascadeLabelTrait()
                     ],
-                    script: function() {
+                    script: function (props) {
                         const el = this;
                         const selectedData = {
                             level1: null,
@@ -38,28 +38,28 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         // 处理选项组选择事件
                         el.addEventListener('group-option-selected', (event) => {
                             const { level, selectedOption } = event.detail;
-                            
+
                             // 更新选中数据
                             if (level === '1') {
                                 selectedData.level1 = selectedOption;
                                 selectedData.level2 = null; // 清空二级选中
                                 selectedData.value.level1 = selectedOption.value;
                                 selectedData.value.level2 = null;
-                                
+
                                 // 获取所有二级选项组
                                 const level2Groups = el.querySelectorAll('.level-2-group > .row');
-                                
+
                                 // 隐藏所有二级选项组
                                 level2Groups.forEach(group => {
                                     group.style.display = 'none';
                                 });
-                                
+
                                 // 显示对应的二级选项组
                                 const targetGroup = el.querySelector(`.level-2-group > .row[data-parent-id="${selectedOption.id}"]`);
                                 if (targetGroup) {
                                     targetGroup.style.display = 'flex';
                                 }
-                                
+
                                 // 清空二级选项的选中状态
                                 el.querySelectorAll('.level-2-group .option').forEach((opt) => {
                                     opt.classList.remove('selected');
@@ -75,7 +75,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 currentSelection: selectedOption,
                                 value: selectedData.value
                             })
-                            
+
                             // 触发选择变化事件
                             el.dispatchEvent(new CustomEvent('cascade-selection-change', {
                                 detail: {
@@ -87,10 +87,12 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             }));
                         });
 
-                        // 初始化时隐藏所有二级选项组
+                        // 初始化时隐藏所有二级选项组(除了第一个)
                         const level2Groups = el.querySelectorAll('.level-2-group > .row');
-                        level2Groups.forEach(group => {
-                            group.style.display = 'none';
+                        level2Groups.forEach((group, index) => {
+                            if (index !== 0) {
+                                group.style.display = 'none';
+                            }
                         });
                     },
                     components: [
@@ -107,11 +109,16 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 components: [
                                     {
                                         type: 'bs-col',
+                                        style: {
+                                            padding: 0,
+                                            'border-color': 'transparent'
+                                        },
                                         components: [
                                             {
                                                 type: CASCADE_SELECTOR_TYPES['option'],
                                                 attributes: { 'data-id': 'l1_1', 'data-level': 1 },
                                                 label: '花果供佛',
+                                                value: '1',
                                                 image: DEFAULT_OPTION_IMAGE,
                                                 defaultImage: DEFAULT_OPTION_IMAGE
                                             }
@@ -119,6 +126,10 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     },
                                     {
                                         type: 'bs-col',
+                                        style: {
+                                            padding: 0,
+                                            'border-color': 'transparent'
+                                        },
                                         components: [
                                             {
                                                 type: CASCADE_SELECTOR_TYPES['option'],
@@ -131,6 +142,10 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     },
                                     {
                                         type: 'bs-col',
+                                        style: {
+                                            padding: 0,
+                                            'border-color': 'transparent'
+                                        },
                                         components: [
                                             {
                                                 type: CASCADE_SELECTOR_TYPES['option'],
@@ -158,6 +173,10 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     components: [
                                         {
                                             type: 'bs-col',
+                                            style: {
+                                                padding: 0,
+                                                'border-color': 'transparent'
+                                            },
                                             components: [
                                                 {
                                                     type: CASCADE_SELECTOR_TYPES['option'],
@@ -169,6 +188,10 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                         },
                                         {
                                             type: 'bs-col',
+                                            style: {
+                                                padding: 0,
+                                                'border-color': 'transparent'
+                                            },
                                             components: [
                                                 {
                                                     type: CASCADE_SELECTOR_TYPES['option'],
@@ -180,6 +203,10 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                         },
                                         {
                                             type: 'bs-col',
+                                            style: {
+                                                padding: 0,
+                                                'border-color': 'transparent'
+                                            },
                                             components: [
                                                 {
                                                     type: CASCADE_SELECTOR_TYPES['option'],
@@ -197,6 +224,10 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     components: [
                                         {
                                             type: 'bs-col',
+                                            style: {
+                                                padding: 0,
+                                                'border-color': 'transparent'
+                                            },
                                             components: [
                                                 {
                                                     type: CASCADE_SELECTOR_TYPES['option'],
@@ -208,6 +239,10 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                         },
                                         {
                                             type: 'bs-col',
+                                            style: {
+                                                padding: 0,
+                                                'border-color': 'transparent'
+                                            },
                                             components: [
                                                 {
                                                     type: CASCADE_SELECTOR_TYPES['option'],
@@ -219,6 +254,10 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                         },
                                         {
                                             type: 'bs-col',
+                                            style: {
+                                                padding: 0,
+                                                'border-color': 'transparent'
+                                            },
                                             components: [
                                                 {
                                                     type: CASCADE_SELECTOR_TYPES['option'],
@@ -236,6 +275,10 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     components: [
                                         {
                                             type: 'bs-col',
+                                            style: {
+                                                padding: 0,
+                                                'border-color': 'transparent'
+                                            },
                                             components: [
                                                 {
                                                     type: CASCADE_SELECTOR_TYPES['option'],
@@ -247,6 +290,10 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                         },
                                         {
                                             type: 'bs-col',
+                                            style: {
+                                                padding: 0,
+                                                'border-color': 'transparent'
+                                            },
                                             components: [
                                                 {
                                                     type: CASCADE_SELECTOR_TYPES['option'],
@@ -258,6 +305,10 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                         },
                                         {
                                             type: 'bs-col',
+                                            style: {
+                                                padding: 0,
+                                                'border-color': 'transparent'
+                                            },
                                             components: [
                                                 {
                                                     type: CASCADE_SELECTOR_TYPES['option'],
@@ -314,17 +365,21 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 if (!component) return;
 
                                 const level = component.getAttributes()['data-level'];
-                                
+
                                 // 如果是二级选项组，需要找到当前显示的行
                                 if (level === '2') {
                                     const visibleRow = component.find('.row[style*="display: flex"]')[0];
                                     if (visibleRow) {
                                         const timestamp = Date.now();
                                         const optionId = `l2_${timestamp}`;
-                                        
+
                                         // 创建新的列
                                         const col = {
                                             type: 'bs-col',
+                                            style: {
+                                                padding: 0,
+                                                'border-color': 'transparent'
+                                            },
                                             components: [{
                                                 type: CASCADE_SELECTOR_TYPES['option'],
                                                 attributes: {
@@ -335,7 +390,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                                 defaultImage: DEFAULT_OPTION_IMAGE
                                             }]
                                         };
-                                        
+
                                         // 添加新列到当前显示的行
                                         visibleRow.append(col);
                                         return;
@@ -344,7 +399,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
 
                                 // 一级选项的处理逻辑
                                 let row = component.find('.row')[0];
-                                
+
                                 // 如果没有 row，创建一个新的
                                 if (!row) {
                                     row = component.append({
@@ -358,10 +413,14 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
 
                                 const timestamp = Date.now();
                                 const optionId = `l1_${timestamp}`;
-                                
+
                                 // 创建新的列
                                 const col = {
                                     type: 'bs-col',
+                                    style: {
+                                        padding: 0,
+                                        'border-color': 'transparent'
+                                    },
                                     components: [{
                                         type: CASCADE_SELECTOR_TYPES['option'],
                                         attributes: {
@@ -401,7 +460,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                                 }
                                             ]
                                         };
-                                        
+
                                         // 添加到二级选项组
                                         level2Group.append(level2Row);
                                     }
@@ -412,11 +471,14 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             }
                         }
                     ],
-                    script: function() {
+                    'script-props': [
+                        'display-mode'
+                    ],
+                    script: function (props) {
                         const el = this;
+                        const displayMode = props['display-mode'] || 'image';
                         const level = el.getAttribute('data-level');
-                        const row = el.querySelector('.row');
-                        
+
                         // 处理选项点击事件
                         el.addEventListener('option-click', (event) => {
                             const detail = event.detail;
@@ -424,11 +486,11 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             el.querySelectorAll('.option').forEach((opt) => {
                                 opt.classList.remove('selected');
                             });
-                            
+
                             // 设置当前选项的选中状态
                             const currentOption = event.target;
                             currentOption.classList.add('selected');
-                            
+
                             // 触发选项组的选择事件
                             el.dispatchEvent(new CustomEvent('group-option-selected', {
                                 detail: {
@@ -440,23 +502,24 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             }));
                         });
 
-                        // 监听显示模式变化
-                        const observer = new MutationObserver((mutations) => {
-                            mutations.forEach((mutation) => {
-                                if (mutation.type === 'attributes' && mutation.attributeName === 'display-mode') {
-                                    const mode = el.getAttribute('display-mode');
-                                    // 更新所有选项的显示模式
-                                    el.querySelectorAll('.option').forEach((opt) => {
-                                        opt.dispatchEvent(new Event('render'));
-                                    });
-                                }
+                        // 更新所有选项的显示模式
+                        function updateOptionsDisplayMode() {
+                            el.querySelectorAll('.option').forEach((opt) => {
+                                opt.dispatchEvent(new Event('render'));
                             });
-                        });
+                        }
 
-                        observer.observe(el, {
-                            attributes: true,
-                            attributeFilter: ['display-mode']
-                        });
+                        // 初始化时设置显示模式
+                        el.setAttribute('display-mode', displayMode);
+                        updateOptionsDisplayMode();
+
+                        // 当 props 变化时更新显示模式
+                        el.__onPropsChange = function(changedProps) {
+                            if (changedProps['display-mode'] !== undefined) {
+                                el.setAttribute('display-mode', changedProps['display-mode']);
+                                updateOptionsDisplayMode();
+                            }
+                        };
                     }
                 },
 
@@ -516,7 +579,12 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         height: '100%',
                         display: 'flex',
                         'align-items': 'center',
-                        'justify-content': 'center'
+                        'justify-content': 'center',
+                        'border': '2px solid transparent',
+                        'transition': 'all 0.3s'
+                    },
+                    'style-selected': {
+                        'border-color': '#a67c37'
                     },
                     defaultImage: DEFAULT_OPTION_IMAGE,
                     script: function (props) {
@@ -573,22 +641,21 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
 
                         // 设置选中状态的样式
                         if (el.classList.contains('selected')) {
-                            if (mode === 'image') {
-                                el.style.outline = '2px solid #1890ff';
-                            } else {
+                            el.classList.add('style-selected');
+                            if (mode === 'button') {
                                 const button = el.querySelector('button');
                                 if (button) {
                                     const buttonType = props['button-type'] || 'default';
                                     if (buttonType !== 'primary') {
-                                        button.style.background = '#1890ff';
-                                        button.style.color = 'white';
-                                        button.style.borderColor = '#1890ff';
+                                        button.style.color = '#a67c37';
                                     } else {
-                                        button.style.background = '#096dd9';
-                                        button.style.borderColor = '#096dd9';
+                                        button.style.background = '#a67c37';
+                                        button.style.borderColor = '#a67c37';
                                     }
                                 }
                             }
+                        } else {
+                            el.classList.remove('style-selected');
                         }
 
                         // 监听父元素的 display-mode 变化
