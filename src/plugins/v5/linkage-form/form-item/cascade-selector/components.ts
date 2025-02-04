@@ -1,6 +1,6 @@
 import { Editor, PluginOptions } from "grapesjs";
 import { BaseLoadComponents } from "../../../common/base";
-import { CASCADE_SELECTOR_TYPES, DEFAULT_OPTION_IMAGE, DEFAULT_OPTIONS } from "./constants";
+import { CASCADE_SELECTOR_TYPES, CascadeSelectorOptions, DEFAULT_OPTION_IMAGE, DEFAULT_OPTIONS } from "./constants";
 import { CascadeSelectorTraitsFactory } from "./traits-factory";
 import { GRID_BLOCKS } from "../../../layout/constants";
 
@@ -21,15 +21,15 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                 defaults: {
                     name: 'Cascade Selector',
                     droppable: false,
-                    traits: [
-                        CascadeSelectorTraitsFactory.getCascadeLabelTrait()
-                    ],
+                    traits: CascadeSelectorTraitsFactory.getTraits(),
+                    'script-props': ['options', 'value'],
+                    options: DEFAULT_OPTIONS,
                     script: function (props) {
                         const el = this;
-                        const selectedData = {
-                            level1: null,
-                            level2: null,
-                            value: {
+                        const state = {
+                            selectedLevel1: null,
+                            selectedLevel2: null,
+                            value: props.value || {
                                 level1: null,
                                 level2: null
                             }
@@ -37,63 +37,51 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
 
                         // 处理选项组选择事件
                         el.addEventListener('group-option-selected', (event) => {
-                            const { level, selectedOption } = event.detail;
-
-                            // 更新选中数据
+                            const { level, selectedOption } = event.detail;                            
+                            // 更新状态
                             if (level === '1') {
-                                selectedData.level1 = selectedOption;
-                                selectedData.level2 = null; // 清空二级选中
-                                selectedData.value.level1 = selectedOption.value;
-                                selectedData.value.level2 = null;
+                                state.selectedLevel1 = selectedOption.id;
+                                state.selectedLevel2 = null;
+                                state.value.level1 = selectedOption.value;
+                                state.value.level2 = null;
 
-                                // 获取所有二级选项组
-                                const level2Groups = el.querySelectorAll('.level-2-group > .row');
+                                // 通知一级选项组更新选中状态
+                                const level1Group = el.querySelector('.level-1-group');
+                                level1Group?.dispatchEvent(new CustomEvent('update-selection', {
+                                    detail: { selectedId: selectedOption.id }
+                                }));
 
-                                // 隐藏所有二级选项组
-                                level2Groups.forEach(group => {
-                                    group.style.display = 'none';
-                                });
-
-                                // 显示对应的二级选项组
-                                const targetGroup = el.querySelector(`.level-2-group > .row[data-parent-id="${selectedOption.id}"]`);
-                                if (targetGroup) {
-                                    targetGroup.style.display = 'flex';
-                                }
-
-                                // 清空二级选项的选中状态
-                                el.querySelectorAll('.level-2-group .option').forEach((opt) => {
-                                    opt.classList.remove('selected');
-                                });
+                                // 通知二级选项组更新显示状态
+                                const level2Group = el.querySelector('.level-2-group');
+                                level2Group?.dispatchEvent(new CustomEvent('update-visible-options', {
+                                    detail: { parentId: selectedOption.id }
+                                }));
                             } else if (level === '2') {
-                                selectedData.level2 = selectedOption;
-                                selectedData.value.level2 = selectedOption.value;
-                            }
+                                state.selectedLevel2 = selectedOption.id;
+                                state.value.level2 = selectedOption.value;
 
-                            console.log({
-                                selectedData,
-                                currentLevel: level,
-                                currentSelection: selectedOption,
-                                value: selectedData.value
-                            })
+                                // 通知二级选项组更新选中状态
+                                const level2Group = el.querySelector('.level-2-group');
+                                level2Group?.dispatchEvent(new CustomEvent('update-selection', {
+                                    detail: { selectedId: selectedOption.id }
+                                }));
+                            }
 
                             // 触发选择变化事件
                             el.dispatchEvent(new CustomEvent('cascade-selection-change', {
                                 detail: {
-                                    selectedData,
+                                    value: state.value,
                                     currentLevel: level,
-                                    currentSelection: selectedOption,
-                                    value: selectedData.value
+                                    currentSelection: selectedOption
                                 }
                             }));
                         });
 
-                        // 初始化时隐藏所有二级选项组(除了第一个)
-                        const level2Groups = el.querySelectorAll('.level-2-group > .row');
-                        level2Groups.forEach((group, index) => {
-                            if (index !== 0) {
-                                group.style.display = 'none';
-                            }
-                        });
+                        // 初始化时设置默认显示的二级选项组
+                        const level2Group = el.querySelector('.level-2-group');
+                        level2Group?.dispatchEvent(new CustomEvent('update-visible-options', {
+                            detail: { parentId: 'l1_1' }
+                        }));
                     },
                     components: [
                         {
@@ -334,6 +322,107 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         'flex-direction': 'column',
                         gap: '20px'
                     }
+                },
+
+                init() {
+                    if (!this.get('options')) {
+                        this.set('options', DEFAULT_OPTIONS);
+                    }
+                    this.on('change:options', this.handleOptionsChange);
+                },
+
+                handleOptionsChange() {
+                    console.log('options changed:', this.get('options'));
+                    this.updateComponents();
+                    this.trigger('rerender');
+
+                    const selected = this.em?.get('selected');
+                    if (selected === this) {
+                        this.em?.trigger('component:deselected');
+                        this.em?.trigger('component:selected');
+                    }
+                },
+
+                updateComponents() {
+                    const options = this.get('options') as CascadeSelectorOptions;
+                    console.log('Updating components with options:', options);
+                    
+                    // 更新一级选项组
+                    const level1Group = this.find('.level-1-group')[0];
+                    if (level1Group) {
+                        const level1Row = level1Group.find('.row')[0];
+                        if (level1Row) {
+                            // 清空现有选项
+                            level1Row.empty();
+                            
+                            // 添加新选项
+                            options.level1.forEach(option => {
+                                level1Row.append({
+                                    type: 'bs-col',
+                                    style: {
+                                        padding: 0,
+                                        'border-color': 'transparent'
+                                    },
+                                    components: [{
+                                        type: CASCADE_SELECTOR_TYPES['option'],
+                                        attributes: {
+                                            'data-id': option.id,
+                                            'data-level': 1
+                                        },
+                                        label: option.label,
+                                        value: option.value,
+                                        image: option.image,
+                                        defaultImage: DEFAULT_OPTION_IMAGE
+                                    }]
+                                });
+                            });
+                        }
+                    }
+
+                    // 更新二级选项组
+                    const level2Group = this.find('.level-2-group')[0];
+                    if (level2Group) {
+                        // 清空现有行
+                        level2Group.empty();
+                        
+                        // 为每个一级选项创建对应的二级选项行
+                        Object.entries(options.level2).forEach(([parentId, level2Options]) => {
+                            level2Group.append({
+                                type: 'bs-row',
+                                attributes: {
+                                    class: 'level-2-row',
+                                    'data-parent-id': parentId,
+                                    style: parentId === 'l1_1' ? 'display: flex' : 'display: none'
+                                },
+                                components: level2Options.map(option => ({
+                                    type: 'bs-col',
+                                    style: {
+                                        padding: 0,
+                                        'border-color': 'transparent'
+                                    },
+                                    components: [{
+                                        type: CASCADE_SELECTOR_TYPES['option'],
+                                        attributes: {
+                                            'data-id': option.id,
+                                            'data-level': 2
+                                        },
+                                        label: option.label,
+                                        value: option.value,
+                                        defaultImage: DEFAULT_OPTION_IMAGE
+                                    }]
+                                }))
+                            });
+                        });
+                    }
+
+                    // 更新完成后，触发一次选中状态更新
+                    if (level1Group && this.get('selectedLevel1')) {
+                        level1Group.trigger('update-selection', { selectedId: this.get('selectedLevel1') });
+                    }
+
+                    if (level2Group && this.get('selectedLevel2')) {
+                        level2Group.trigger('update-selection', { selectedId: this.get('selectedLevel2') });
+                    }
                 }
             }
         });
@@ -344,154 +433,22 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
             model: {
                 defaults: {
                     droppable: true,
-                    traits: [
-                        {
-                            type: 'select',
-                            name: 'display-mode',
-                            label: '显示模式',
-                            options: [
-                                { id: 'image', value: 'image', name: '图片' },
-                                { id: 'button', value: 'button', name: '按钮' }
-                            ],
-                            default: 'image',
-                            changeProp: true,
-                        },
-                        {
-                            changeProp: true,
-                            type: 'button',
-                            text: '添加选项',
-                            name: 'add-option',
-                            label: '添加选项',
-                            command: (editor, trait) => {
-                                const component = trait.target;
-                                if (!component) return;
-
-                                const level = component.getAttributes()['data-level'];
-
-                                // 如果是二级选项组，需要找到当前显示的行
-                                if (level === '2') {
-                                    const visibleRow = component.find('.row[style*="display: flex"]')[0];
-                                    if (visibleRow) {
-                                        const timestamp = Date.now();
-                                        const optionId = `l2_${timestamp}`;
-
-                                        // 创建新的列
-                                        const col = {
-                                            type: 'bs-col',
-                                            style: {
-                                                padding: 0,
-                                                'border-color': 'transparent'
-                                            },
-                                            components: [{
-                                                type: CASCADE_SELECTOR_TYPES['option'],
-                                                attributes: {
-                                                    'data-id': optionId,
-                                                    'data-level': level
-                                                },
-                                                label: '新选项',
-                                                defaultImage: DEFAULT_OPTION_IMAGE
-                                            }]
-                                        };
-
-                                        // 添加新列到当前显示的行
-                                        visibleRow.append(col);
-                                        return;
-                                    }
-                                }
-
-                                // 一级选项的处理逻辑
-                                let row = component.find('.row')[0];
-
-                                // 如果没有 row，创建一个新的
-                                if (!row) {
-                                    row = component.append({
-                                        type: 'bs-row',
-                                        attributes: {
-                                            class: 'level-1-row',
-                                            'display-mode': component.getAttributes()['display-mode'] || 'image'
-                                        }
-                                    })[0];
-                                }
-
-                                const timestamp = Date.now();
-                                const optionId = `l1_${timestamp}`;
-
-                                // 创建新的列
-                                const col = {
-                                    type: 'bs-col',
-                                    style: {
-                                        padding: 0,
-                                        'border-color': 'transparent'
-                                    },
-                                    components: [{
-                                        type: CASCADE_SELECTOR_TYPES['option'],
-                                        attributes: {
-                                            'data-id': optionId,
-                                            'data-level': level
-                                        },
-                                        label: '新选项',
-                                        defaultImage: DEFAULT_OPTION_IMAGE
-                                    }]
-                                };
-
-                                // 如果是一级选项，需要同时创建对应的二级选项组
-                                const cascadeSelector = component.closest('[data-gjs-type="cascade-selector"]');
-                                if (cascadeSelector) {
-                                    const level2Group = cascadeSelector.find('.level-2-group')[0];
-                                    if (level2Group) {
-                                        // 创建新的二级选项行
-                                        const level2Row = {
-                                            type: 'bs-row',
-                                            attributes: {
-                                                class: 'level-2-row',
-                                                'data-parent-id': optionId,
-                                                style: 'display: none'
-                                            },
-                                            components: [
-                                                {
-                                                    type: 'bs-col',
-                                                    components: [{
-                                                        type: CASCADE_SELECTOR_TYPES['option'],
-                                                        attributes: {
-                                                            'data-id': `${optionId}_1`,
-                                                            'data-level': '2'
-                                                        },
-                                                        label: '子选项1',
-                                                        defaultImage: DEFAULT_OPTION_IMAGE
-                                                    }]
-                                                }
-                                            ]
-                                        };
-
-                                        // 添加到二级选项组
-                                        level2Group.append(level2Row);
-                                    }
-                                }
-
-                                // 添加新列到行
-                                row.append(col);
-                            }
-                        }
-                    ],
-                    'script-props': [
-                        'display-mode'
-                    ],
+                    traits: [],
                     script: function (props) {
                         const el = this;
-                        const displayMode = props['display-mode'] || 'image';
                         const level = el.getAttribute('data-level');
+                        const state = {
+                            selectedId: null,
+                            visibleParentId: level === '2' ? 'l1_1' : null
+                        };
 
                         // 处理选项点击事件
                         el.addEventListener('option-click', (event) => {
                             const detail = event.detail;
-                            // 移除其他选项的选中状态
-                            el.querySelectorAll('.option').forEach((opt) => {
-                                opt.classList.remove('selected');
-                            });
-
-                            // 设置当前选项的选中状态
-                            const currentOption = event.target;
-                            currentOption.classList.add('selected');
+                            state.selectedId = detail.id;
+                            
+                            // 更新选项的选中状态
+                            updateOptionsSelection();
 
                             // 触发选项组的选择事件
                             el.dispatchEvent(new CustomEvent('group-option-selected', {
@@ -504,34 +461,44 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             }));
                         });
 
-                        // 更新所有选项的显示模式
-                        function updateOptionsDisplayMode() {
-                            el.querySelectorAll('.option').forEach((opt) => {
-                                opt.dispatchEvent(new Event('render'));
+                        // 处理选中状态更新事件
+                        el.addEventListener('update-selection', (event) => {
+                            state.selectedId = event.detail.selectedId;
+                            updateOptionsSelection();
+                        });
+
+                        // 处理二级选项组显示状态更新事件
+                        if (level === '2') {
+                            el.addEventListener('update-visible-options', (event) => {
+                                state.visibleParentId = event.detail.parentId;
+                                updateVisibleOptions();
                             });
                         }
 
-                        // 初始化时设置显示模式
-                        el.setAttribute('display-mode', displayMode);
-                        updateOptionsDisplayMode();
+                        // 更新选项的选中状态
+                        function updateOptionsSelection() {
+                            el.querySelectorAll('.option').forEach((opt) => {
+                                const isSelected = opt.getAttribute('data-id') === state.selectedId;
+                                opt.classList.toggle('selected', isSelected);
+                                opt.classList.toggle('style-selected', isSelected);
+                            });
+                        }
 
-                        // 当 props 变化时更新显示模式
-                        el.__onPropsChange = function(changedProps) {
-                            if (changedProps['display-mode'] !== undefined) {
-                                el.setAttribute('display-mode', changedProps['display-mode']);
-                                updateOptionsDisplayMode();
-                            }
-                        };
+                        // 更新二级选项组的显示状态
+                        function updateVisibleOptions() {
+                            if (level !== '2') return;
+                            
+                            el.querySelectorAll('.row').forEach((row) => {
+                                const parentId = row.getAttribute('data-parent-id');
+                                row.style.display = parentId === state.visibleParentId ? 'flex' : 'none';
+                            });
+                        }
+
+                        // 初始化时设置二级选项组的显示状态
+                        if (level === '2') {
+                            updateVisibleOptions();
+                        }
                     }
-                },
-
-                init() {
-                    this.on('change:display-mode', this.handleDisplayModeChange);
-                },
-
-                handleDisplayModeChange() {
-                    const value = this.get('display-mode');
-                    this.setAttributes({ 'display-mode': value });
                 }
             }
         });
@@ -593,89 +560,77 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         const el = this;
                         const parent = el.closest('.level-1-group, .level-2-group');
                         const mode = parent?.getAttribute('display-mode') || 'image';
-                        
-                        if (mode === 'image') {
-                            const imageOptionStyle = {
-                                display: 'flex',
-                                'flex-direction': 'column',
-                                'align-items': 'center',
-                                gap: '8px',
-                                width: '100%'
-                            };
 
-                            const imgStyle = {
-                                width: '100%',
-                                height: '100%',
-                                'object-fit': props['object-fit'] || 'cover'
-                            };
+                        function renderOption() {
+                            if (mode === 'image') {
+                                const imageOptionStyle = {
+                                    display: 'flex',
+                                    'flex-direction': 'column',
+                                    'align-items': 'center',
+                                    gap: '8px',
+                                    width: '100%'
+                                };
 
-                            const spanStyle = {
-                                'font-size': '14px'
-                            };
+                                const imgStyle = {
+                                    width: '100%',
+                                    height: '100%',
+                                    'object-fit': props['object-fit'] || 'cover'
+                                };
 
-                            el.innerHTML = `
-                                <div style="${Object.entries(imageOptionStyle).map(([k, v]) => `${k}:${v}`).join(';')}">
-                                    <img src="${props.image || props.defaultImage}" 
-                                         alt="${props.label}"
-                                         style="${Object.entries(imgStyle).map(([k, v]) => `${k}:${v}`).join(';')}"
-                                         onerror="this.src='${props.defaultImage}'" />
-                                    <span style="${Object.entries(spanStyle).map(([k, v]) => `${k}:${v}`).join(';')}">${props.label}</span>
-                                </div>
-                            `;
-                        } else {
-                            const buttonType = props['button-type'] || 'default';
-                            const buttonSize = props['button-size'] || 'middle';
+                                const spanStyle = {
+                                    'font-size': '14px'
+                                };
 
-                            const buttonStyle = {
-                                width: '100%',
-                                padding: buttonSize === 'small' ? '4px 8px' : buttonSize === 'large' ? '12px 24px' : '8px 16px',
-                                border: buttonType === 'dashed' ? '1px dashed #d9d9d9' : buttonType === 'text' || buttonType === 'link' ? 'none' : '1px solid #d9d9d9',
-                                'border-radius': '4px',
-                                background: buttonType === 'primary' ? '#1890ff' : 'white',
-                                color: buttonType === 'primary' ? 'white' : buttonType === 'link' ? '#1890ff' : '#000000d9',
-                                'font-size': buttonSize === 'small' ? '12px' : buttonSize === 'large' ? '16px' : '14px',
-                                cursor: 'pointer',
-                                'text-decoration': buttonType === 'link' ? 'underline' : 'none'
-                            };
+                                el.innerHTML = `
+                                    <div style="${Object.entries(imageOptionStyle).map(([k, v]) => `${k}:${v}`).join(';')}">
+                                        <img src="${props.image || props.defaultImage}" 
+                                             alt="${props.label}"
+                                             style="${Object.entries(imgStyle).map(([k, v]) => `${k}:${v}`).join(';')}"
+                                             onerror="this.src='${props.defaultImage}'" />
+                                        <span style="${Object.entries(spanStyle).map(([k, v]) => `${k}:${v}`).join(';')}">${props.label}</span>
+                                    </div>
+                                `;
+                            } else {
+                                const buttonType = props['button-type'] || 'default';
+                                const buttonSize = props['button-size'] || 'middle';
 
-                            el.innerHTML = `<button style="${Object.entries(buttonStyle).map(([k, v]) => `${k}:${v}`).join(';')}">${props.label}</button>`;
-                        }
+                                const buttonStyle = {
+                                    width: '100%',
+                                    padding: buttonSize === 'small' ? '4px 8px' : buttonSize === 'large' ? '12px 24px' : '8px 16px',
+                                    border: buttonType === 'dashed' ? '1px dashed #d9d9d9' : buttonType === 'text' || buttonType === 'link' ? 'none' : '1px solid #d9d9d9',
+                                    'border-radius': '4px',
+                                    background: buttonType === 'primary' ? '#1890ff' : 'white',
+                                    color: buttonType === 'primary' ? 'white' : buttonType === 'link' ? '#1890ff' : '#000000d9',
+                                    'font-size': buttonSize === 'small' ? '12px' : buttonSize === 'large' ? '16px' : '14px',
+                                    cursor: 'pointer',
+                                    'text-decoration': buttonType === 'link' ? 'underline' : 'none'
+                                };
 
-                        // 设置选中状态的样式
-                        if (el.classList.contains('selected')) {
-                            el.classList.add('style-selected');
-                            if (mode === 'button') {
-                                const button = el.querySelector('button');
-                                if (button) {
-                                    const buttonType = props['button-type'] || 'default';
-                                    if (buttonType !== 'primary') {
-                                        button.style.color = '#a67c37';
-                                    } else {
-                                        button.style.background = '#a67c37';
-                                        button.style.borderColor = '#a67c37';
+                                el.innerHTML = `<button style="${Object.entries(buttonStyle).map(([k, v]) => `${k}:${v}`).join(';')}">${props.label}</button>`;
+                            }
+
+                            // 设置选中状态的样式
+                            if (el.classList.contains('selected')) {
+                                el.classList.add('style-selected');
+                                if (mode === 'button') {
+                                    const button = el.querySelector('button');
+                                    if (button) {
+                                        const buttonType = props['button-type'] || 'default';
+                                        if (buttonType !== 'primary') {
+                                            button.style.color = '#a67c37';
+                                        } else {
+                                            button.style.background = '#a67c37';
+                                            button.style.borderColor = '#a67c37';
+                                        }
                                     }
                                 }
+                            } else {
+                                el.classList.remove('style-selected');
                             }
-                        } else {
-                            el.classList.remove('style-selected');
                         }
 
-                        // 监听父元素的 display-mode 变化
-                        if (parent) {
-                            const observer = new MutationObserver((mutations) => {
-                                mutations.forEach((mutation) => {
-                                    if (mutation.type === 'attributes' && mutation.attributeName === 'display-mode') {
-                                        // 重新渲染
-                                        el.dispatchEvent(new Event('render'));
-                                    }
-                                });
-                            });
-
-                            observer.observe(parent, {
-                                attributes: true,
-                                attributeFilter: ['display-mode']
-                            });
-                        }
+                        // 初始渲染
+                        renderOption();
 
                         el.onclick = () => {
                             el.dispatchEvent(new CustomEvent('option-click', {
@@ -689,6 +644,16 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 bubbles: true
                             }));
                         };
+                    },
+
+                    init() {
+                        this.on('change:parent-display-mode', this.handleParentDisplayModeChange);
+                    },
+
+                    handleParentDisplayModeChange(mode) {
+                        console.log('handleParentDisplayModeChange', mode);
+                        // 触发重新渲染
+                        this.view.rerender();
                     }
                 }
             }

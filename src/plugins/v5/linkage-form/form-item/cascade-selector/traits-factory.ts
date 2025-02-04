@@ -191,4 +191,30 @@ export class CascadeSelectorTraitsFactory extends BaseTraitsFactory {
             }
         ];
     }
+
+    static getTraits() {
+        return [
+            // 基础设置
+            {
+                type: 'text',
+                label: '组件标签',
+                name: 'cascade-label',
+                default: '级联选择器'
+            },
+            // 一级选项管理
+            {
+                type: 'custom-options-manager',
+                label: '一级选项',
+                name: 'level1-options',
+                attributes: { isLevel2: false }
+            },
+            // 二级选项管理
+            {
+                type: 'custom-options-manager',
+                label: '二级选项',
+                name: 'level2-options',
+                attributes: { isLevel2: true }
+            }
+        ];
+    }
 } 

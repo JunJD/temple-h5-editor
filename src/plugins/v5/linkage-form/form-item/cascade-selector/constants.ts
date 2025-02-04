@@ -4,46 +4,95 @@ export const CASCADE_SELECTOR_TYPES = {
     'option': 'option'
 } as const;
 
+export interface OptionData {
+    id: string;
+    label: string;
+    value: string | number;
+    image?: string;
+}
+
+export interface CascadeSelectorOptions {
+    level1: OptionData[];
+    level2: {
+        [parentId: string]: OptionData[];
+    };
+}
+
 // 默认图片
 export const DEFAULT_OPTION_IMAGE = `data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIHZpZXdCb3g9IjAgMCAyNCAyNCIgc3R5bGU9ImZpbGw6IHJnYmEoMCwwLDAsMC4xNSk7IHRyYW5zZm9ybTogc2NhbGUoMC43NSkiPgogICAgICAgIDxwYXRoIGQ9Ik04LjUgMTMuNWwyLjUgMyAzLjUtNC41IDQuNSA2SDVtMTYgMVY1YTIgMiAwIDAgMC0yLTJINWMtMS4xIDAtMiAuOS0yIDJ2MTRjMCAxLjEuOSAyIDIgMmgxNGMxLjEgMCAyLS45IDItMnoiPjwvcGF0aD4KICAgICAgPC9zdmc+`;
 
-// 默认选项数据
-export const DEFAULT_OPTIONS = {
+export const DEFAULT_OPTIONS: CascadeSelectorOptions = {
     level1: [
         {
+            id: 'l1_1',
             label: '花果供佛',
-            image: 'https://tuchuang.wxsushang.com/2021/09/17/3631055a99ef7.png'
+            value: 'flower',
+            image: DEFAULT_OPTION_IMAGE
         },
         {
+            id: 'l1_2',
             label: '敬香供灯',
-            image: 'https://tuchuang.wxsushang.com/2021/09/01/a3499af550194.jpg'
+            value: 'light',
+            image: DEFAULT_OPTION_IMAGE
         },
         {
+            id: 'l1_3',
             label: '供斋纳福',
-            image: 'http://tuchuang.wxsushang.com/2021/07/21/be24d9839ec7a.jpg'
+            value: 'food',
+            image: DEFAULT_OPTION_IMAGE
         }
     ],
     level2: {
-        '1': [
-            { label: '1盆' },
-            { label: '1殿堂' },
-            { label: '全寺' }
+        'l1_1': [
+            {
+                id: 'l2_1_1',
+                label: '1盆',
+                value: 1
+            },
+            {
+                id: 'l2_1_2',
+                label: '1殿堂',
+                value: 2
+            },
+            {
+                id: 'l2_1_3',
+                label: '全寺',
+                value: 3
+            }
         ],
-        '2': [
-            { label: '1天' },
-            { label: '3天' },
-            { label: '7天' },
-            { label: '15天' },
-            { label: '30天' },
-            { label: '100天' }
+        'l1_2': [
+            {
+                id: 'l2_2_1',
+                label: '1天',
+                value: 1
+            },
+            {
+                id: 'l2_2_2',
+                label: '3天',
+                value: 3
+            },
+            {
+                id: 'l2_2_3',
+                label: '7天',
+                value: 7
+            }
         ],
-        '3': [
-            { label: '1天' },
-            { label: '3天' },
-            { label: '7天' },
-            { label: '15天' },
-            { label: '30天' },
-            { label: '100天' }
+        'l1_3': [
+            {
+                id: 'l2_3_1',
+                label: '1天',
+                value: 1
+            },
+            {
+                id: 'l2_3_2',
+                label: '3天',
+                value: 3
+            },
+            {
+                id: 'l2_3_3',
+                label: '7天',
+                value: 7
+            }
         ]
     }
 }; 
