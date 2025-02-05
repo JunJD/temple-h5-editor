@@ -78,6 +78,30 @@ export class LinkageFormBlocks extends BaseLoadBlocks {
                 components: [
                     {
                         type: 'form-item',
+                        attributes: { name: 'goods', label: '' },
+                        components: [
+                            {
+                                type: 'default',
+                                style: {
+                                    'font-size': '16px',
+                                    'font-weight': 'bold',
+                                    'color': '#fff',
+                                    'text-align': 'center',
+                                    'background-color': '#a67c37',
+                                    'border-radius': '10px 10px 0 0',
+                                    'padding': '20px 0',
+                                    'box-sizing': 'border-box'
+                                },
+                                content: '选择项目'
+                            },
+                            {
+                                type: CASCADE_SELECTOR_TYPES['cascade-selector'],
+                                required: true
+                            }
+                        ],
+                    },
+                    {
+                        type: 'form-item',
                         attributes: { name: 'name', label: '' },
                         components: [{
                             type: LINKAGE_FORM_TYPES['input-group'],

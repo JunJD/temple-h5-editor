@@ -6,6 +6,12 @@ export const LINKAGE_FORM_TYPES = {
 
 // 预设配置
 export const PRESETS = {
+    // 商品
+    goods: {
+        label: '商品:',
+        suffix: '',
+        type: 'text'
+    },
     number: {
         label: '数量:',
         suffix: '个',
