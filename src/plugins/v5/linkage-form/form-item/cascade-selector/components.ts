@@ -2,7 +2,7 @@ import { Editor, PluginOptions } from "grapesjs";
 import { BaseLoadComponents } from "../../../common/base";
 import { CASCADE_SELECTOR_TYPES, CascadeSelectorOptions, DEFAULT_OPTION_IMAGE, DEFAULT_OPTIONS } from "./constants";
 import { CascadeSelectorTraitsFactory } from "./traits-factory";
-import { GRID_BLOCKS } from "../../../layout/constants";
+// import { GRID_BLOCKS } from "../../../layout/constants";
 
 export class CascadeSelectorComponents extends BaseLoadComponents {
     constructor(editor: Editor, options: PluginOptions) {
@@ -37,7 +37,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
 
                         // 处理选项组选择事件
                         el.addEventListener('group-option-selected', (event) => {
-                            const { level, selectedOption } = event.detail;                            
+                            const { level, selectedOption } = event.detail;
                             // 更新状态
                             if (level === '1') {
                                 state.selectedLevel1 = selectedOption.id;
@@ -67,14 +67,16 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 }));
                             }
 
-                            // 触发选择变化事件
-                            el.dispatchEvent(new CustomEvent('cascade-selection-change', {
-                                detail: {
-                                    value: state.value,
-                                    currentLevel: level,
-                                    currentSelection: selectedOption
+                            const formItem = el.closest('.form-item');
+                            if (formItem) {
+                                if (level === '2') {
+
+                                    const event = new CustomEvent('field:change', {
+                                        detail: { value: Number(state.value.level2) || 0 }
+                                    });
+                                    formItem.dispatchEvent(event);
                                 }
-                            }));
+                            }
                         });
 
                         // 初始化时设置默认显示的二级选项组
@@ -96,60 +98,24 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             components: [{
                                 type: 'bs-row',
                                 attributes: { class: 'level-1-group', 'display-mode': 'image' },
-                                components: [
-                                    {
-                                        type: 'bs-col',
-                                        'col-base': 'col-4',
-                                        style: {
-                                            padding: 0,
-                                            'border-color': 'transparent'
-                                        },
-                                        components: [
-                                            {
-                                                type: CASCADE_SELECTOR_TYPES['option'],
-                                                attributes: { 'data-id': 'l1_1', 'data-level': 1 },
-                                                label: '花果供佛',
-                                                value: '1',
-                                                image: DEFAULT_OPTION_IMAGE,
-                                                defaultImage: DEFAULT_OPTION_IMAGE
-                                            }
-                                        ]
+                                components: DEFAULT_OPTIONS.level1.map(it => ({
+                                    type: 'bs-col',
+                                    'col-base': `col-${Math.floor(12 / DEFAULT_OPTIONS.level1.length)}`,
+                                    style: {
+                                        padding: 0,
+                                        'border-color': 'transparent'
                                     },
-                                    {
-                                        type: 'bs-col',
-                                        'col-base': 'col-4',
-                                        style: {
-                                            padding: 0,
-                                            'border-color': 'transparent'
-                                        },
-                                        components: [
-                                            {
-                                                type: CASCADE_SELECTOR_TYPES['option'],
-                                                attributes: { 'data-id': 'l1_2', 'data-level': 1 },
-                                                label: '敬香供灯',
-                                                image: DEFAULT_OPTION_IMAGE,
-                                                defaultImage: DEFAULT_OPTION_IMAGE
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        type: 'bs-col',
-                                        'col-base': 'col-4',
-                                        style: {
-                                            padding: 0,
-                                            'border-color': 'transparent'
-                                        },
-                                        components: [
-                                            {
-                                                type: CASCADE_SELECTOR_TYPES['option'],
-                                                attributes: { 'data-id': 'l1_3', 'data-level': 1 },
-                                                label: '供斋纳福',
-                                                image: DEFAULT_OPTION_IMAGE,
-                                                defaultImage: DEFAULT_OPTION_IMAGE
-                                            }
-                                        ]
-                                    }
-                                ]
+                                    components: [
+                                        {
+                                            type: CASCADE_SELECTOR_TYPES['option'],
+                                            attributes: { 'data-id': it.id, 'data-level': 1 },
+                                            label: it.label,
+                                            value: it.value,
+                                            image: it.image,
+                                            defaultImage: it.image
+                                        }
+                                    ]
+                                }))
                             }]
                         },
                         {
@@ -161,170 +127,27 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             },
                             'selected-color': '#a67c37',
                             'display-mode': 'button',
-                            components: [
-                                {
-                                    type: 'bs-row',
-                                    attributes: { class: 'level-2-row', 'data-parent-id': 'l1_1' },
+                            components: Object.entries(DEFAULT_OPTIONS.level2).map(([parentId, level2Options]) => ({
+                                type: 'bs-row',
+                                attributes: { class: 'level-2-row', 'data-parent-id': parentId },
+                                components: level2Options.map(it => ({
+                                    type: 'bs-col',
+                                    'col-base': `col-${Math.floor(12 / level2Options.length)}`,
+                                    style: {
+                                        padding: 0,
+                                        'border-color': 'transparent'
+                                    },
                                     components: [
                                         {
-                                            type: 'bs-col',
-                                            'col-base': 'col-4',
-                                            style: {
-                                                padding: 0,
-                                                'border-color': 'transparent'
-                                            },
-                                            components: [
-                                                {
-                                                    type: CASCADE_SELECTOR_TYPES['option'],
-                                                    attributes: { 'data-id': 'l2_1_1', 'data-level': 2 },
-                                                    label: '1盆',
-                                                    defaultImage: DEFAULT_OPTION_IMAGE
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            type: 'bs-col',
-                                            'col-base': 'col-4',
-                                            style: {
-                                                padding: 0,
-                                                'border-color': 'transparent'
-                                            },
-                                            components: [
-                                                {
-                                                    type: CASCADE_SELECTOR_TYPES['option'],
-                                                    attributes: { 'data-id': 'l2_1_2', 'data-level': 2 },
-                                                    label: '1殿堂',
-                                                    defaultImage: DEFAULT_OPTION_IMAGE
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            type: 'bs-col',
-                                            'col-base': 'col-4',
-                                            style: {
-                                                padding: 0,
-                                                'border-color': 'transparent'
-                                            },
-                                            components: [
-                                                {
-                                                    type: CASCADE_SELECTOR_TYPES['option'],
-                                                    attributes: { 'data-id': 'l2_1_3', 'data-level': 2 },
-                                                    label: '全寺',
-                                                    defaultImage: DEFAULT_OPTION_IMAGE
-                                                }
-                                            ]
+                                            type: CASCADE_SELECTOR_TYPES['option'],
+                                            attributes: { 'data-id': it.id, 'data-level': 2, 'data-parent-id': parentId },
+                                            label: it.label,
+                                            value: it.value,
+                                            defaultImage: it.image
                                         }
                                     ]
-                                },
-                                {
-                                    type: 'bs-row',
-                                    attributes: { class: 'level-2-row', 'data-parent-id': 'l1_2' },
-                                    components: [
-                                        {
-                                            type: 'bs-col',
-                                            'col-base': 'col-4',
-                                            style: {
-                                                padding: 0,
-                                                'border-color': 'transparent'
-                                            },
-                                            components: [
-                                                {
-                                                    type: CASCADE_SELECTOR_TYPES['option'],
-                                                    attributes: { 'data-id': 'l2_2_1', 'data-level': 2 },
-                                                    label: '1天',
-                                                    defaultImage: DEFAULT_OPTION_IMAGE
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            type: 'bs-col',
-                                            'col-base': 'col-4',
-                                            style: {
-                                                padding: 0,
-                                                'border-color': 'transparent'
-                                            },
-                                            components: [
-                                                {
-                                                    type: CASCADE_SELECTOR_TYPES['option'],
-                                                    attributes: { 'data-id': 'l2_2_2', 'data-level': 2 },
-                                                    label: '3天',
-                                                    defaultImage: DEFAULT_OPTION_IMAGE
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            type: 'bs-col',
-                                            'col-base': 'col-4',
-                                            style: {
-                                                padding: 0,
-                                                'border-color': 'transparent'
-                                            },
-                                            components: [
-                                                {
-                                                    type: CASCADE_SELECTOR_TYPES['option'],
-                                                    attributes: { 'data-id': 'l2_2_3', 'data-level': 2 },
-                                                    label: '7天',
-                                                    defaultImage: DEFAULT_OPTION_IMAGE
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                },
-                                {
-                                    type: 'bs-row',
-                                    attributes: { class: 'level-2-row', 'data-parent-id': 'l1_3' },
-                                    components: [
-                                        {
-                                            type: 'bs-col',
-                                            'col-base': 'col-4',
-                                            style: {
-                                                padding: 0,
-                                                'border-color': 'transparent'
-                                            },
-                                            components: [
-                                                {
-                                                    type: CASCADE_SELECTOR_TYPES['option'],
-                                                    attributes: { 'data-id': 'l2_3_1', 'data-level': 2 },
-                                                    label: '1天',
-                                                    defaultImage: DEFAULT_OPTION_IMAGE
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            type: 'bs-col',
-                                            'col-base': 'col-4',
-                                            style: {
-                                                padding: 0,
-                                                'border-color': 'transparent'
-                                            },
-                                            components: [
-                                                {
-                                                    type: CASCADE_SELECTOR_TYPES['option'],
-                                                    attributes: { 'data-id': 'l2_3_2', 'data-level': 2 },
-                                                    label: '3天',
-                                                    defaultImage: DEFAULT_OPTION_IMAGE
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            type: 'bs-col',
-                                            'col-base': 'col-4',
-                                            style: {
-                                                padding: 0,
-                                                'border-color': 'transparent'
-                                            },
-                                            components: [
-                                                {
-                                                    type: CASCADE_SELECTOR_TYPES['option'],
-                                                    attributes: { 'data-id': 'l2_3_3', 'data-level': 2 },
-                                                    label: '7天',
-                                                    defaultImage: DEFAULT_OPTION_IMAGE
-                                                }
-                                            ]
-                                        }
-                                    ]
-                                }
-                            ]
+                                }))
+                            }))
                         }
                     ],
                     style: {
@@ -359,7 +182,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
 
                 updateComponents() {
                     const options = this.get('options') as CascadeSelectorOptions;
-                    
+
                     // 更新一级选项组
                     const level1Group = this.find('.level-1-group')[0];
                     if (level1Group) {
@@ -369,7 +192,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             const colBase = `col-${Math.floor(12 / newColSum)}`
                             // 清空现有选项
                             level1Row.empty();
-                            
+
                             // 添加新选项
                             options.level1.forEach(option => {
                                 level1Row.append({
@@ -400,7 +223,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                     if (level2Group) {
                         // 清空现有行
                         level2Group.empty();
-                        
+
                         // 为每个一级选项创建对应的二级选项行
                         Object.entries(options.level2).forEach(([parentId, level2Options]) => {
                             const newColSum = level2Options.length
@@ -467,9 +290,9 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         const level = el.getAttribute('data-level');
                         const selectedColor = props['selected-color'] || '#a67c37';
                         const groupId = Math.random().toString(36).substr(2, 9);
-                        
+
                         el.setAttribute('data-group-id', groupId);
-                        
+
                         const state = {
                             selectedId: null,
                             visibleParentId: level === '2' ? 'l1_1' : null
@@ -487,7 +310,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             }
 
                             state.selectedId = detail.id;
-                            
+
                             // 移除所有选项的选中状态
                             const options = el.querySelectorAll('[data-gjs-type="option"]');
                             options.forEach((opt) => {
@@ -495,7 +318,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 // 移除选中样式
                                 opt.style.borderColor = 'transparent';
                             });
-                            
+
                             // 为当前选中项添加选中状态
                             const selectedOption = el.querySelector(`[data-id="${detail.id}"]`);
                             if (selectedOption) {
@@ -520,22 +343,22 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             state.selectedId = event.detail.selectedId;
                             const options = el.querySelectorAll('[data-gjs-type="option"]');
 
-                            
+
                             options.forEach((opt) => {
                                 const isSelected = opt.getAttribute('data-id') === state.selectedId;
 
                                 opt.classList.toggle('selected', isSelected);
                                 // 更新选中样式
-                                if(level === '1') {
+                                if (level === '1') {
                                     opt.style.borderColor = isSelected ? selectedColor : 'transparent';
                                 } else {
-                                    if(!opt.querySelector('button')) return 
-                                    if(isSelected) {
+                                    if (!opt.querySelector('button')) return
+                                    if (isSelected) {
                                         opt.querySelector('button').style.backgroundColor = selectedColor;
-                                        opt.querySelector('button').style.color = '#fff' 
+                                        opt.querySelector('button').style.color = '#fff'
                                     } else {
                                         opt.querySelector('button').style.backgroundColor = '#fff';
-                                        opt.querySelector('button').style.color = '#8c8d8d' 
+                                        opt.querySelector('button').style.color = '#8c8d8d'
                                     }
                                     opt.style.borderColor = 'transparent';
                                 }
@@ -560,9 +383,9 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 row.style.display = isVisible ? 'flex' : 'none';
 
                                 // 只有当row是显示状态时，才点击第一个option
-                                if(isVisible) {
+                                if (isVisible) {
                                     const option = row.querySelector('[data-gjs-type="option"]');
-                                    if(option) {
+                                    if (option) {
                                         option.click();
                                     }
                                 }
@@ -628,7 +451,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         const mode = parent?.getAttribute('display-mode') || 'image';
 
                         const selectedColor = getComputedStyle(parent).getPropertyValue('--selected-color').trim() || '#a67c37';
-                        
+
                         function renderOption() {
                             if (mode === 'image') {
                                 const imageOptionStyle = {
@@ -687,6 +510,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
 
                         el.onclick = () => {
                             const groupId = parent?.getAttribute('data-group-id');
+
                             el.dispatchEvent(new CustomEvent('option-click', {
                                 detail: {
                                     id: el.getAttribute('data-id'),
