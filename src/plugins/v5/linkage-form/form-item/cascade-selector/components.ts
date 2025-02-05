@@ -346,7 +346,6 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                 },
 
                 handleOptionsChange() {
-                    console.log('options changed:', this.get('options'));
                     this.updateComponents();
                     this.trigger('rerender');
 
@@ -359,19 +358,21 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
 
                 updateComponents() {
                     const options = this.get('options') as CascadeSelectorOptions;
-                    console.log('Updating components with options:', options);
                     
                     // 更新一级选项组
                     const level1Group = this.find('.level-1-group')[0];
                     if (level1Group) {
                         const level1Row = level1Group.find('.row')[0];
                         if (level1Row) {
+                            const newColSum = options.level1.length
+                            const colBase = `col-${Math.floor(12 / newColSum)}`
                             // 清空现有选项
                             level1Row.empty();
                             
                             // 添加新选项
                             options.level1.forEach(option => {
                                 level1Row.append({
+                                    'col-base': colBase,
                                     type: 'bs-col',
                                     style: {
                                         padding: 0,
@@ -401,6 +402,8 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         
                         // 为每个一级选项创建对应的二级选项行
                         Object.entries(options.level2).forEach(([parentId, level2Options]) => {
+                            const newColSum = level2Options.length
+                            const colBase = `col-${Math.floor(12 / newColSum)}`
                             level2Group.append({
                                 type: 'bs-row',
                                 attributes: {
@@ -410,6 +413,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 },
                                 components: level2Options.map(option => ({
                                     type: 'bs-col',
+                                    'col-base': colBase,
                                     style: {
                                         padding: 0,
                                         'border-color': 'transparent'
@@ -510,7 +514,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             }));
                         });
 
-                        // 处理选中状态更新事件
+                        // 处理选中状态更新 样式
                         el.addEventListener('update-selection', (event) => {
                             state.selectedId = event.detail.selectedId;
                             const options = el.querySelectorAll('[data-gjs-type="option"]');
@@ -518,22 +522,11 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             
                             options.forEach((opt) => {
                                 const isSelected = opt.getAttribute('data-id') === state.selectedId;
-                                const currentLevel = opt.getAttribute('data-level')
+
                                 opt.classList.toggle('selected', isSelected);
                                 // 更新选中样式
                                 if(level === '1') {
                                     opt.style.borderColor = isSelected ? selectedColor : 'transparent';
-                                    
-                                    // el.dispatchEvent(new CustomEvent('option-click', {
-                                    //     detail: {
-                                    //         id: el.getAttribute('data-id'),
-                                    //         label: props.label,
-                                    //         image: props.image,
-                                    //         value: props.value || props.label,
-                                    //         level: el.dataset.level
-                                    //     },
-                                    //     bubbles: true
-                                    // }));
                                 } else {
                                     if(!opt.querySelector('button')) return 
                                     if(isSelected) {
@@ -552,6 +545,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         if (level === '2') {
                             el.addEventListener('update-visible-options', (event) => {
                                 state.visibleParentId = event.detail.parentId;
+
                                 updateVisibleOptions();
                             });
                         }
@@ -559,10 +553,18 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         // 更新二级选项组的显示状态
                         function updateVisibleOptions() {
                             if (level !== '2') return;
-                            
                             el.querySelectorAll('.row').forEach((row) => {
                                 const parentId = row.getAttribute('data-parent-id');
-                                row.style.display = parentId === state.visibleParentId ? 'flex' : 'none';
+                                const isVisible = parentId === state.visibleParentId;
+                                row.style.display = isVisible ? 'flex' : 'none';
+
+                                // 只有当row是显示状态时，才点击第一个option
+                                if(isVisible) {
+                                    const option = row.querySelector('[data-gjs-type="option"]');
+                                    if(option) {
+                                        option.click();
+                                    }
+                                }
                             });
                         }
 
@@ -625,8 +627,6 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         const mode = parent?.getAttribute('display-mode') || 'image';
 
                         const selectedColor = getComputedStyle(parent).getPropertyValue('--selected-color').trim() || '#a67c37';
-
-                        console.log('selectedColor', selectedColor)
                         
                         function renderOption() {
                             if (mode === 'image') {
