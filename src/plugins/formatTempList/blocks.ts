@@ -8,10 +8,9 @@ export default function (editor: Editor, opt: Required<PluginOptions>) {
   
   const addBlock = (id: string, def: BlockProperties) => {
     opts.blocks?.indexOf(id)! >= 0 && bm.add(id, {
-      ...def,
       category: opts.category,
       select: true,
-      ...opt.block(id),
+      ...def,
     });
   }
 
