@@ -22,13 +22,10 @@ jobs:
         env:
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker buildx create --use
-          docker buildx build \
-            --platform linux/amd64 \
+          docker build \
             --build-arg MONGO_URI=${{ secrets.MONGO_URI }} \
-            -t crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:$IMAGE_TAG \
-            --push \
-            .
+            -t crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:$IMAGE_TAG .
+          docker push crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:$IMAGE_TAG
 
       - name: Deploy to ECS
         uses: appleboy/ssh-action@master
