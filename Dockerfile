@@ -1,5 +1,5 @@
 # 构建阶段
-FROM node:20.13.1 build
+FROM node:20.13.1 AS build
 WORKDIR /app
 
 # 安装必要的系统依赖
