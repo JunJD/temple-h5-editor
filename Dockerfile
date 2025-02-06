@@ -1,5 +1,5 @@
 # 构建阶段
-FROM node:20.13.1-alpine
+FROM node:20.13.1-alpine AS build
 WORKDIR /app
 
 # 安装必要的系统依赖
@@ -38,12 +38,12 @@ RUN apk add --no-cache libc6-compat openssl
 ENV NODE_ENV production
 
 # 复制构建产物和必要文件
-COPY --from=builder /app/next.config.js ./
-COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+COPY --from=build /app/next.config.js ./
+COPY --from=build /app/public ./public
+COPY --from=build /app/.next/standalone ./
+COPY --from=build /app/.next/static ./.next/static
+COPY --from=build /app/prisma ./prisma
+COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 
 # 设置环境变量
 ENV PORT 3000
