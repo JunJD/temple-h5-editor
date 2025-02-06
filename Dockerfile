@@ -3,7 +3,7 @@ FROM node:20.13.1-alpine AS builder
 WORKDIR /app
 
 # 安装必要的系统依赖
-RUN apk add --no-cache libc6-compat openssl1.1-compat
+RUN apk add --no-cache libc6-compat openssl
 
 # 安装 pnpm
 RUN npm install -g pnpm
@@ -27,7 +27,7 @@ FROM node:20.13.1-alpine AS runner
 WORKDIR /app
 
 # 安装必要的系统依赖
-RUN apk add --no-cache libc6-compat openssl1.1-compat
+RUN apk add --no-cache libc6-compat openssl
 
 ENV NODE_ENV production
 
