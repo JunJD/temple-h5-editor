@@ -5,11 +5,9 @@ WORKDIR /app
 # 安装必要的系统依赖
 RUN apk add --no-cache libc6-compat openssl
 
-# 安装并启用 pnpm
-RUN npm install -g pnpm
-RUN pnpm setup
-ENV PATH="/root/.local/share/pnpm:$PATH"
-RUN pnpm --version
+# 启用并安装 pnpm
+RUN corepack enable
+RUN corepack prepare pnpm@latest --activate
 
 # 首先复制 package.json 相关文件以利用缓存
 COPY package.json pnpm-lock.yaml ./
