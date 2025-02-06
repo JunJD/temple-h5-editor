@@ -22,7 +22,7 @@ jobs:
         env:
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build --build-arg MONGO_URI=${{ secrets.MONGO_URI }} --tag crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:$IMAGE_TAG .
+          docker build -t crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:$IMAGE_TAG .
           docker push crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:$IMAGE_TAG
 
       - name: Deploy to ECS
@@ -41,8 +41,12 @@ jobs:
                 image: crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:${IMAGE_TAG}
                 ports:
                   - "3000:3000"
-                env_file:
-                  - .env.production
+                environment:
+                  - MONGO_URI=${{ secrets.MONGO_URI }}
+                  - NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+                  - NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+                  - GOOGLE_APP_CLIENT_ID=${{ secrets.GOOGLE_APP_CLIENT_ID }}
+                  - GOOGLE_APP_CLIENT_SECRET=${{ secrets.GOOGLE_APP_CLIENT_SECRET }}
                 restart: always
             EOL
             
