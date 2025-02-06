@@ -5,16 +5,16 @@ WORKDIR /app
 # 安装必要的系统依赖
 RUN apk add --no-cache libc6-compat openssl
 
-# 启用并安装 pnpm
-RUN corepack enable
-RUN corepack prepare pnpm@latest --activate
+# 安装 pnpm
+RUN node -v
+RUN npm install -g pnpm@8.15.4
 
 # 首先复制 package.json 相关文件以利用缓存
 COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma/
 
 # 安装依赖
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
 # 设置构建时的环境变量
 ARG MONGO_URI
