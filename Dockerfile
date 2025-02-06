@@ -1,19 +1,21 @@
 # 构建阶段
-FROM node:20.13.1 AS build
+FROM node:20.13.1-alpine AS build
 WORKDIR /app
 
 # 安装必要的系统依赖
 RUN apk add --no-cache libc6-compat openssl
 
-# 安装 pnpm
+# 安装并启用 pnpm
 RUN npm install -g pnpm
+RUN pnpm setup
+ENV PATH="/root/.local/share/pnpm:$PATH"
+RUN pnpm --version
 
 # 首先复制 package.json 相关文件以利用缓存
 COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma/
 
 # 安装依赖
-RUN node -v
 RUN pnpm install
 
 # 设置构建时的环境变量
@@ -30,7 +32,7 @@ COPY . .
 RUN pnpm build
 
 # 生产阶段
-FROM node:20.13.1 AS runner
+FROM node:20.13.1-alpine AS runner
 WORKDIR /app
 
 # 安装必要的系统依赖
