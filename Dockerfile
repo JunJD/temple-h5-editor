@@ -15,6 +15,10 @@ COPY prisma ./prisma/
 # 安装依赖
 RUN pnpm install --frozen-lockfile
 
+# 设置构建时的环境变量
+ARG MONGO_URI
+ENV MONGO_URI=${MONGO_URI:-mongodb://localhost:27017/temple-h5-editor?replicaSet=rs0&authSource=temple-h5-editor}
+
 # 生成 Prisma Client
 RUN pnpm prisma generate
 
