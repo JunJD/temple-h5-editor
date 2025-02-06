@@ -13,7 +13,7 @@ COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma/
 
 # 安装依赖
-RUN pnpm install
+RUN pnpm install --force
 
 # 设置构建时的环境变量
 ARG MONGO_URI
