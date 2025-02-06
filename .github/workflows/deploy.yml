@@ -32,7 +32,6 @@ jobs:
           username: ${{ secrets.ECS_USERNAME }}
           key: ${{ secrets.ECS_SSH_KEY }}
           script: |
-            mkdir -p /app/temple-h5-editor
             cd /app/temple-h5-editor
             
             cat > docker-compose.yml << 'EOL'
@@ -42,21 +41,11 @@ jobs:
                 image: crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:${IMAGE_TAG}
                 ports:
                   - "3000:3000"
-                environment:
-                  - MONGO_URI=${MONGO_URI}
-                  - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-                  - NEXTAUTH_URL=${NEXTAUTH_URL}
-                  - GOOGLE_APP_CLIENT_ID=${GOOGLE_APP_CLIENT_ID}
-                  - GOOGLE_APP_CLIENT_SECRET=${GOOGLE_APP_CLIENT_SECRET}
+                env_file:
+                  - .env.production
                 restart: always
             EOL
             
             echo "IMAGE_TAG=${{ github.sha }}" > .env
-            echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
-            echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env
-            echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env
-            echo "GOOGLE_APP_CLIENT_ID=${{ secrets.GOOGLE_APP_CLIENT_ID }}" >> .env
-            echo "GOOGLE_APP_CLIENT_SECRET=${{ secrets.GOOGLE_APP_CLIENT_SECRET }}" >> .env
-            
             docker-compose pull
             docker-compose up -d
