@@ -6,45 +6,10 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    
-    steps:
-    - uses: actions/checkout@v4
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.13.1'
-        
-    - name: Install pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: latest
-        
-    - name: Install dependencies
-      run: pnpm install
-      
-    - name: Build
-      run: pnpm build
-      env:
-        MONGO_URI: ${{ secrets.MONGO_URI }}
-
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v2
-        with:
-          node-version: '18'
-          
-      - name: Install Dependencies
-        run: npm install
-          
-      - name: Build
-        run: npm run build
+      - uses: actions/checkout@v4
 
       - name: Login to Aliyun Container Registry
         uses: aliyun/acr-login@v1
@@ -67,11 +32,9 @@ jobs:
           username: ${{ secrets.ECS_USERNAME }}
           key: ${{ secrets.ECS_SSH_KEY }}
           script: |
-            # 确保目录存在
             mkdir -p /app/temple-h5-editor
             cd /app/temple-h5-editor
             
-            # 创建或更新 docker-compose.yml
             cat > docker-compose.yml << 'EOL'
             version: '3.8'
             services:
@@ -88,7 +51,6 @@ jobs:
                 restart: always
             EOL
             
-            # 设置环境变量
             echo "IMAGE_TAG=${{ github.sha }}" > .env
             echo "MONGO_URI=${{ secrets.MONGO_URI }}" >> .env
             echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env
@@ -96,6 +58,5 @@ jobs:
             echo "GOOGLE_APP_CLIENT_ID=${{ secrets.GOOGLE_APP_CLIENT_ID }}" >> .env
             echo "GOOGLE_APP_CLIENT_SECRET=${{ secrets.GOOGLE_APP_CLIENT_SECRET }}" >> .env
             
-            # 拉取新镜像并重启服务
             docker-compose pull
             docker-compose up -d
