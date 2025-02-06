@@ -1,5 +1,5 @@
 # 构建阶段
-FROM node:20.13.1-alpine AS build
+FROM node:20.13.1 build
 WORKDIR /app
 
 # 安装必要的系统依赖
@@ -13,7 +13,8 @@ COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma/
 
 # 安装依赖
-RUN pnpm install --force
+RUN node -v
+RUN pnpm install
 
 # 设置构建时的环境变量
 ARG MONGO_URI
@@ -29,7 +30,7 @@ COPY . .
 RUN pnpm build
 
 # 生产阶段
-FROM node:20.13.1-alpine AS runner
+FROM node:20.13.1 AS runner
 WORKDIR /app
 
 # 安装必要的系统依赖
