@@ -167,8 +167,6 @@ const getLayerFromBgImage = (imagePart: string) => {
 
     if (stops.length === 2 && isLinear && (stops[0].color === stops[1].color)) {
       result[PROPERTY_BG_TYPE] = BackgroundType.Color;
-    } else {
-      result[PROPERTY_BG_TYPE] = BackgroundType.Gradient;
     }
   } else {
     result[PROPERTY_BG_TYPE] = BackgroundType.Color;

@@ -1,13 +1,19 @@
 # 构建阶段
-FROM node:18-alpine AS builder
+FROM node:20.13.1-alpine AS builder
 WORKDIR /app
+
+# 安装 pnpm
+RUN npm install -g pnpm
+
 COPY package*.json ./
-RUN npm install
+COPY pnpm-lock.yaml ./
+RUN pnpm install
+
 COPY . .
-RUN npm run build
+RUN pnpm build
 
 # 运行阶段
-FROM node:18-alpine AS runner
+FROM node:20.13.1-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
