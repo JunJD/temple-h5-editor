@@ -14,7 +14,8 @@ COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma/
 
 # 安装依赖
-RUN pnpm install --frozen-lockfile
+RUN pnpm -v
+RUN pnpm install
 
 # 设置构建时的环境变量
 ARG MONGO_URI
