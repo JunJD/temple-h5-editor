@@ -1,5 +1,5 @@
 # 构建阶段
-FROM node:20.13.1-alpine AS builder
+FROM node:20.13.1-alpine
 WORKDIR /app
 
 # 安装必要的系统依赖
@@ -13,11 +13,11 @@ COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma/
 
 # 安装依赖
-RUN pnpm install --frozen-lockfile
+RUN pnpm install
 
 # 设置构建时的环境变量
 ARG MONGO_URI
-ENV MONGO_URI=${MONGO_URI:-mongodb://localhost:27017/temple-h5-editor?replicaSet=rs0&authSource=temple-h5-editor}
+ENV MONGO_URI=${MONGO_URI:-mongodb://localhost:27017/temple-h5-editor}
 
 # 生成 Prisma Client
 RUN pnpm prisma generate
