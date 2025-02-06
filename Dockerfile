@@ -14,7 +14,6 @@ COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma/
 
 # 安装依赖
-RUN pnpm store prune
 RUN pnpm -v
 RUN pnpm install --verbose
 
