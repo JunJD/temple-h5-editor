@@ -25,17 +25,17 @@ jobs:
           [[ -z "${{ secrets.ECS_SSH_KEY }}" ]] && echo "Missing ECS_SSH_KEY" && exit 1
           echo "All required secrets are set"
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'pnpm'
-
       - name: Install pnpm
         uses: pnpm/action-setup@v2
         with:
           version: 8.15.4
           run_install: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
