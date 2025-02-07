@@ -11,10 +11,47 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Check required secrets
+        run: |
+          [[ -z "${{ secrets.MONGO_URI }}" ]] && echo "Missing MONGO_URI" && exit 1
+          [[ -z "${{ secrets.NEXTAUTH_SECRET }}" ]] && echo "Missing NEXTAUTH_SECRET" && exit 1
+          [[ -z "${{ secrets.NEXTAUTH_URL }}" ]] && echo "Missing NEXTAUTH_URL" && exit 1
+          [[ -z "${{ secrets.GOOGLE_APP_CLIENT_ID }}" ]] && echo "Missing GOOGLE_APP_CLIENT_ID" && exit 1
+          [[ -z "${{ secrets.GOOGLE_APP_CLIENT_SECRET }}" ]] && echo "Missing GOOGLE_APP_CLIENT_SECRET" && exit 1
+          [[ -z "${{ secrets.ALIYUN_USERNAME }}" ]] && echo "Missing ALIYUN_USERNAME" && exit 1
+          [[ -z "${{ secrets.ALIYUN_PASSWORD }}" ]] && echo "Missing ALIYUN_PASSWORD" && exit 1
+          [[ -z "${{ secrets.ECS_HOST }}" ]] && echo "Missing ECS_HOST" && exit 1
+          [[ -z "${{ secrets.ECS_USERNAME }}" ]] && echo "Missing ECS_USERNAME" && exit 1
+          [[ -z "${{ secrets.ECS_SSH_KEY }}" ]] && echo "Missing ECS_SSH_KEY" && exit 1
+          echo "All required secrets are set"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8.15.4
+          run_install: false
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
       - name: Login to Aliyun Container Registry
         uses: aliyun/acr-login@v1
         with:
-          login-server: registry.cn-hangzhou.aliyuncs.com
+          login-server: crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com
           username: ${{ secrets.ALIYUN_USERNAME }}
           password: ${{ secrets.ALIYUN_PASSWORD }}
 
@@ -22,8 +59,19 @@ jobs:
         env:
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build -t crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:$IMAGE_TAG . --build-arg MONGO_URI=${{ secrets.MONGO_URI }}
-          docker push crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:$IMAGE_TAG
+          # 显示系统信息
+          df -h
+          docker info
+          # 使用 buildx 构建
+          docker buildx build \
+            --cache-from type=local,src=/tmp/.buildx-cache \
+            --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \
+            --platform linux/amd64 \
+            --progress=plain \
+            --push \
+            -t crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:$IMAGE_TAG \
+            --build-arg MONGO_URI=${{ secrets.MONGO_URI }} \
+            .
 
       - name: Deploy to ECS
         uses: appleboy/ssh-action@master
