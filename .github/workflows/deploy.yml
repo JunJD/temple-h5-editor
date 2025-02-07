@@ -65,13 +65,7 @@ jobs:
           docker info
           # 构建并推送镜像
           docker buildx create --use
-          docker buildx build \
-          --platform linux/amd64 \
-          --cache-from=type=local,src=/tmp/.buildx-cache \
-          --cache-to=type=local,dest=/tmp/.buildx-cache-new \
-          --build-arg MONGO_URI=${{ secrets.MONGO_URI }} \
-          --tag crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:$IMAGE_TAG \
-          --push .
+          docker buildx build --platform linux/amd64 --cache-from=type=local,src=/tmp/.buildx-cache --cache-to=type=local,dest=/tmp/.buildx-cache-new --build-arg MONGO_URI=${{ secrets.MONGO_URI }} --tag crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:$IMAGE_TAG --push .
 
       - name: Deploy to ECS
         uses: appleboy/ssh-action@master
