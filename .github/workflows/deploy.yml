@@ -78,16 +78,18 @@ jobs:
           username: ${{ secrets.ECS_USERNAME }}
           key: ${{ secrets.ECS_SSH_KEY }}
           debug: true
-          script_stop: true
+          envs: IMAGE_TAG
+          env:
+            IMAGE_TAG: ${{ github.sha }}
           script: |
-            set -e
-            cd /app/temple-h5-editor
+            cd /app/temple-h5-editor || mkdir -p /app/temple-h5-editor
             
-            cat > docker-compose.yml << 'EOL'
+            # 创建 docker-compose.yml
+            cat > docker-compose.yml << EOL
             version: '3.8'
             services:
               web:
-                image: crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:${IMAGE_TAG}
+                image: crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:\${IMAGE_TAG}
                 ports:
                   - "3000:3000"
                 environment:
@@ -99,6 +101,8 @@ jobs:
                 restart: always
             EOL
             
-            echo "IMAGE_TAG=${{ github.sha }}" > .env
-            docker-compose pull
-            docker-compose up -d
+            # 创建 .env 文件
+            echo "IMAGE_TAG=${IMAGE_TAG}" > .env
+            
+            # 拉取并启动容器
+            docker-compose pull && docker-compose up -d
