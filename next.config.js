@@ -2,5 +2,6 @@
  * @type { import("next").NextConfig }
  */
 module.exports = {
-  reactStrictMode: false
+  reactStrictMode: false,
+  output: 'standalone',
 }
