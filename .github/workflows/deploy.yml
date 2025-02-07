@@ -58,20 +58,20 @@ jobs:
       - name: Build and push image
         env:
           IMAGE_TAG: ${{ github.sha }}
+          DOCKER_BUILDKIT: 1
         run: |
           # 显示系统信息
           df -h
           docker info
-          # 使用 buildx 构建
+          # 构建并推送镜像
+          docker buildx create --use
           docker buildx build \
-            --cache-from type=local,src=/tmp/.buildx-cache \
-            --cache-to type=local,dest=/tmp/.buildx-cache-new,mode=max \
-            --platform linux/amd64 \
-            --progress=plain \
-            --push \
-            -t crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:$IMAGE_TAG \
-            --build-arg MONGO_URI=${{ secrets.MONGO_URI }} \
-            .
+          --platform linux/amd64 \
+          --cache-from=type=local,src=/tmp/.buildx-cache \
+          --cache-to=type=local,dest=/tmp/.buildx-cache-new \
+          --build-arg MONGO_URI=${{ secrets.MONGO_URI }} \
+          --tag crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:$IMAGE_TAG \
+          --push .
 
       - name: Deploy to ECS
         uses: appleboy/ssh-action@master
