@@ -60,7 +60,7 @@ class LinkageFormTraitsFactory extends BaseTraitsFactory {
     // 获取联动表达式trait
     static getExpressionTrait() {
         return {
-            type: 'rich-input',
+            type: 'text',
             label: '联动表达式',
             name: 'expression',
             attributes: {

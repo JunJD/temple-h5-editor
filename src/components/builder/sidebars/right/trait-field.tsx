@@ -53,8 +53,12 @@ export function TraitField({ trait }: TraitFieldProps) {
           <Input
             value={value}
             placeholder={defaultValue}
+            className='border-input focus-visible:ring-1 focus-visible:ring-offset-0'
             disabled={disabled}
-            onChange={(e) => handleChange(e.target.value)}
+            onChange={(e) => {
+              const target = e.target as HTMLInputElement;
+                handleChange(target.value);
+            }}
           />
         </div>
       )
@@ -184,11 +188,17 @@ export function TraitField({ trait }: TraitFieldProps) {
 
     case 'rich-input':
       return (
-        <RichInput
-          content={value}
-          onChange={(value) => handleChange(value)}
-          {...trait.get('attributes')}
-        />
+        <div className="space-y-2">
+          <Label>{trait.getLabel()}</Label>
+          <RichInput
+            content={value}
+            className="focus-visible:ring-1 focus-visible:ring-offset-0 border-input"
+            onChange={(value) => {
+              handleChange(value);
+            }}
+            {...trait.get('attributes')}
+          />
+        </div>
       )
 
     default:
