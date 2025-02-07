@@ -187,6 +187,7 @@ export function TraitField({ trait }: TraitFieldProps) {
         <RichInput
           content={value}
           onChange={(value) => handleChange(value)}
+          {...trait.get('attributes')}
         />
       )
 

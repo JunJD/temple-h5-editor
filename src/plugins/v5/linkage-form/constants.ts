@@ -1,5 +1,6 @@
 export const LINKAGE_FORM_TYPES = {
     'input-group': 'input-group',
+    'input-group-rich-text': 'input-group-rich-text',
     // 级联选择器
     'cascade-selector': 'cascade-selector'
 } as const;

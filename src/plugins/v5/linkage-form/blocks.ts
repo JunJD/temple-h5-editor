@@ -143,6 +143,16 @@ export class LinkageFormBlocks extends BaseLoadBlocks {
                             'input-type': 'number',
                             expression: 'form.price * form.quantity || 0'
                         }]
+                    },
+                    {
+                        type: 'form-item',
+                        attributes: { name: 'totalAmount', label: '' },
+                        components: [{
+                            type: LINKAGE_FORM_TYPES['input-group-rich-text'],
+                            label: '备注:',
+                            suffix: '',
+                            'input-type': 'text'
+                        }]
                     }
                 ]
             },
