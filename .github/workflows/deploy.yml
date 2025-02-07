@@ -66,6 +66,10 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache-new
           build-args: |
             MONGO_URI=${{ secrets.MONGO_URI }}
+            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+            GOOGLE_APP_CLIENT_ID=${{ secrets.GOOGLE_APP_CLIENT_ID }}
+            GOOGLE_APP_CLIENT_SECRET=${{ secrets.GOOGLE_APP_CLIENT_SECRET }}
 
       - name: Deploy to ECS
         uses: appleboy/ssh-action@master
@@ -73,7 +77,10 @@ jobs:
           host: ${{ secrets.ECS_HOST }}
           username: ${{ secrets.ECS_USERNAME }}
           key: ${{ secrets.ECS_SSH_KEY }}
+          debug: true
+          script_stop: true
           script: |
+            set -e
             cd /app/temple-h5-editor
             
             cat > docker-compose.yml << 'EOL'
