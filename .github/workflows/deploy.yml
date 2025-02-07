@@ -36,10 +36,20 @@ jobs:
           node-version: '20'
           cache: 'pnpm'
 
+      - name: Debug pnpm environment
+        run: |
+          echo "Current directory:"
+          pwd
+          echo "Directory contents:"
+          ls -la
+          echo "pnpm version:"
+          pnpm --version
+          echo "Node version:"
+          node --version
+
       - name: Install dependencies
         run: |
-          pnpm config set store-dir .pnpm-store
-          pnpm install --frozen-lockfile
+          pnpm install --no-frozen-lockfile
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
