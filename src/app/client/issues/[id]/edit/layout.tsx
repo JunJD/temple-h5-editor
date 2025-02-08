@@ -5,6 +5,8 @@ import Template from '@/components/animated-template'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { getIssue } from '@/actions/issue'
+import { IssueProvider } from '@/contexts/issue-context'
+import { Issue } from '@/schemas'
 
 // 默认项目数据
 const defaultProjectData = {
@@ -38,33 +40,42 @@ const defaultProjectData = {
 export default function EditIssueLayout({ children }: { children: React.ReactNode }) {
   const params = useParams()
   const [loading, setLoading] = useState(true)
-  const [issue, setIssue] = useState<{
-    content: any
-    html: string,
-    css: string,
-    id: string
-  } | null>(null)
+  const [issue, setIssue] = useState<Issue | null>(null)
 
   useEffect(() => {
     setLoading(true)
     const fetchIssue = async () => {
-      const {data: issue} = await getIssue(params.id as string) as any
-      setIssue(issue as any)
+      const {data: issue, status} = await getIssue(params.id as string) as any
+
+      if(status === 200) {
+        setIssue(issue as Issue)
+      }
       setLoading(false)
     }
+
     fetchIssue()
   }, [params.id])
   
   if(!issue) return null
   if(loading) return null
+
+  if(!issue?.id) {
+    return <div>
+      <h1>404</h1>
+      <p>页面不存在</p>
+    </div>
+  }
+
   return (
     <Template>
-      <BuilderEditor 
-        projectData={issue?.content?.projectData ?? defaultProjectData}
-        id={params.id as string}
-      >
-        {children}
-      </BuilderEditor>
+        <IssueProvider value={{ issue, loading, setIssue }}>
+        <BuilderEditor 
+          projectData={issue?.content?.projectData ?? defaultProjectData}
+          id={params.id as string}
+        >
+          {children}
+        </BuilderEditor>
+      </IssueProvider>
     </Template>
   )
 }

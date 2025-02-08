@@ -11,6 +11,7 @@ const assembleIssue: (issue: Partial<Issue>) => Prisma.IssueCreateInput = (issue
     title: issue.title || '',
     description: issue.description || '',
     content: issue.content || {},
+    status: issue.status || 'draft',
     formConfig: issue.formConfig || {},
     wxPayConfig: issue.wxPayConfig || {},
     startTime: issue.startTime || new Date(),
@@ -31,7 +32,7 @@ export async function createIssue(issue: createIssueDto) {
         data: assembleIssue(validation.data)
       })
       revalidatePath('/client/issues')
-      return actionData(newIssue)
+      return actionData(newIssue, { status: 200 })
     }
 
     return actionData(validation.error.format(), {
@@ -64,9 +65,9 @@ export async function deleteIssue(id: string) {
       status: 200
     })
   } catch {
-    return {
+    return actionData(null, {
       status: 500
-    }
+    })
   }
 }
 
@@ -75,11 +76,23 @@ export async function getIssue(id: string) {
     const issue = await prisma.issue.findUnique({
       where: { id }
     })
-    return actionData(issue)
+    return actionData(issue, { status: 200 })
   } catch (error) {
     console.error('Issue fetch failed:', error instanceof Error ? error.message : String(error))
-    return {
+    return actionData(null, {
       status: 500
-    }
+    })
   }
+}
+
+export async function publishIssueAction(id: string) {
+  const issue = await prisma.issue.findUnique({ where: { id } })
+  if (issue) {
+    const updatedIssue = await prisma.issue.update({ 
+      where: { id }, 
+      data: { status: issue.status === 'published' ? 'draft' : 'published' }
+    })
+    return actionData(updatedIssue, { status: 200 })
+  }
+  return actionData(null, { status: 404 })
 }

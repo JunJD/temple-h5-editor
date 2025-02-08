@@ -52,7 +52,7 @@ export default async function Issues() {
         <div className='py-4 grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3 items-stretch gap-6 rounded-md'>
           <RenderList
             data={issuesWithFormConfig}
-            render={issue => <IssueCard issue={issue} key={issue.id} />}
+            render={issue => <IssueCard issue={issue as any} key={issue.id} />}
           />
         </div>
       )}

@@ -79,9 +79,11 @@ export const issueSchema = z.object({
   id: z.string().optional(),
   title: z.string().min(1, "标题不能为空"),
   description: z.string().min(1, "描述不能为空"),
-  content: z.any(), // Tiptap JSON 内容
-  formConfig: formConfigSchema.optional(),
-  wxPayConfig: wxPayConfigSchema.optional(),
+  content: z.any(), // grapesjs JSON 内容
+  // 发布状态
+  status: z.enum(['draft', 'published']).default('draft'),
+  formConfig: formConfigSchema.optional().nullable(),
+  wxPayConfig: wxPayConfigSchema.optional().nullable(),
   startTime: z.date().optional(),
   endTime: z.date().optional(),
   createdAt: z.date().default(() => new Date())

@@ -34,6 +34,7 @@
       defaultValues: {
         title: '',
         content: '',
+        status: 'draft',
         formConfig: {
           fields: [],
           layout: 'vertical' as const,

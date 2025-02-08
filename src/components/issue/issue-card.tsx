@@ -21,7 +21,7 @@ import {
 import { formatDate } from '@/lib/utils'
 import { Issue } from '@/schemas'
 import { useState } from 'react'
-
+import { toast } from '@/hooks/use-toast'
 interface Props {
   issue: Issue & { id: string }
 }
@@ -34,6 +34,11 @@ export default function IssueCard({ issue }: Props) {
     if (confirm('确定要删除这个Issue吗？')) {
       await deleteIssue(issue.id)
       router.refresh()
+      toast({
+        variant: 'destructive',
+        title: '删除成功',
+        description: 'Issue已成功删除',
+      })
     }
   }
 
@@ -42,6 +47,7 @@ export default function IssueCard({ issue }: Props) {
       setIsLoading(true)
       const { title, description, content, startTime, endTime } = issue
       const duplicatedIssue = {
+        status: 'draft' as "draft" | "published",
         title: `${title} (复制)`,
         description,
         content,
@@ -66,9 +72,17 @@ export default function IssueCard({ issue }: Props) {
         throw new Error('复制失败')
       }
       router.refresh()
+      toast({
+        variant: 'default',
+        title: '复制成功',
+        description: 'Issue已成功复制',
+      })
     } catch (error) {
-      console.error('复制失败:', error)
-      alert('复制失败，请重试')
+      toast({
+        variant: 'destructive',
+        title: '复制失败',
+        description: '请重试',
+      })
     } finally {
       setIsLoading(false)
     }

@@ -4,6 +4,7 @@ import './globals.css'
 import 'bs-icon/icons.css'
 
 import { ThemeProvider } from '@/components/layout'
+import { Toaster } from '@/components/ui/toaster'
 
 export const metadata: Metadata = {
   title: 'Home',
@@ -23,6 +24,7 @@ export default async function MainLayout({ children }) {
           <div className='overflow-x-auto overflow-y-hidden'>
             {children}
           </div>
+          <Toaster />
         </ThemeProvider>
       </body>
     </html>

@@ -11,19 +11,27 @@ import Link from 'next/link'
 import { DevicesProvider, useEditorMaybe } from '@grapesjs/react'
 import { useParams } from 'next/navigation'
 import { updateIssue } from '@/actions/builder'
+import { useIssue, usePublishIssue } from '@/contexts/issue-context'
+import { useMemo } from 'react'
+import { toast } from '@/hooks/use-toast'
 
 export const BuilderHeader = () => {
-  const title = '未命名页面'
-  const locked = false
+  const { issue } = useIssue()
+
+  const title = issue?.title ?? '未命名页面'
+  const locked = useMemo(() => {
+    console.log(issue?.status, 'issue?.status')
+    return issue?.status === 'published'
+  }, [issue?.status])
   const leftPanelSize = 0
   const rightPanelSize = 0
   const isDragging = false
   const editor = useEditorMaybe()
 
   const id = useParams().id as string
-  
-  const onExport = () => {
-    editor?.runCommand('gjs-export-zip');
+  const publishIssue = usePublishIssue()
+  const onPublish = () => {
+    publishIssue()
   }
   
   const onSave = async () => {
@@ -32,26 +40,12 @@ export const BuilderHeader = () => {
     const html = editor.getHtml() ?? ''
     const css = editor.getCss() ?? ''
     const projectData = editor.getProjectData() ?? {}
-    
-    console.log(html, css, projectData)
-    updateIssue(id, { html, css, projectData })
-    // try {
-    //   await fetch('/api/issues/[id]', {
-    //     method: 'PUT',
-    //     headers: {
-    //       'Content-Type': 'application/json',
-    //     },
-    //     body: JSON.stringify({
-    //       content: {
-    //         html,
-    //         css,
-    //         projectData
-    //       }
-    //     })
-    //   })
-    // } catch (error) {
-    //   console.error('保存失败:', error)
-    // }
+    await updateIssue(id, { html, css, projectData })
+    toast({
+      title: '保存成功',
+      description: 'Issue已成功保存',
+      variant: 'default',
+    })
   }
 
   return (
@@ -110,8 +104,8 @@ export const BuilderHeader = () => {
           </DevicesProvider>
 
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={onExport} size="sm">
-              导出
+            <Button variant="outline" onClick={onPublish} size="sm">
+              发布
             </Button>
             <Button size="sm" onClick={onSave}>
               保存
