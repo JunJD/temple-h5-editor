@@ -17,10 +17,14 @@ export class LinkageFormBlocks extends BaseLoadBlocks {
             label: '数量输入',
             category: '表单组件',
             content: {
-                type: LINKAGE_FORM_TYPES['input-group'],
-                label: PRESETS.number.label,
-                suffix: PRESETS.number.suffix,
-                'input-type': PRESETS.number.type
+                type: 'form-item',
+                attributes: { name: 'quantity', label: '' },
+                components: [{
+                    type: LINKAGE_FORM_TYPES['input-number-group'],
+                    label: PRESETS.number.label,
+                    suffix: PRESETS.number.suffix,
+                    required: true
+                }]
             },
             attributes: { class: 'fa fa-plus-square' }
         });
@@ -30,10 +34,15 @@ export class LinkageFormBlocks extends BaseLoadBlocks {
             label: '金额输入',
             category: '表单组件',
             content: {
-                type: LINKAGE_FORM_TYPES['input-group'],
-                label: PRESETS.amount.label,
-                suffix: PRESETS.amount.suffix,
-                'input-type': PRESETS.amount.type
+                type: 'form-item',
+                attributes: { name: 'price', label: '' },
+                components: [{
+                    type: LINKAGE_FORM_TYPES['input-group'],
+                    label: PRESETS.amount.label,
+                    suffix: PRESETS.amount.suffix,
+                    'input-type': PRESETS.amount.type,
+                    required: true
+                }]
             },
             attributes: { class: 'fa fa-money' }
         });
@@ -43,10 +52,15 @@ export class LinkageFormBlocks extends BaseLoadBlocks {
             label: '姓名输入',
             category: '表单组件',
             content: {
-                type: LINKAGE_FORM_TYPES['input-group'],
-                label: PRESETS.name.label,
-                suffix: PRESETS.name.suffix,
-                'input-type': PRESETS.name.type
+                type: 'form-item',
+                attributes: { name: 'name', label: '' },
+                components: [{
+                    type: LINKAGE_FORM_TYPES['input-group'],
+                    label: PRESETS.name.label,
+                    suffix: PRESETS.name.suffix,
+                    'input-type': PRESETS.name.type,
+                    required: true
+                }]
             },
             attributes: { class: 'fa fa-user' }
         });
@@ -56,16 +70,28 @@ export class LinkageFormBlocks extends BaseLoadBlocks {
             label: '级联选择器',
             category: '表单组件',
             content: {
-                type: CASCADE_SELECTOR_TYPES['cascade-selector'],
-                style: {
-                    padding: '23px 5%',
-                    border: '1px solid #ccc',
-                    'background-color': '#fff',
-                    'border-radius': '10px',
-                    display: 'flex',
-                    'flex-direction': 'column',
-                    gap: '20px'
-                }
+                type: 'form-item',
+                attributes: { name: 'goods', label: '' },
+                components: [
+                    {
+                        type: 'default',
+                        style: {
+                            'font-size': '16px',
+                            'font-weight': 'bold',
+                            'color': '#fff',
+                            'text-align': 'center',
+                            'background-color': '#a67c37',
+                            'border-radius': '10px 10px 0 0',
+                            'padding': '20px 0',
+                            'box-sizing': 'border-box'
+                        },
+                        content: '选择项目'
+                    },
+                    {
+                        type: CASCADE_SELECTOR_TYPES['cascade-selector'],
+                        required: true
+                    }
+                ],
             }
         });
 
@@ -113,23 +139,22 @@ export class LinkageFormBlocks extends BaseLoadBlocks {
                     },
                     {
                         type: 'form-item',
+                        attributes: { name: 'quantity', label: '' },
+                        components: [{
+                            type: LINKAGE_FORM_TYPES['input-number-group'],
+                            label: PRESETS.number.label,
+                            suffix: PRESETS.number.suffix,
+                            required: true
+                        }]
+                    },
+                    {
+                        type: 'form-item',
                         attributes: { name: 'price', label: '' },
                         components: [{
                             type: LINKAGE_FORM_TYPES['input-group'],
                             label: PRESETS.amount.label,
                             suffix: PRESETS.amount.suffix,
                             'input-type': PRESETS.amount.type,
-                            required: true
-                        }]
-                    },
-                    {
-                        type: 'form-item',
-                        attributes: { name: 'quantity', label: '' },
-                        components: [{
-                            type: LINKAGE_FORM_TYPES['input-group'],
-                            label: PRESETS.number.label,
-                            suffix: PRESETS.number.suffix,
-                            'input-type': PRESETS.number.type,
                             required: true
                         }]
                     },

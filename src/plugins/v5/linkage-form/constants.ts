@@ -1,6 +1,7 @@
 export const LINKAGE_FORM_TYPES = {
     'input-group': 'input-group',
     'input-group-rich-text': 'input-group-rich-text',
+    'input-number-group': 'input-number-group',
     // 级联选择器
     'cascade-selector': 'cascade-selector'
 } as const;
@@ -15,7 +16,7 @@ export const PRESETS = {
     },
     number: {
         label: '数量:',
-        suffix: '个',
+        suffix: '',
         type: 'number'
     },
     amount: {

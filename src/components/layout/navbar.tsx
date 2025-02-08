@@ -14,7 +14,7 @@ const NAVBAR_LINKS: {
   rel?: string
 }[] = [
   {
-    children: 'Issues',
+    children: '应用',
     href: '/client/issues'
   }
 ]
@@ -44,7 +44,7 @@ function DesktopMenu() {
     <>
       <div className='space-x-3 hidden md:inline-block'>
         <Link className='font-bold w-16 h-auto' href={'/'}>
-          NEXT.JS
+          H5-Builder
         </Link>
         <RenderList
           data={NAVBAR_LINKS}

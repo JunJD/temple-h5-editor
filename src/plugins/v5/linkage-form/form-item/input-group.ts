@@ -64,7 +64,7 @@ class LinkageFormTraitsFactory extends BaseTraitsFactory {
             label: '联动表达式',
             name: 'expression',
             attributes: {
-                mentionItems: [ 'form' ]
+                mentionItems: ['form']
             },
             placeholder: '例如: form.age * 2',
             changeProp: true
@@ -301,7 +301,7 @@ export const loadInputGroup = (editor: Editor) => {
             }
         }
     });
-    
+
 
     // 注册输入组件（富文本）
     editor.Components.addType(LINKAGE_FORM_TYPES['input-group-rich-text'], {
@@ -450,10 +450,10 @@ export const loadInputGroup = (editor: Editor) => {
                     if (inputItem) {
                         // 清除所有可能的类名
                         inputItem.classList.remove('row-layout', 'column-layout', 'large', 'xlarge');
-                        
+
                         // 添加布局类名
                         inputItem.classList.add(`${layout}-layout`);
-                        
+
                         // 添加尺寸类名
                         if (size !== 'default') {
                             inputItem.classList.add(size);
@@ -494,13 +494,277 @@ export const loadInputGroup = (editor: Editor) => {
                         });
 
                         // 自动调整高度
-                        textareaEl.addEventListener('input', function() {
+                        textareaEl.addEventListener('input', function () {
                             this.style.height = 'auto';
                             this.style.height = (this.scrollHeight) + 'px';
                         });
 
                         // 设置占位符
                         textareaEl.placeholder = placeholder;
+                    }
+                }
+            }
+        }
+    });
+
+    // 注册输入组件（数字+-）
+    editor.Components.addType(LINKAGE_FORM_TYPES['input-number-group'], {
+        model: {
+            defaults: {
+                droppable: false,
+                traits: [
+                    LinkageFormTraitsFactory.getLabelTrait(),
+                    LinkageFormTraitsFactory.getSuffixTrait(),
+                    LinkageFormTraitsFactory.getInputTypeTrait(),
+                    LinkageFormTraitsFactory.getSizeTrait(),
+                    LinkageFormTraitsFactory.getExpressionTrait(),
+                    LinkageFormTraitsFactory.getPlaceholderTrait(),
+                    LinkageFormTraitsFactory.getRequiredTrait()
+                ],
+                'script-props': ['label', 'suffix', 'input-type', 'size', 'expression', 'placeholder', 'required'],
+                components: `
+                            <div class="input_item">
+                                <span class="label"></span>
+                                <div class="number-input-wrapper">
+                                    <button class="minus">-</button>
+                                    <input class="form-input-number" type="text" readonly>
+                                    <button class="plus">+</button>
+                                </div>
+                                <span class="suffix"></span>
+                            </div>
+                        `,
+                styles: `
+                            .input_item {
+                                width: 100%;
+                                border: 1px solid #ccc;
+                                border-radius: 8px;
+                                padding: 12px 20px;
+                                margin-top: 20px;
+                                display: flex;
+                                display: -webkit-flex;
+                                align-items: center;
+                                background-color: #fff;
+                                gap: 12px;
+                            }
+                            
+                            .input_item .label {
+                                color: #666666;
+                                font-size: 16px;
+                                height: 24px;
+                                line-height: 24px;
+                                white-space: nowrap;
+                            }
+    
+                            .input_item .suffix {
+                                color: #666666;
+                                font-size: 16px;
+                                height: 24px;
+                                line-height: 24px;
+                                white-space: nowrap;
+                            }
+
+                            .number-input-wrapper {
+                                margin-left: auto;
+                                display: flex;
+                                align-items: center;
+                                gap: 2px;
+                            }
+                            
+                            .form-input-number {
+                                border: none;
+                                outline: none;
+                                font-size: 16px;
+                                color: #696969;
+                                height: 24px;
+                                line-height: 24px;
+                                width: 40px;
+                                text-align: center;
+                                background: transparent;
+                                cursor: default;
+                                user-select: none;
+                            }
+
+                            .minus,
+                            .plus {
+                                user-select: none;
+                                cursor: pointer;
+                                width: 32px;
+                                height: 32px;
+                                border-radius: 50%;
+                                border: none;
+                                background: #a77c37;
+                                color: #fff;
+                                font-size: 20px;
+                                line-height: 1;
+                                cursor: pointer;
+                                display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                padding: 0;
+                                box-sizing: border-box;
+                            }
+
+                            .minus[disabled],
+                            .plus[disabled] {
+                                opacity: 0.5;
+                                cursor: not-allowed;
+                                pointer-events: none;
+                            }
+    
+                            /* 大尺寸 */
+                            .input_item.large {
+                                padding: 16px 24px;
+                            }
+                            
+                            .input_item.large .label,
+                            .input_item.large .suffix {
+                                font-size: 18px;
+                                height: 32px;
+                                line-height: 32px;
+                            }
+                            
+                            .input_item.large .form-input-number {
+                                font-size: 18px;
+                                height: 32px;
+                                line-height: 32px;
+                            }
+
+                            .input_item.large .minus,
+                            .input_item.large .plus {
+                                width: 40px;
+                                height: 40px;
+                            }
+    
+                            /* 超大尺寸 */
+                            .input_item.xlarge {
+                                padding: 20px 32px;
+                            }
+                            
+                            .input_item.xlarge .label,
+                            .input_item.xlarge .suffix {
+                                font-size: 20px;
+                                height: 40px;
+                                line-height: 40px;
+                            }
+                            
+                            .input_item.xlarge .form-input-number {
+                                font-size: 20px;
+                                height: 40px;
+                                line-height: 40px;
+                            }
+
+                            .input_item.xlarge .minus,
+                            .input_item.xlarge .plus {
+                                width: 48px;
+                                height: 48px;
+                            }
+                        `,
+                script: function (props) {
+                    const el = this as HTMLElement;
+                    const label = props.label || '';
+                    const suffix = props.suffix || '';
+                    const size = props.size || 'default';
+                    const expression = props.expression || '';
+                    const required = props.required || false;
+
+                    // 更新尺寸类名
+                    const inputItem = el.querySelector('.input_item');
+                    if (inputItem) {
+                        inputItem.classList.remove('large', 'xlarge');
+                        if (size !== 'default') {
+                            inputItem.classList.add(size);
+                        }
+                    }
+
+                    // 更新标签
+                    const labelEl = el.querySelector('.label');
+                    if (labelEl) {
+                        labelEl.textContent = label;
+                    }
+
+                    const suffixEl = el.querySelector('.suffix');
+                    if (suffixEl) {
+                        suffixEl.textContent = suffix;
+                    }
+
+                    // 更新输入框
+                    const inputEl = el.querySelector('input') as HTMLInputElement;
+                    const minusBtn = el.querySelector('.minus') as HTMLButtonElement;
+                    const plusBtn = el.querySelector('.plus') as HTMLButtonElement;
+
+                    if (inputEl && minusBtn && plusBtn) {
+                        // 设置必填状态
+                        if (required) {
+                            inputEl.classList.add('required');
+                        } else {
+                            inputEl.classList.remove('required');
+                        }
+
+                        // 设置默认值
+                        inputEl.value = '0';
+
+                        // 更新按钮状态
+                        function updateButtonState() {
+                            const currentValue = parseInt(inputEl.value) || 0;
+                            minusBtn.disabled = currentValue <= 0;
+                        }
+
+                        // 处理加减按钮点击
+                        minusBtn.addEventListener('click', () => {
+                            const currentValue = parseInt(inputEl.value) || 0;
+                            if (currentValue > 0) {
+                                inputEl.value = String(currentValue - 1);
+                                updateButtonState();
+                                triggerChange();
+                            }
+                        });
+
+                        plusBtn.addEventListener('click', () => {
+                            const currentValue = parseInt(inputEl.value) || 0;
+                            inputEl.value = String(currentValue + 1);
+                            updateButtonState();
+                            triggerChange();
+                        });
+
+                        // 初始化按钮状态
+                        updateButtonState();
+
+                        // 触发字段变更事件
+                        function triggerChange() {
+                            const formItem = el.closest('.form-item');
+                            if (formItem) {
+                                const event = new CustomEvent('field:change', {
+                                    detail: { value: inputEl.value }
+                                });
+                                formItem.dispatchEvent(event);
+                            }
+                        }
+
+                        // 监听表单字段变化，处理联动
+                        const formItem = el.closest('.form-item');
+                        if (formItem && expression) {
+                            formItem.addEventListener('form:field:change', (e: any) => {
+                                const { formData, source } = e.detail;
+
+                                // 避免自我更新导致的循环
+                                if (source === inputEl) {
+                                    return;
+                                }
+
+                                // 处理表达式计算
+                                try {
+                                    const form = formData;
+                                    const calculate = new Function('form', `return ${expression}`);
+                                    const newValue = Math.max(0, Math.floor(calculate(form)));
+
+                                    // 只更新显示值，不触发新的事件
+                                    inputEl.value = String(newValue);
+                                    updateButtonState();
+                                } catch (error) {
+                                    console.error('表达式计算错误:', error);
+                                }
+                            });
+                        }
                     }
                 }
             }

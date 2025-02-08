@@ -14,7 +14,7 @@ export default async function MainLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <title>Next.js starter</title>
+        <title>h5-构建工具</title>
         <meta name='description' content='A Starter with Next.js' />
       </head>
 
