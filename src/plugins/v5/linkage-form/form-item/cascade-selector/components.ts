@@ -312,7 +312,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             state.selectedId = detail.id;
 
                             // 移除所有选项的选中状态
-                            const options = el.querySelectorAll('[data-gjs-type="option"]');
+                            const options = el.querySelectorAll('[data-id]');
                             options.forEach((opt) => {
                                 opt.classList.remove('selected');
                                 // 移除选中样式
@@ -341,8 +341,8 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         // 处理选中状态更新 样式
                         el.addEventListener('update-selection', (event) => {
                             state.selectedId = event.detail.selectedId;
-                            const options = el.querySelectorAll('[data-gjs-type="option"]');
 
+                            const options = el.querySelectorAll('[data-id]');
 
                             options.forEach((opt) => {
                                 const isSelected = opt.getAttribute('data-id') === state.selectedId;
@@ -384,7 +384,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
 
                                 // 只有当row是显示状态时，才点击第一个option
                                 if (isVisible) {
-                                    const option = row.querySelector('[data-gjs-type="option"]');
+                                    const option = row.querySelector('[data-id]');
                                     if (option) {
                                         option.click();
                                     }
@@ -501,7 +501,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     buttonStyle.color = '#fff';
                                 }
 
-                                el.innerHTML = `<button style="${Object.entries(buttonStyle).map(([k, v]) => `${k}:${v}`).join(';')}">${props.label}</button>`;
+                                el.innerHTML = `<button type="button" style="${Object.entries(buttonStyle).map(([k, v]) => `${k}:${v}`).join(';')}">${props.label}</button>`;
                             }
                         }
 

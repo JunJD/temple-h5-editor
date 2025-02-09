@@ -2,6 +2,15 @@
 
 一个基于 Next.js + GrapesJS 的低代码平台,用于生成 H5 活动页面。集成了 Shadcn、Prisma ORM、MongoDB 和 Next Auth。
 
+ ### 相关文档
+
+- [GrapesJS](https://grapesjs.com/docs/)
+- [Next.js](https://nextjs.org/docs)
+- [NextAuth](https://next-auth.js.org/getting-started/introduction)
+- [MongoDB](https://www.mongodb.com/docs)
+- [测试问题记录](docs/TESTING.md)
+
+
 ### 代办
 
 - [x] Tab [block]

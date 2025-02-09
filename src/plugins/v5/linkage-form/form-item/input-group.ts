@@ -526,9 +526,9 @@ export const loadInputGroup = (editor: Editor) => {
                             <div class="input_item">
                                 <span class="label"></span>
                                 <div class="number-input-wrapper">
-                                    <button class="minus">-</button>
+                                    <button type="button" class="minus">-</button>
                                     <input class="form-input-number" type="text" readonly>
-                                    <button class="plus">+</button>
+                                    <button type="button" class="plus">+</button>
                                 </div>
                                 <span class="suffix"></span>
                             </div>
