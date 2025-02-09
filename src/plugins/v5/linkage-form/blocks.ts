@@ -171,7 +171,7 @@ export class LinkageFormBlocks extends BaseLoadBlocks {
                     },
                     {
                         type: 'form-item',
-                        attributes: { name: 'totalAmount', label: '' },
+                        attributes: { name: 'remark', label: '' },
                         components: [{
                             type: LINKAGE_FORM_TYPES['input-group-rich-text'],
                             label: '备注:',
