@@ -7,10 +7,10 @@ export default class BasePluginV5 {
     constructor(editor: Editor, options: PluginOptions) {
         this.editor = editor
         this.options = options
-        this.load()
+        this.load(options)
     }
 
-    load() {
+    load(options: PluginOptions) {
         this._loadComponents()
         this._loadBlocks()
     }
@@ -21,6 +21,10 @@ export default class BasePluginV5 {
 
     _loadComponents() {
         new BaseLoadComponents(this.editor, this.options)
+    }
+
+    _loadCommands() {
+
     }
     
 }

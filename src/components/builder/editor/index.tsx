@@ -100,6 +100,10 @@ const gjsOptions: EditorConfig = {
   showOffsets: true,
   showOffsetsSelected: true,
   fromElement: true,
+  assetManager: {
+    assets: [
+    ]
+  },
   i18n: {
     locale: 'zh',
     localeFallback: 'en',

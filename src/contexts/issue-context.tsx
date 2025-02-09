@@ -32,10 +32,10 @@ export function usePublishIssue() {
   const issue = context.issue
 
   return async () => {
-    console.log(issue, 'issue')
+
     if (!issue?.id) return
     const updatedIssueData = await publishIssueAction(issue.id)
-    console.log(updatedIssueData, 'updatedIssueData ')
+
     if (updatedIssueData.status === 200) {
       const issueData = updatedIssueData.data
       if(!issueData) {
@@ -71,6 +71,7 @@ export function usePublishIssue() {
         title: '发布成功',
         description: '发布成功',
       })
+      window.open(`/h5/${issue.id}`, '_blank')
     } else {
       toast({
         variant: 'destructive',

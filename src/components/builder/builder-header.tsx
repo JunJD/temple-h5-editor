@@ -30,8 +30,13 @@ export const BuilderHeader = () => {
 
   const id = useParams().id as string
   const publishIssue = usePublishIssue()
+  
   const onPublish = () => {
     publishIssue()
+  }
+
+  const onPreview = () => {
+    window.open(`/h5/${issue?.id}?preview=1`, '_blank')
   }
   
   const onSave = async () => {
@@ -39,6 +44,16 @@ export const BuilderHeader = () => {
 
     const html = editor.getHtml() ?? ''
     const css = editor.getCss() ?? ''
+
+    if(!html || !css) {
+      toast({
+        title: '保存失败',
+        description: '页面内容不能为空',
+        variant: 'destructive',
+      })
+      return
+    }
+    
     const projectData = editor.getProjectData() ?? {}
     await updateIssue(id, { html, css, projectData })
     toast({
@@ -106,6 +121,9 @@ export const BuilderHeader = () => {
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={onPublish} size="sm">
               发布
+            </Button>
+            <Button variant="outline" onClick={onPreview} size="sm">
+              预览
             </Button>
             <Button size="sm" onClick={onSave}>
               保存
