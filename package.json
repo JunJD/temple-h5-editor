@@ -71,6 +71,7 @@
     "@uiw/react-color": "^2.3.4",
     "atomic-utils": "^1.5.8",
     "autoprefixer": "^10.4.20",
+    "axios": "^1.7.9",
     "bs-icon": "^0.0.8",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

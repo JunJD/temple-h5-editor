@@ -101,7 +101,6 @@ export default function(editor: Editor) {
           // 监听表单提交
           el.addEventListener('form:submit', async (e: any) => {
             const formData = e.detail.formData;
-            console.log('Form Data:', formData);
 
             if (submitUrl) {
               try {
@@ -357,6 +356,11 @@ export default function(editor: Editor) {
                   const form = formData;
                   const calculate = new Function('form', `return ${expression}`);
                   const newValue = calculate(form);
+
+                  const event = new CustomEvent('field:change', {
+                    detail: { value: newValue }
+                  });
+                  formItem.dispatchEvent(event);
                   
                   // [联动] 只更新显示值，不触发新的事件
                   el.value = String(newValue);

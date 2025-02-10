@@ -2,6 +2,7 @@ import { Editor, PluginOptions } from "grapesjs";
 import { BaseLoadBlocks } from "../common/base";
 import { LINKAGE_FORM_TYPES, PRESETS } from "./constants";
 import { CASCADE_SELECTOR_TYPES } from "./constants";
+import { typeSubmitButton } from "@/plugins/linkageForm/components";
 
 
 export class LinkageFormBlocks extends BaseLoadBlocks {
@@ -177,6 +178,15 @@ export class LinkageFormBlocks extends BaseLoadBlocks {
                             label: '备注:',
                             suffix: '',
                             'input-type': 'text'
+                        }]
+                    },
+                    {
+                        type: 'form-item',
+                        attributes: { name: 'remark', label: '' },
+                        components: [{
+                            type: typeSubmitButton,
+                            label: '提交',
+                            'button-type': 'submit'
                         }]
                     }
                 ]
