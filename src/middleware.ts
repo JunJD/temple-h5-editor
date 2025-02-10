@@ -25,7 +25,7 @@ export function middleware(request: NextRequest) {
         console.log(currentUrl)
         console.log('process.env.NEXTAUTH_URL==>', process.env.NEXTAUTH_URL)
         // 构建微信授权URL
-        const authUrl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${process.env.NEXT_PUBLIC_WECHAT_APP_ID}&redirect_uri=${encodeURIComponent(process.env.NEXTAUTH_URL + '/api/wechat/auth')}&response_type=code&scope=snsapi_base&state=${currentUrl}#wechat_redirect`
+        const authUrl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${process.env.WECHAT_PAY_APP_ID}&redirect_uri=${encodeURIComponent(process.env.NEXTAUTH_URL + '/api/wechat/auth')}&response_type=code&scope=snsapi_base&state=${currentUrl}#wechat_redirect`
 
         return NextResponse.redirect(authUrl)
       }
