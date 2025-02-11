@@ -35,6 +35,28 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             }
                         };
 
+                        // 等待DOM准备完成后再初始化
+                        function initializeSelector() {
+                            // 初始化时设置默认显示的二级选项组
+                            const level2Group = el.querySelector('.level-2-group');
+                            if (level2Group) {
+                                level2Group.dispatchEvent(new CustomEvent('update-visible-options', {
+                                    detail: { parentId: 'l1_1' }
+                                }));
+
+                                // 模拟点击第一个一级选项
+                                const firstLevel1Option = el.querySelector('.level-1-group [data-id="l1_1"]');
+                                if (firstLevel1Option) {
+                                    firstLevel1Option.click();
+                                }
+                            }
+                        }
+
+                        // 使用 requestAnimationFrame 确保DOM已经渲染完成
+                        requestAnimationFrame(() => {
+                            initializeSelector();
+                        });
+
                         // 处理选项组选择事件
                         el.addEventListener('group-option-selected', (event) => {
                             const { level, selectedOption } = event.detail;
@@ -78,12 +100,6 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 }
                             }
                         });
-
-                        // 初始化时设置默认显示的二级选项组
-                        const level2Group = el.querySelector('.level-2-group');
-                        level2Group?.dispatchEvent(new CustomEvent('update-visible-options', {
-                            detail: { parentId: 'l1_1' }
-                        }));
                     },
                     components: [
                         {

@@ -52,7 +52,7 @@ export default function(editor: Editor) {
              * @param value 字段值
              * @param source 触发更新的源组件
              */
-            updateField(name: string, value: any, source?: any) {
+            updateField(name, value, source) {
               // [联动] 防止重复更新
               if (this.formData[name] === value) {
                 return;
@@ -74,7 +74,7 @@ export default function(editor: Editor) {
             },
 
             // 获取字段值
-            getField(name: string) {
+            getField(name) {
               return this.formData[name];
             },
 
@@ -87,7 +87,7 @@ export default function(editor: Editor) {
              * 批量设置表单数据
              * @param data 要设置的数据对象
              */
-            setData(data: Record<string, any>) {
+            setData(data) {
               this.formData = { ...data };
               // [联动] 触发表单数据更新事件
               const event = new CustomEvent('form:data:change', {
@@ -101,7 +101,7 @@ export default function(editor: Editor) {
           (el as any).gForm = form;
 
           // 监听表单提交
-          el.addEventListener('form:submit', async (e: any) => {
+          el.addEventListener('form:submit', async (e) => {
             const formData = e.detail.formData;
 
             if (submitUrl) {
@@ -113,7 +113,7 @@ export default function(editor: Editor) {
                   },
                   body: JSON.stringify(formData)
                 });
-                
+                console.log('response', response);
                 const result = await response.json();
                 const submitResultEvent = new CustomEvent('form:submit:result', {
                   detail: { success: true, data: result }
@@ -136,22 +136,22 @@ export default function(editor: Editor) {
       },
 
       // 提供给子组件的方法
-      updateField(name: string, value: any) {
-        const formData = this.get('formData');
-        formData[name] = value;
-        this.set('formData', { ...formData });
+      // updateField(name, value) {
+      //   const formData = this.get('formData');
+      //   formData[name] = value;
+      //   this.set('formData', { ...formData });
         
-        // 触发数据变化事件，用于联动计算
-        this.trigger('form:data:change', { name, value, formData });
-      },
+      //   // 触发数据变化事件，用于联动计算
+      //   this.trigger('form:data:change', { name, value, formData });
+      // },
 
-      getField(name: string) {
-        return this.get('formData')[name];
-      },
+      // getField(name: string) {
+      //   return this.get('formData')[name];
+      // },
 
-      getData() {
-        return this.get('formData');
-      }
+      // getData() {
+      //   return this.get('formData');
+      // }
     },
   });
 
