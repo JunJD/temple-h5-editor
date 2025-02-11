@@ -51,7 +51,7 @@ export function TraitField({ trait }: TraitFieldProps) {
         <div className="space-y-2">
           <Label>{trait.getLabel()}</Label>
           <Input
-            value={value}
+            defaultValue={value}
             placeholder={defaultValue}
             className='border-input focus-visible:ring-1 focus-visible:ring-offset-0'
             disabled={disabled}
