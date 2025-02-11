@@ -14,15 +14,14 @@
 ### 代办
 
 - [x] Tab [block]
-- [ ] selector [trait]
-- [ ] formate order list [block]
+- [x] selector [trait]
+- [x] formate order list [block]
 - [x] linkage form [block]
 - [ ] 订单、微信支付能力
 - [ ] 保存为block、模板、issue能力
 
 ### 交互优化
-- [ ] 保存toast提示
-
+- [x] 保存toast提示
 ### components规划
 #### 使用体验
 1. 当前有各类column的组件，但是想要将column组件改变方向比较麻烦，需要大量的改动样式, 所以计划实现 布局模块，全部用来布局。 最新的计划是一个容器，可以拖动设置其占比 30% 70% 50% 50% 等
