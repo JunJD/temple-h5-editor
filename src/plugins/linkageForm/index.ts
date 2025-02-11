@@ -1,5 +1,5 @@
 import type { BlockProperties, Plugin } from 'grapesjs';
-import loadBlocks from './blocks';
+
 import loadComponents from './components';
 import loadTraits from './traits';
 
@@ -33,7 +33,6 @@ const plugin: Plugin<PluginOptions> = (editor, opts = {}) => {
 
     loadComponents(editor);
     loadTraits(editor);
-    loadBlocks(editor, config);
 };
 
 export default plugin;

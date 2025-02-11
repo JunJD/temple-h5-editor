@@ -182,7 +182,12 @@ export class LinkageFormBlocks extends BaseLoadBlocks {
                     },
                     {
                         type: 'form-item',
-                        attributes: { name: 'remark', label: '' },
+                        attributes: { name: 'submit', label: '' },
+                        style: {
+                            'display': 'flex',
+                            'justify-content': 'center',
+                            'align-items': 'center',
+                        },
                         components: [{
                             type: typeSubmitButton,
                             label: '提交',

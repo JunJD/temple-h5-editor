@@ -1,6 +1,7 @@
 'use client'
 import type { Editor } from 'grapesjs';
 import loadRadioGroup from './radioGroup';
+
 export const typeForm = 'form';
 export const typeFormItem = 'form-item';
 export const typeInput = 'input';
@@ -34,7 +35,8 @@ export default function(editor: Editor) {
             label: '提交地址',
           }
         ],
-        classes: ['max-w-2xl', 'mx-auto', 'p-6', 'bg-white', 'rounded-lg', 'shadow-sm', 'space-y-4'],
+        style: {
+        },
         'script-props': ['formData', 'submitUrl'],
         script: function(props) {
           const el = this;
@@ -160,7 +162,7 @@ export default function(editor: Editor) {
       defaults: {
         tagName: 'div',
         droppable: true,
-        classes: ['form-item', 'mb-4'],
+        classes: ['form-item'],
         traits: [
           {
             type: 'text',
@@ -274,22 +276,8 @@ export default function(editor: Editor) {
         droppable: false,
         draggable: true,
         attributes: { type: 'text' },
-        classes: [
-          // 基础样式
-          'block', 'w-full', 'px-4', 'py-2.5',
-          // 文字和背景
-          'text-gray-700', 'bg-white',
-          // 边框和圆角
-          'border', 'border-gray-300', 'rounded-lg',
-          // 焦点状态
-          'focus:border-blue-500', 'focus:ring-2', 'focus:ring-blue-500', 'focus:ring-opacity-20', 'focus:outline-none',
-          // 占位符
-          'placeholder:text-gray-400',
-          // 过渡动画
-          'transition', 'duration-200', 'ease-in-out',
-          // hover 状态
-          'hover:border-gray-400',
-        ],
+        style: {
+        },
         traits: [
           {
             type: 'text',
@@ -400,11 +388,25 @@ export default function(editor: Editor) {
       defaults: {
         tagName: 'button',
         attributes: { type: 'submit' },
-        classes: [
-          'px-4', 'py-2', 'bg-blue-500', 'text-white',
-          'rounded-lg', 'hover:bg-blue-600', 'transition-colors',
-          'w-full'
-        ],
+        style: {
+          'width': '60%',
+          'height': '47.76px',  // 1.2rem * 39.8px
+          'color': '#fff',
+          'background-color': '#e50012',
+          'border': 'none',
+          'border-radius': '7.96px',  // 0.2rem * 39.8px
+          'margin': '31.84px 0',  // 0.8rem * 39.8px
+          'font-size': '19.9px',  // 0.5rem * 39.8px
+          'padding': '0',
+          'display': 'flex',
+          'justify-content': 'center',
+          'align-items': 'center',
+          'cursor': 'pointer',
+          '&:disabled': {
+            'opacity': '0.5',
+            'cursor': 'not-allowed'
+          }
+        },
         traits: [
           {
             type: 'text',
