@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "npx prisma generate dev --name init && next dev",
-    "build": "npx prisma generate && next build",
+    "build": "npx prisma generate --no-engine && next build",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:reset": "prisma db push --force-reset",
