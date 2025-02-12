@@ -31,11 +31,12 @@ export async function middleware(request: NextRequest) {
         const result = await axios.get(authUrl)
         console.log('result==>', result)
         const openid = result.data.openid
+        const url = new URL(`/api/preview/${id}`, request.url)
         if (openid) {
-          return NextResponse.redirect(`${authUrl}&openid=${openid}`)
-        } else {
-          return NextResponse.redirect(authUrl)
+          // 构建新的 URL，保留预览参数
+          url.searchParams.set('preview', openid)
         }
+        return NextResponse.redirect(url)
       }
     }
 
