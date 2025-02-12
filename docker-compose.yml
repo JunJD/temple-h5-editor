@@ -20,19 +20,7 @@ services:
       - WECHAT_PAY_PFX_PATH=${WECHAT_PAY_PFX_PATH}
       - WECHAT_PAY_NOTIFY_URL=${WECHAT_PAY_NOTIFY_URL}
     restart: always
-    networks:
-      - app-network
-
-  mongodb:
-    image: mongo:latest
-    volumes:
-      - /data/mongodb:/data/db
-    ports:
-      - "127.0.0.1:27017:27017"
-    command: mongod --bind_ip 127.0.0.1
-    restart: always
-    networks:
-      - app-network
+    network_mode: "host"  # 使用主机网络模式，这样可以直接访问服务器上的 MongoDB
 
 networks:
   app-network:
