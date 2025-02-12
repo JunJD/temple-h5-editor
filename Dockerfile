@@ -35,8 +35,8 @@ ENV GOOGLE_APP_CLIENT_SECRET=${GOOGLE_APP_CLIENT_SECRET}
 ENV WECHAT_PAY_APP_ID=${WECHAT_PAY_APP_ID}
 ENV WECHAT_APP_SECRET=${WECHAT_APP_SECRET}
 
-# 生成Prisma客户端
-RUN pnpm prisma generate
+# 生成Prisma客户端 (添加 --no-engine 标志)
+RUN pnpm prisma generate --no-engine
 
 # 最后复制源代码（因为这是最常变动的部分）
 COPY . .
