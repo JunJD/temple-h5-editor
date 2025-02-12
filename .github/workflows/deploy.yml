@@ -113,8 +113,7 @@ jobs:
             services:
               web:
                 image: crpi-ne97tccqwbmfjjvf.cn-shanghai.personal.cr.aliyuncs.com/temple_22/temple-h5-editor:${IMAGE_TAG}
-                ports:
-                  - "3000:3000"
+                network_mode: "host"
                 environment:
                   - MONGO_URI=${{ secrets.MONGO_URI }}
                   - NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
