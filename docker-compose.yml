@@ -28,8 +28,11 @@ services:
     volumes:
       - /data/mongodb:/data/db
     ports:
-      - "27017:27017"
+      - "127.0.0.1:27017:27017"
+    command: mongod --bind_ip 127.0.0.1
     restart: always
+    networks:
+      - app-network
 
 networks:
   app-network:
