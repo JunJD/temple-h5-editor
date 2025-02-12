@@ -13,7 +13,7 @@ import {
   GoListUnordered,
   GoEye,
 } from 'react-icons/go'
-import { Rotate3dIcon } from 'lucide-react'
+import { Rotate3dIcon, Music2Icon } from 'lucide-react'
 import { Button, Separator } from '@/components/ui'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { motion } from 'framer-motion'
@@ -164,6 +164,12 @@ export const BuilderToolbar = () => {
           icon: GoGear,
           tooltip: '支付配置',
           command: 'payment-config'
+        },
+        {
+          id: 'audio-config',
+          icon: Music2Icon,
+          tooltip: '背景音乐',
+          command: 'audio-config'
         },
       ]
     },

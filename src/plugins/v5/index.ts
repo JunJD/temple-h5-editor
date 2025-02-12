@@ -4,6 +4,7 @@ import { Editor, PluginOptions } from 'grapesjs';
 import LayoutPlugin from './layout';
 import CustomTabPlugin from './custom-tab';
 import LinkageFormPlugin from './linkage-form';
+import { AudioPlugin } from './audio';
 // import loadDevices from './devices';
 
 
@@ -53,5 +54,5 @@ export default (editor: Editor, opts: OPtion) => {
   new LayoutPlugin(editor, options);
   new CustomTabPlugin(editor, options);
   new LinkageFormPlugin(editor, options);
+  new AudioPlugin(editor);
 };
-

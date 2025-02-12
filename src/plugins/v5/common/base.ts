@@ -13,6 +13,7 @@ export default class BasePluginV5 {
     load(options: PluginOptions) {
         this._loadComponents()
         this._loadBlocks()
+        this._loadCommands()
     }
 
     _loadBlocks() {
