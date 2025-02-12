@@ -23,6 +23,14 @@ services:
     networks:
       - app-network
 
+  mongodb:
+    image: mongo:latest
+    volumes:
+      - /data/mongodb:/data/db
+    ports:
+      - "27017:27017"
+    restart: always
+
 networks:
   app-network:
     driver: bridge 
