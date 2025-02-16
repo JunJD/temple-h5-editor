@@ -96,8 +96,8 @@ class PayButtonPlugin extends BasePluginV5 {
                                         body: JSON.stringify({
                                             formData,
                                             amount,
-                                            issueId: window.location.pathname.split('/').pop(),
-                                            openid: new URLSearchParams(window.location.search).get('openid')
+                                            issueId,
+                                            openid
                                         })
                                     })
 
