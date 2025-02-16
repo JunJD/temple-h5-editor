@@ -1,4 +1,4 @@
-import { Editor } from 'grapesjs';
+import { Editor, PluginOptions } from 'grapesjs';
 import { FormConfigDialog } from '@/components/builder/form-config-dialog';
 import { createRoot, Root } from 'react-dom/client';
 import React from 'react';
@@ -6,17 +6,9 @@ import BasePluginV5 from '../common/base';
 import { LINKAGE_FORM_TYPES, PRESETS } from '../linkage-form/constants';
 import { CASCADE_SELECTOR_TYPES } from '../linkage-form/constants';
 import { typeSubmitButton } from '@/plugins/linkageForm/components';
+import { FormField } from '@/schemas';
+import { OPtion } from '..';
 
-interface FormField {
-    name: string;
-    label: string;
-    type: keyof typeof LINKAGE_FORM_TYPES;
-    required?: boolean;
-    suffix?: string;
-    expression?: string;
-    defaultValue?: string | number;
-    placeholder?: string;
-}
 
 class ConfigurableFormPlugin extends BasePluginV5 {
     private dialogRoot: Root | null = null;
@@ -33,8 +25,12 @@ class ConfigurableFormPlugin extends BasePluginV5 {
         ] as FormField[]
     };
 
-    constructor(editor: Editor) {
-        super(editor, {});
+    constructor(editor: Editor,  options: OPtion) {
+        super(editor, options);
+        this.options = options
+        if(options.formConfig && options.formConfig.fields.length > 0) {
+            this.config.fields = options.formConfig.fields
+        }
     }
 
     load(): void {
@@ -58,6 +54,7 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                         }}
                         onSave={(newConfig) => {
                             this.config = newConfig;
+                            this.options.updateFormConfig!(newConfig)
                             this.updateFormComponent();
                         }}
                         initialConfig={this.config}

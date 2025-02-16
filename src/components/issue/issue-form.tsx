@@ -37,7 +37,6 @@
         status: 'draft',
         formConfig: {
           fields: [],
-          layout: 'vertical' as const,
           submitButtonText: '提交'
         },
         wxPayConfig: {

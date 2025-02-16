@@ -8,12 +8,15 @@ import { AudioPlugin } from './audio';
 import {
   ConfigurableFormPlugin
 } from './configurable-form'
+import { FormConfig } from '@/schemas';
 // import loadDevices from './devices';
 
 
-interface OPtion extends PluginOptions {
+export interface OPtion extends PluginOptions {
   cssAssert?: string;
   jsAssert?: string;
+  formConfig?: FormConfig,
+  updateFormConfig?: (newConfig: Partial<FormConfig>) => void
 }
 
 export default (editor: Editor, opts: OPtion) => {
@@ -53,12 +56,9 @@ export default (editor: Editor, opts: OPtion) => {
     }
   });
 
-  // Add components
-  //   loadCommands(editor, options);
-  //   loadTraits(editor, options);
   new LayoutPlugin(editor, options);
   new CustomTabPlugin(editor, options);
   new LinkageFormPlugin(editor, options);
   new AudioPlugin(editor);
-  new ConfigurableFormPlugin(editor)
+  new ConfigurableFormPlugin(editor, options)
 };

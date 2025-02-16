@@ -1,8 +1,8 @@
 'use client'
 
-import { Issue } from '@/schemas'
+import { FormConfig, Issue } from '@/schemas'
 import { createContext, useContext } from 'react'
-import { publishIssueAction } from '@/actions/issue'
+import { publishIssueAction, updateIssueFormConfig } from '@/actions/issue'
 import { toast } from '@/hooks/use-toast'
 
 interface IssueContextType {
@@ -20,6 +20,60 @@ export function useIssue() {
     throw new Error('useIssue must be used within a IssueProvider')
   }
   return context
+}
+
+export function useUpdateFormConfigField() {
+  const context = useContext(IssueContext)
+  if (context === undefined) {
+    throw new Error('useUpdateFormConfigField must be used within a IssueProvider')
+  }
+  const setIssue = context.setIssue
+  const issue = context.issue
+
+  return async (newFormConfig: Partial<FormConfig>) => {
+    if (!issue?.id) return
+    const updatedIssueData = await updateIssueFormConfig(issue.id, newFormConfig)
+
+    if (updatedIssueData.status === 200) {
+      const issueData = updatedIssueData.data
+      if(!issueData) {
+        toast({
+          variant: 'destructive',
+          title: '更新失败',
+          description: '更新表单字段失败',
+        })
+        return
+      }
+      setIssue({
+        ...issue,
+        ...issueData,
+        formConfig: issue.formConfig as FormConfig,
+        wxPayConfig: {
+          mchid: '',
+          appid: '',
+          notifyUrl: 'http://localhost:3000/api/wxpay/notify',
+          description: '测试',
+          attach: '',
+          timeExpire: '',
+        },
+        startTime: issueData!.startTime!,
+        endTime: issueData!.endTime!,
+        status: issueData!.status as 'draft' | 'published' 
+      })
+      toast({
+        variant: 'default',
+        title: '更新成功',
+        description: '更新表单字段成功',
+      })
+
+    } else {
+      toast({
+        variant: 'destructive',
+        title: '更新失败',
+        description: '更新表单字段失败',
+      })
+    }
+  }
 }
 
 export function usePublishIssue() {
@@ -49,11 +103,7 @@ export function usePublishIssue() {
       setIssue({
         ...issue,
         ...issueData,
-        formConfig: {
-          fields: [],
-          layout: 'vertical' as const,
-          submitButtonText: '提交'
-        },
+        formConfig: issue.formConfig as FormConfig,
         wxPayConfig: {
           mchid: '',
           appid: '',

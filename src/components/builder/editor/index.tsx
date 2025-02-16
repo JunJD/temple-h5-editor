@@ -33,9 +33,16 @@ import { styleManager } from './config/styleManager';
 import 'grapesjs/dist/css/grapes.min.css';
 import '@/styles/grapesjs.css';
 import '@/styles/fonts.css';
+import { FormConfig } from '@/schemas';
+import { useUpdateFormConfigField } from '@/contexts/issue-context';
 
-export default function BuilderEditor({ children, projectData, id }: { children: React.ReactNode, projectData: ObjectAny, id: string }) {
-
+export default function BuilderEditor({ children, projectData, id, formConfig }: { 
+  children: React.ReactNode, 
+  projectData: ObjectAny, 
+  id: string ,
+  formConfig: FormConfig
+}) {
+  const updateFormConfig = useUpdateFormConfigField()
   const onEditor = (editor: Editor) => {
     // 注册组件
     registerComponents(editor)
@@ -57,7 +64,14 @@ export default function BuilderEditor({ children, projectData, id }: { children:
           storageManager: {
             id
           },
-          projectData
+          projectData,
+          pluginsOpts: {
+            ...gjsOptions.pluginsOpts,
+            [v5 as unknown as string]: {
+              formConfig,
+              updateFormConfig
+            }
+          }
         }}
         style={{
           overflow: 'hidden',
@@ -191,7 +205,7 @@ const gjsOptions: EditorConfig = {
       addBasicStyle: true,
       // 分类名称
       category: '基础组件',
-    }
+    },
   },
   styleManager
 }

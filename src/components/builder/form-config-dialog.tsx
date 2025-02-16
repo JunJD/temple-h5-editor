@@ -29,17 +29,18 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { ExpressionEditor } from '@/components/ui/expression-editor';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { FormField } from '@/schemas';
 
-interface FormField {
-    name: string;
-    label: string;
-    type: keyof typeof LINKAGE_FORM_TYPES;
-    required?: boolean;
-    suffix?: string;
-    expression?: string;
-    defaultValue?: string | number;
-    placeholder?: string;
-}
+// interface FormField {
+//     name: string;
+//     label: string;
+//     type: keyof typeof LINKAGE_FORM_TYPES;
+//     required?: boolean;
+//     suffix?: string;
+//     expression?: string;
+//     defaultValue?: string | number;
+//     placeholder?: string;
+// }
 
 interface FormConfig {
     fields: FormField[];

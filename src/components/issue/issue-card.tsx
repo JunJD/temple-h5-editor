@@ -53,7 +53,6 @@ export default function IssueCard({ issue }: Props) {
         content,
         formConfig: {
           fields: [],
-          layout: 'vertical' as const,
           submitButtonText: '提交'
         },
         wxPayConfig: {

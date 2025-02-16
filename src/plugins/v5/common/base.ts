@@ -1,10 +1,10 @@
 import { Editor, PluginOptions } from "grapesjs";
-
+import { OPtion } from '..';
 export default class BasePluginV5 {
     editor: Editor
-    options: PluginOptions
+    options: OPtion
 
-    constructor(editor: Editor, options: PluginOptions) {
+    constructor(editor: Editor, options: OPtion) {
         this.editor = editor
         this.options = options
         this.load(options)

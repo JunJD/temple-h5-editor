@@ -39,29 +39,31 @@ export const calculationSchema = z.object({
 
 // 修改表单字段 schema，添加联动规则
 export const formFieldSchema = z.object({
-  type: z.enum(['text', 'number', 'select', 'radio', 'checkbox']),
-  label: z.string(),
   name: z.string(),
+  label: z.string(),
+  type: z.enum(['input-group', 'input-group-rich-text', 'input-number-group', 'cascade-selector']),
   required: z.boolean().default(false),
+  suffix: z.string(),
+  defaultValue: z.any().optional(),
+  expression: z.string(),
+  placeholder: z.string(),
   options: z.array(z.object({
     label: z.string(),
     value: z.string(),
     price: z.number().optional(),
   })).optional(),
-  rules: z.array(ruleSchema).optional(),  // 联动规则
-  defaultValue: z.any().optional(),
 })
 
 // 修改表单配置 schema，添加计算规则
 export const formConfigSchema = z.object({
   fields: z.array(formFieldSchema),
-  layout: z.enum(['vertical', 'horizontal']).default('vertical'),
+  // layout: z.enum(['vertical', 'horizontal']).default('vertical'),
   submitButtonText: z.string().default('提交'),
-  calculations: z.array(z.object({        // 金额计算规则
-    targetField: z.string(),              // 计算结果存储字段
-    rule: calculationSchema,              // 计算规则
-  })).optional(),
-  dependencies: z.record(z.array(z.string())).optional(), // 字段依赖关系 { field: [dependentFields] }
+  // calculations: z.array(z.object({        // 金额计算规则
+  //   targetField: z.string(),              // 计算结果存储字段
+  //   rule: calculationSchema,              // 计算规则
+  // })).optional(),
+  // dependencies: z.record(z.array(z.string())).optional(), // 字段依赖关系 { field: [dependentFields] }
 })
 
 // 微信支付配置的 schema
@@ -104,13 +106,6 @@ export const paymentStatusSchema = z.object({
   wxPayInfo: z.record(z.any()).optional(),
 })
 
-// Post 创建和更新的 schema
-export const postSchema = z.object({
-  title: z.string().min(1, "标题不能为空"),
-  content: z.string().min(1, "内容不能为空"),
-  date: z.date().default(() => new Date()),
-})
-
 // 用户偏好设置的 schema
 export const preferencesSchema = z.object({
   user_email: z.string().email("请输入有效的邮箱地址"),
@@ -134,7 +129,6 @@ export type WxPayConfig = z.infer<typeof wxPayConfigSchema>
 export type Issue = z.infer<typeof issueSchema>
 export type Submission = z.infer<typeof submissionSchema>
 export type PaymentStatus = z.infer<typeof paymentStatusSchema>
-export type Post = z.infer<typeof postSchema>
 export type Preferences = z.infer<typeof preferencesSchema>
 export type ApiResponse = z.infer<typeof apiResponseSchema>
 export type Condition = z.infer<typeof conditionSchema>

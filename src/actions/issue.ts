@@ -3,7 +3,7 @@ import { revalidatePath } from 'next/cache'
 import { actionData } from 'atomic-utils'
 
 import { prisma } from '@/lib/prisma'
-import { issueSchema, Issue } from '@/schemas'
+import { issueSchema, Issue, FormConfig } from '@/schemas'
 import { Issue as PrismaIssue, Prisma } from '@prisma/client'
 
 const assembleIssue: (issue: Partial<Issue>) => Prisma.IssueCreateInput = (issue) => {
@@ -91,6 +91,18 @@ export async function publishIssueAction(id: string) {
     const updatedIssue = await prisma.issue.update({ 
       where: { id }, 
       data: { status: issue.status === 'published' ? 'draft' : 'published' }
+    })
+    return actionData(updatedIssue, { status: 200 })
+  }
+  return actionData(null, { status: 404 })
+}
+
+export async function updateIssueFormConfig(id: string, newFormConfig: Partial<FormConfig>) {
+  const issue = await prisma.issue.findUnique({ where: { id } })
+  if (issue) {
+    const updatedIssue = await prisma.issue.update({ 
+      where: { id }, 
+      data: { formConfig: { ...issue.formConfig as FormConfig, ...newFormConfig} }
     })
     return actionData(updatedIssue, { status: 200 })
   }
