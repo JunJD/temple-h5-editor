@@ -157,7 +157,7 @@ export const BuilderToolbar = () => {
           id: 'form-config',
           icon: GoListUnordered,
           tooltip: '表单配置',
-          command: 'form-config'
+          command: 'configurable-form'
         },
         {
           id: 'payment-config',

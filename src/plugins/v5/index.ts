@@ -5,20 +5,25 @@ import LayoutPlugin from './layout';
 import CustomTabPlugin from './custom-tab';
 import LinkageFormPlugin from './linkage-form';
 import { AudioPlugin } from './audio';
+import {
+  ConfigurableFormPlugin
+} from './configurable-form'
 // import loadDevices from './devices';
 
 
 interface OPtion extends PluginOptions {
-    cssAssert?: string;
-    jsAssert?: string;
+  cssAssert?: string;
+  jsAssert?: string;
 }
 
 export default (editor: Editor, opts: OPtion) => {
-  let options = { ...{
-    cssAssert: '/bootstrap-5.3.3-dist/css/bootstrap.min.css',
-    fixCssAssert: '/bootstrap-5.3.3-dist/css/fix.css',
-    jsAssert: '/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js',
-  }, ...opts };
+  let options = {
+    ...{
+      cssAssert: '/bootstrap-5.3.3-dist/css/bootstrap.min.css',
+      fixCssAssert: '/bootstrap-5.3.3-dist/css/fix.css',
+      jsAssert: '/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js',
+    }, ...opts
+  };
 
   editor.on('load', () => {
     const frame = editor.Canvas.getFrameEl();
@@ -40,7 +45,7 @@ export default (editor: Editor, opts: OPtion) => {
       linkEl.href = options.fixCssAssert;
       doc.head.appendChild(linkEl);
     }
-    
+
     if (options.jsAssert) {
       const scriptEl = doc.createElement('script');
       scriptEl.src = options.jsAssert;
@@ -49,10 +54,11 @@ export default (editor: Editor, opts: OPtion) => {
   });
 
   // Add components
-//   loadCommands(editor, options);
-//   loadTraits(editor, options);
+  //   loadCommands(editor, options);
+  //   loadTraits(editor, options);
   new LayoutPlugin(editor, options);
   new CustomTabPlugin(editor, options);
   new LinkageFormPlugin(editor, options);
   new AudioPlugin(editor);
+  new ConfigurableFormPlugin(editor)
 };

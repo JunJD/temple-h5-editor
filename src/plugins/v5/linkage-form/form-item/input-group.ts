@@ -91,6 +91,16 @@ class LinkageFormTraitsFactory extends BaseTraitsFactory {
         };
     }
 
+    // 获取默认值trait
+    static getDefaultValueTrait() {
+        return {
+            type: 'text',
+            label: '默认值',
+            name: 'defaultValue',
+            changeProp: true
+        };
+    }
+
     // 获取布局方式trait
     static getLayoutTrait() {
         return {
@@ -119,9 +129,10 @@ export const loadInputGroup = (editor: Editor) => {
                     LinkageFormTraitsFactory.getSizeTrait(),
                     LinkageFormTraitsFactory.getExpressionTrait(),
                     LinkageFormTraitsFactory.getPlaceholderTrait(),
-                    LinkageFormTraitsFactory.getRequiredTrait()
+                    LinkageFormTraitsFactory.getRequiredTrait(),
+                    LinkageFormTraitsFactory.getDefaultValueTrait()
                 ],
-                'script-props': ['label', 'suffix', 'input-type', 'size', 'expression', 'placeholder', 'required'],
+                'script-props': ['label', 'suffix', 'input-type', 'size', 'expression', 'placeholder', 'required', 'defaultValue'],
                 components: `
                             <div class="input_item">
                                 <span></span>
@@ -217,6 +228,7 @@ export const loadInputGroup = (editor: Editor) => {
                     const expression = props.expression || '';
                     const placeholder = props.placeholder || '';
                     const required = props.required || false;
+                    const defaultValue = props.defaultValue || '';
 
                     // 更新尺寸类名
                     const inputItem = el.querySelector('.input_item');
@@ -243,6 +255,7 @@ export const loadInputGroup = (editor: Editor) => {
                     if (inputEl) {
                         // 设置类型和必填状态
                         inputEl.type = 'text';
+                        inputEl.value = defaultValue;
                         if (required) {
                             inputEl.classList.add('required');
                         } else {
@@ -314,9 +327,10 @@ export const loadInputGroup = (editor: Editor) => {
                     LinkageFormTraitsFactory.getLayoutTrait(),
                     LinkageFormTraitsFactory.getSizeTrait(),
                     LinkageFormTraitsFactory.getPlaceholderTrait(),
-                    LinkageFormTraitsFactory.getRequiredTrait()
+                    LinkageFormTraitsFactory.getRequiredTrait(),
+                    LinkageFormTraitsFactory.getDefaultValueTrait()
                 ],
-                'script-props': ['label', 'suffix', 'layout', 'size', 'placeholder', 'required'],
+                'script-props': ['label', 'suffix', 'layout', 'size', 'placeholder', 'required', 'defaultValue'],
                 components: `
                     <div class="input_item">
                         <div class="label-wrapper">
@@ -444,6 +458,7 @@ export const loadInputGroup = (editor: Editor) => {
                     const size = props.size || 'default';
                     const placeholder = props.placeholder || '';
                     const required = props.required || false;
+                    const defaultValue = props.defaultValue || '';
 
                     // 更新布局和尺寸类名
                     const inputItem = el.querySelector('.input_item');
@@ -501,6 +516,7 @@ export const loadInputGroup = (editor: Editor) => {
 
                         // 设置占位符
                         textareaEl.placeholder = placeholder;
+                        textareaEl.value = defaultValue;
                     }
                 }
             }
@@ -519,9 +535,10 @@ export const loadInputGroup = (editor: Editor) => {
                     LinkageFormTraitsFactory.getSizeTrait(),
                     LinkageFormTraitsFactory.getExpressionTrait(),
                     LinkageFormTraitsFactory.getPlaceholderTrait(),
-                    LinkageFormTraitsFactory.getRequiredTrait()
+                    LinkageFormTraitsFactory.getRequiredTrait(),
+                    LinkageFormTraitsFactory.getDefaultValueTrait()
                 ],
-                'script-props': ['label', 'suffix', 'input-type', 'size', 'expression', 'placeholder', 'required'],
+                'script-props': ['label', 'suffix', 'input-type', 'size', 'expression', 'placeholder', 'required', 'defaultValue'],
                 components: `
                             <div class="input_item">
                                 <span class="label"></span>
@@ -667,6 +684,7 @@ export const loadInputGroup = (editor: Editor) => {
                     const size = props.size || 'default';
                     const expression = props.expression || '';
                     const required = props.required || false;
+                    const defaultValue = props.defaultValue || '';
 
                     // 更新尺寸类名
                     const inputItem = el.querySelector('.input_item');
@@ -702,7 +720,7 @@ export const loadInputGroup = (editor: Editor) => {
                         }
 
                         // 设置默认值
-                        inputEl.value = '0';
+                        inputEl.value = defaultValue || '0';
 
                         // 更新按钮状态
                         function updateButtonState() {
