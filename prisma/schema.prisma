@@ -16,7 +16,7 @@ model Issue {
   formConfig  Json     // 表单配置
   startTime   DateTime?
   endTime     DateTime?
-  wxPayConfig Json?
+  wxPayConfig Json?    // 支付配置，包含：支付方式、金额策略等
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -24,25 +24,46 @@ model Issue {
 }
 
 model Submission {
-  id         String   @id @default(auto()) @map("_id") @db.ObjectId
-  formData   Json
-  amount     Float
-  paymentId  String?
-  status     PaymentStatus @default(PENDING)
-  openid     String?
-  wxPayInfo  Json?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  formData      Json
+  amount        Float    // 支付金额
+  currency      String   @default("CNY")  // 货币类型
+  paymentId     String?  // 商户订单号
+  tradeNo       String?  // 微信支付订单号
+  status        PaymentStatus @default(PENDING)
+  payMethod     PaymentMethod @default(WXPAY)
+  openid        String?  // 微信用户openid
+  wxPayInfo     Json?    // 微信支付请求/返回的原始信息
+  paidAt        DateTime? // 支付完成时间
+  expiredAt     DateTime? // 支付过期时间
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // 退款相关
+  refundId      String?  // 退款单号
+  refundStatus  RefundStatus? 
+  refundAmount  Float?   // 退款金额
+  refundReason  String?  // 退款原因
+  refundedAt    DateTime? // 退款时间
+  
+  // 关联关系
+  issueId       String   @db.ObjectId
+  issue         Issue    @relation(fields: [issueId], references: [id])
 
-  issueId    String   @db.ObjectId
-  issue      Issue    @relation(fields: [issueId], references: [id])
+  // 支付日志
+  PaymentLogs   PaymentLog[]
 }
 
-model Post {
-  id      String   @id @default(auto()) @map("_id") @db.ObjectId
-  title   String
-  date    DateTime @default(now())
-  content String
+// 支付日志表 - 记录支付过程中的重要节点
+model PaymentLog {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  type        String   // 日志类型：CREATE/NOTIFY/QUERY/REFUND等
+  content     Json     // 日志详细内容
+  createdAt   DateTime @default(now())
+  
+  // 关联关系
+  submissionId String   @db.ObjectId
+  submission   Submission @relation(fields: [submissionId], references: [id])
 }
 
 model Preferences {
@@ -54,10 +75,23 @@ model Preferences {
   user_description     String
 }
 
-
 enum PaymentStatus {
-  PENDING
-  PAID
-  FAILED
-  REFUNDED
+  PENDING    // 待支付
+  NOTPAY     // 未支付（用户取消）
+  CLOSED     // 已关闭
+  PAID       // 支付成功
+  FAILED     // 支付失败
+  REFUNDING  // 退款中
+  REFUNDED   // 已退款
+}
+
+enum PaymentMethod {
+  WXPAY      // 微信支付
+  ALIPAY     // 支付宝
+}
+
+enum RefundStatus {
+  PROCESSING // 退款处理中
+  SUCCESS    // 退款成功
+  FAILED     // 退款失败
 }

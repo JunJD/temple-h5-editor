@@ -13,20 +13,24 @@
     "gcolor",
     "gjsblockbasic",
     "grapesjs",
+    "JSAPI",
     "mchid",
     "mergable",
     "movecb",
     "NEXTAUTH",
+    "noce",
     "nums",
     "pixelize",
     "rulerz",
     "sonner",
+    "spbill",
     "tccqwbmfjjvf",
     "tiptap",
     "toggleable",
     "Wechat",
     "weiruanyahei",
     "Weixin",
-    "Wpforms"
+    "Wpforms",
+    "WXPAY"
   ]
 }
