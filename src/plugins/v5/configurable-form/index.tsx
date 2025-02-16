@@ -8,6 +8,7 @@ import { CASCADE_SELECTOR_TYPES } from '../linkage-form/constants';
 import { typeSubmitButton } from '@/plugins/linkageForm/components';
 import { FormField } from '@/schemas';
 import { OPtion } from '..';
+import { PAY_BUTTON_TYPE } from '../pay-button';
 
 
 class ConfigurableFormPlugin extends BasePluginV5 {
@@ -136,9 +137,11 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                         'align-items': 'center',
                     },
                     components: [{
-                        type: typeSubmitButton,
-                        label: '提交',
-                        'button-type': 'submit'
+                        type: 'form-item',
+                        components: [{
+                            type: PAY_BUTTON_TYPE,
+                            label: '立即支付'
+                        }]
                     }]
                 }
             ];

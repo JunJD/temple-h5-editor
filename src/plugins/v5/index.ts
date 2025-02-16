@@ -9,6 +9,7 @@ import {
   ConfigurableFormPlugin
 } from './configurable-form'
 import { FormConfig } from '@/schemas';
+import PayButtonPlugin from './pay-button';
 // import loadDevices from './devices';
 
 
@@ -61,4 +62,5 @@ export default (editor: Editor, opts: OPtion) => {
   new LinkageFormPlugin(editor, options);
   new AudioPlugin(editor);
   new ConfigurableFormPlugin(editor, options)
+  new PayButtonPlugin(editor, options)
 };

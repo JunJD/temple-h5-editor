@@ -171,10 +171,8 @@ export function ExpressionEditor({ value, onChange, fields }: ExpressionEditorPr
                         element.className = 'flex flex-col gap-1 px-2 py-1.5';
                         element.innerHTML = `
                             <div class="flex items-center justify-between gap-2">
-                                <span class="font-medium">${completion.label}</span>
-                                ${completion.detail ? `<span class="text-xs opacity-50">${completion.detail}</span>` : ''}
+                                ${completion.detail ? `<span class="text-xs opacity-50">${completion.detail}</span>` : `<span class="font-medium">${completion.label}</span>`}
                             </div>
-                            ${completion.info ? `<div class="text-xs opacity-40">${completion.info}</div>` : ''}
                         `;
                         return element;
                     },

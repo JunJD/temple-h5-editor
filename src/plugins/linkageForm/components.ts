@@ -382,91 +382,91 @@ export default function(editor: Editor) {
   });
 
   // 添加提交按钮组件
-  Components.addType(typeSubmitButton, {
-    isComponent: el => el.tagName === 'BUTTON' && el.getAttribute('type') === 'submit',
-    model: {
-      defaults: {
-        tagName: 'button',
-        attributes: { type: 'submit' },
-        style: {
-          'width': '60%',
-          'height': '47.76px',  // 1.2rem * 39.8px
-          'color': '#fff',
-          'background-color': '#e50012',
-          'border': 'none',
-          'border-radius': '7.96px',  // 0.2rem * 39.8px
-          'margin': '31.84px 0',  // 0.8rem * 39.8px
-          'font-size': '19.9px',  // 0.5rem * 39.8px
-          'padding': '0',
-          'display': 'flex',
-          'justify-content': 'center',
-          'align-items': 'center',
-          'cursor': 'pointer',
-          '&:disabled': {
-            'opacity': '0.5',
-            'cursor': 'not-allowed'
-          }
-        },
-        traits: [
-          {
-            type: 'text',
-            name: 'text',
-            label: '按钮文本',
-            default: '提交',
-            changeProp: true
-          },
-          {
-            type: 'checkbox',
-            name: 'disabled',
-            label: '禁用'
-          }
-        ],
-        script: function() {
-          const el = this;
-          const form = el.closest('form');
+  // Components.addType(typeSubmitButton, {
+  //   isComponent: el => el.tagName === 'BUTTON' && el.getAttribute('type') === 'submit',
+  //   model: {
+  //     defaults: {
+  //       tagName: 'button',
+  //       attributes: { type: 'submit' },
+  //       style: {
+  //         'width': '60%',
+  //         'height': '47.76px',  // 1.2rem * 39.8px
+  //         'color': '#fff',
+  //         'background-color': '#e50012',
+  //         'border': 'none',
+  //         'border-radius': '7.96px',  // 0.2rem * 39.8px
+  //         'margin': '31.84px 0',  // 0.8rem * 39.8px
+  //         'font-size': '19.9px',  // 0.5rem * 39.8px
+  //         'padding': '0',
+  //         'display': 'flex',
+  //         'justify-content': 'center',
+  //         'align-items': 'center',
+  //         'cursor': 'pointer',
+  //         '&:disabled': {
+  //           'opacity': '0.5',
+  //           'cursor': 'not-allowed'
+  //         }
+  //       },
+  //       traits: [
+  //         {
+  //           type: 'text',
+  //           name: 'text',
+  //           label: '按钮文本',
+  //           default: '提交',
+  //           changeProp: true
+  //         },
+  //         {
+  //           type: 'checkbox',
+  //           name: 'disabled',
+  //           label: '禁用'
+  //         }
+  //       ],
+  //       script: function() {
+  //         const el = this;
+  //         const form = el.closest('form');
           
-          if (form) {
-            el.addEventListener('click', (e) => {
-              e.preventDefault();
+  //         if (form) {
+  //           el.addEventListener('click', (e) => {
+  //             e.preventDefault();
               
-              // 获取表单数据
-              const formData = (form as any).gForm?.getData() || {};
-              console.log('Form Data:', formData);
+  //             // 获取表单数据
+  //             const formData = (form as any).gForm?.getData() || {};
+  //             console.log('Form Data:', formData);
 
-              // 触发提交事件
-              const submitEvent = new CustomEvent('form:submit', {
-                detail: { formData }
-              });
-              form.dispatchEvent(submitEvent);
-            });
-          }
-        }
-      },
+  //             // 触发提交事件
+  //             const submitEvent = new CustomEvent('form:submit', {
+  //               detail: { formData }
+  //             });
+  //             form.dispatchEvent(submitEvent);
+  //           });
+  //         }
+  //       }
+  //     },
 
-      init() {
-        this.on('change:attributes:text', this.handleTextChange);
-        this.on('change:attributes:disabled', this.handleDisabledChange);
+  //     init() {
+  //       this.on('change:attributes:text', this.handleTextChange);
+  //       this.on('change:attributes:disabled', this.handleDisabledChange);
         
-        // 设置初始文本
-        const text = this.get('attributes').text || '提交';
-        this.set('content', text);
-      },
+  //       // 设置初始文本
+  //       const text = this.get('attributes').text || '提交';
+  //       this.set('content', text);
+  //     },
 
-      handleTextChange() {
-        const text = this.get('attributes').text;
-        this.set('content', text || '提交');
-      },
+  //     handleTextChange() {
+  //       const text = this.get('attributes').text;
+  //       this.set('content', text || '提交');
+  //     },
 
-      handleDisabledChange() {
-        const disabled = this.get('attributes').disabled;
-        if (disabled) {
-          this.addClass('opacity-50 cursor-not-allowed');
-        } else {
-          this.removeClass('opacity-50 cursor-not-allowed');
-        }
-      }
-    }
-  });
+  //     handleDisabledChange() {
+  //       const disabled = this.get('attributes').disabled;
+  //       if (disabled) {
+  //         this.addClass('opacity-50 cursor-not-allowed');
+  //       } else {
+  //         this.removeClass('opacity-50 cursor-not-allowed');
+  //       }
+  //     }
+  //   }
+  // });
 
   loadRadioGroup(editor);
 }
