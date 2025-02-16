@@ -71,7 +71,10 @@ export default function EditIssueLayout({ children }: { children: React.ReactNod
         <IssueProvider value={{ issue, loading, setIssue }}>
         <BuilderEditor 
           projectData={issue?.content?.projectData ?? defaultProjectData}
-          formConfig={issue?.formConfig}
+          formConfig={issue?.formConfig ?? {
+            fields: [],
+            submitButtonText: '提交'
+          }}
           id={params.id as string}
         >
           {children}
