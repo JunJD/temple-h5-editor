@@ -8,9 +8,11 @@ export async function POST(req: Request) {
     const ip = req.headers['x-forwarded-for'] || req.headers['x-real-ip']
     const { issueId, formData, amount, openid } = await req.json()
 
+    console.log(issueId, formData, amount, openid, '<==issueId, formData, amount, openid')
+
     if (!issueId || !formData || !amount || !openid) {
       return NextResponse.json(
-        { error: 'Missing required parameters' },
+        { error: `Missing required parameters: issueId:${issueId}, formData:${formData}, amount:${amount}, openid:${openid}` },
         { status: 400 }
       )
     }
@@ -43,6 +45,8 @@ export async function POST(req: Request) {
       spbill_create_ip: ip,
     })
 
+    console.log(result, '<==result')
+
     // 创建支付日志
     await prisma.paymentLog.create({
       data: {
@@ -55,6 +59,7 @@ export async function POST(req: Request) {
       },
     })
 
+    
     return NextResponse.json(result)
   } catch (error) {
     console.error('Create payment failed:', error)
