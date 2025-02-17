@@ -51,13 +51,17 @@ export async function GET(request: Request) {
     try {
         const wechatAuth = WechatAuthService.getInstance();
 
+        console.log(code, '<==code')
+        console.log(redirectUrl, '<==redirectUrl')
         if (!code && redirectUrl) {
             // 如果没有code但有redirectUrl，生成授权URL
             const authUrl = wechatAuth.generateAuthUrl(redirectUrl);
             return NextResponse.json({ authUrl });
         } else if (code) {
+            console.log(code, '<==code')
             // 如果有code，获取openid
             const openid = await wechatAuth.getOpenid(code);
+            console.log(openid, '<==openid')
             return NextResponse.json({ openid });
         } else {
             return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
