@@ -10,7 +10,12 @@ export async function GET(
         // 获取预览参数
         const searchParams = request.nextUrl.searchParams
         const isPreview = searchParams.get('preview') === '1'
+        const openid = searchParams.get('openid')
 
+        if (!openid && !isPreview) {
+            return new NextResponse('openid not found', { status: 404 })
+        }
+        
         const result = await getIssue(params.id)
         if (!('data' in result) || !result.data) {
             return new NextResponse('Not Found', { status: 404 })

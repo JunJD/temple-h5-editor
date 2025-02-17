@@ -67,10 +67,11 @@ class PayButtonPlugin extends BasePluginV5 {
                                     // 获取表单数据
                                     const formData = (form as any).gForm?.getData() || {}
                                     const amount = formData.amount || formData.totalAmount || 0
-                                    const issueId = window.location.pathname.split('/').pop()
                                     const openid = new URLSearchParams(window.location.search).get('openid')
+                                    const issueId = window.location.pathname.split('/').pop()
                                     console.log((form as any).gForm, '<==formData')
-                                    console.log(amount, '<==amount')
+                                    console.log(amount, '<==amount', issueId, '<==issueId', openid, '<==openid')
+                                    
                                     
                                     if (!amount) {
                                         alert('请输入支付金额')
@@ -83,7 +84,8 @@ class PayButtonPlugin extends BasePluginV5 {
                                     }
 
                                     if (!openid) {
-                                        alert('获取openid失败')
+                                        alert('获取openid失败==>' + window.location.href)
+                                        // alert('获取openid失败')
                                         return
                                     }
 
