@@ -28,15 +28,15 @@ export async function middleware(request: NextRequest) {
         // 构建微信授权URL
         const authUrl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${process.env.WECHAT_PAY_APP_ID}&redirect_uri=${encodeURIComponent(process.env.NEXTAUTH_URL + '/api/wechat/auth')}&response_type=code&scope=snsapi_base&state=${currentUrl}#wechat_redirect`
         console.log(authUrl, '<==authUrl')
-        const result = await axios.get(authUrl)
-        console.log('result==>', result)
-        const openid = result.data.openid
-        const url = new URL(`/api/preview/${id}`, request.url)
-        if (openid) {
-          // 构建新的 URL，保留预览参数
-          url.searchParams.set('openid', openid)
-        }
-        return NextResponse.redirect(url)
+        // const result = await axios.get(authUrl)
+        // console.log('result==>', result)
+        // const openid = result.data.openid
+        // const url = new URL(`/api/preview/${id}`, request.url)
+        // if (openid) {
+        //   // 构建新的 URL，保留预览参数
+        //   url.searchParams.set('openid', openid)
+        // }
+        return NextResponse.redirect(authUrl)
       }
     }
 
