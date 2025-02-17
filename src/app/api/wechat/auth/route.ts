@@ -46,30 +46,36 @@ class WechatAuthService {
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const code = searchParams.get('code');
-    const state = searchParams.get('state'); // state 参数中包含了原始URL
+    const state = searchParams.get('state');
+
+    console.log('Received auth callback:', { code, state }); // 添加日志
 
     try {
         const wechatAuth = WechatAuthService.getInstance();
 
-        if (code) {
-            // 获取 openid
-            const openid = await wechatAuth.getOpenid(code);
-            
-            // 解码原始URL并添加openid参数
-            const originalUrl = decodeURIComponent(state || '');
-            const redirectUrl = new URL(originalUrl);
-            redirectUrl.searchParams.set('openid', openid);
-            
-            // 重定向回原始页面，带上openid
-            return NextResponse.redirect(redirectUrl.toString());
-        } else {
-            return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
+        if (!code) {
+            console.error('No code provided in callback');
+            return NextResponse.redirect('/error?message=' + encodeURIComponent('授权失败：未获取到授权码'));
         }
+
+        // 获取 openid
+        const openid = await wechatAuth.getOpenid(code);
+        console.log('Got openid:', openid); // 添加日志
+
+        if (!state) {
+            console.error('No state provided in callback');
+            return NextResponse.redirect('/error?message=' + encodeURIComponent('授权失败：未找到原始页面'));
+        }
+
+        // 解码原始URL并添加openid参数
+        const originalUrl = decodeURIComponent(state);
+        const redirectUrl = new URL(originalUrl);
+        redirectUrl.searchParams.set('openid', openid);
+        
+        console.log('Redirecting back to:', redirectUrl.toString()); // 添加日志
+        return NextResponse.redirect(redirectUrl.toString());
     } catch (error) {
         console.error('微信认证错误:', error);
-        return NextResponse.json(
-            { error: '微信认证失败，请稍后重试' },
-            { status: 500 }
-        );
+        return NextResponse.redirect('/error?message=' + encodeURIComponent('微信认证失败，请稍后重试'));
     }
 } 
