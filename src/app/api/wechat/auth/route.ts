@@ -46,23 +46,22 @@ class WechatAuthService {
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const code = searchParams.get('code');
-    const redirectUrl = searchParams.get('redirect_url');
+    const state = searchParams.get('state'); // state 参数中包含了原始URL
 
     try {
         const wechatAuth = WechatAuthService.getInstance();
 
-        console.log(code, '<==code')
-        console.log(redirectUrl, '<==redirectUrl')
-        if (!code && redirectUrl) {
-            // 如果没有code但有redirectUrl，生成授权URL
-            const authUrl = wechatAuth.generateAuthUrl(redirectUrl);
-            return NextResponse.json({ authUrl });
-        } else if (code) {
-            console.log(code, '<==code')
-            // 如果有code，获取openid
+        if (code) {
+            // 获取 openid
             const openid = await wechatAuth.getOpenid(code);
-            console.log(openid, '<==openid')
-            return NextResponse.json({ openid });
+            
+            // 解码原始URL并添加openid参数
+            const originalUrl = decodeURIComponent(state || '');
+            const redirectUrl = new URL(originalUrl);
+            redirectUrl.searchParams.set('openid', openid);
+            
+            // 重定向回原始页面，带上openid
+            return NextResponse.redirect(redirectUrl.toString());
         } else {
             return NextResponse.json({ error: '缺少必要参数' }, { status: 400 });
         }

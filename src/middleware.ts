@@ -18,36 +18,26 @@ export async function middleware(request: NextRequest) {
 
     // 如果是微信浏览器且没有 openid
     if (isWeixinBrowser && !nextUrl.searchParams.has('openid')) {
-      // 排除 API 路由和静态资源
-      if (!nextUrl.pathname.startsWith('/api/') && !nextUrl.pathname.startsWith('/_next/')) {
-        // 当前页面URL作为state参数
-
-        const currentUrl = encodeURIComponent(request.url)
-        console.log(currentUrl)
-        console.log('process.env.NEXTAUTH_URL==>', process.env.NEXTAUTH_URL)
-        // 构建微信授权URL
-        const authUrl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${process.env.WECHAT_PAY_APP_ID}&redirect_uri=${encodeURIComponent(process.env.NEXTAUTH_URL + '/api/wechat/auth')}&response_type=code&scope=snsapi_base&state=${currentUrl}#wechat_redirect`
-        console.log(authUrl, '<==authUrl')
-        // const result = await axios.get(authUrl)
-        // console.log('result==>', result)
-        // const openid = result.data.openid
-        // const url = new URL(`/api/preview/${id}`, request.url)
-        // if (openid) {
-        //   // 构建新的 URL，保留预览参数
-        //   url.searchParams.set('openid', openid)
-        // }
-        return NextResponse.redirect(authUrl)
-      }
+      // 当前页面URL作为state参数
+      const currentUrl = encodeURIComponent(request.url)
+      
+      // 构建微信授权URL - 直接重定向用户到这个URL
+      const authUrl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${process.env.WECHAT_PAY_APP_ID}&redirect_uri=${encodeURIComponent(process.env.NEXTAUTH_URL + '/api/wechat/auth')}&response_type=code&scope=snsapi_base&state=${currentUrl}#wechat_redirect`
+      
+      // 直接重定向到微信授权页面
+      return NextResponse.redirect(authUrl)
     }
 
-
-    // 构建新的 URL，保留预览参数
+    // 如果已经有openid或不是微信浏览器，继续处理
     const url = new URL(`/api/preview/${id}`, request.url)
     if (preview) {
       url.searchParams.set('preview', preview)
     }
-
-    // 重定向到预览 API
+    // 如果有openid，保留它
+    const openid = nextUrl.searchParams.get('openid')
+    if (openid) {
+      url.searchParams.set('openid', openid)
+    }
     return NextResponse.rewrite(url)
   }
 
