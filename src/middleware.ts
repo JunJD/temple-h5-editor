@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
         const url = new URL(`/api/preview/${id}`, request.url)
         if (openid) {
           // 构建新的 URL，保留预览参数
-          url.searchParams.set('preview', openid)
+          url.searchParams.set('openid', openid)
         }
         return NextResponse.redirect(url)
       }
