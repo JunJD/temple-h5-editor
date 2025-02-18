@@ -39,6 +39,8 @@ export async function GET(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>${data.title || '预览'}</title>
+    <!-- 添加微信 JSSDK -->
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="/bootstrap-5.3.3-dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/bootstrap-5.3.3-dist/css/fix.css">
@@ -80,6 +82,34 @@ export async function GET(
     ` : ''}
     <!-- Bootstrap JS -->
     <script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // 获取 JSSDK 配置
+        fetch('/api/wechat/jsconfig?url=' + encodeURIComponent(location.href.split('#')[0]))
+            .then(response => response.json())
+            .then(config => {
+                wx.config({
+                    debug: false,
+                    appId: config.appId,
+                    timestamp: config.timestamp,
+                    nonceStr: config.nonceStr,
+                    signature: config.signature,
+                    jsApiList: [
+                        'chooseWXPay'
+                    ]
+                });
+
+                wx.ready(function() {
+                    console.log('微信 JSSDK 初始化成功');
+                });
+
+                wx.error(function(res) {
+                    console.error('微信 JSSDK 初始化失败:', res);
+                });
+            })
+            .catch(error => {
+                console.error('获取微信配置失败:', error);
+            });
+    </script>
 </body>
 </html>`
 
