@@ -145,9 +145,10 @@ export class WechatPayV2Service {
       attach: params.attach,
     }
 
-    console.log(requestParams.total_fee, '<==requestParams.total_fee ????')
+    console.log('统一下单请求参数:', requestParams)
     
     const result = await this.request(url, requestParams)
+    console.log('统一下单返回结果:', result)
     
     // 生成支付参数
     const timeStamp = Math.floor(Date.now() / 1000).toString()

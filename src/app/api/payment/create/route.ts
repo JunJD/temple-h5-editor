@@ -47,7 +47,15 @@ export async function POST(req: Request) {
       spbill_create_ip: ip,
     })
 
-    console.log(result, '<==result')
+    console.log('创建预支付订单参数:', {
+      body: `表单提交支付-${submission.id}`,
+      outTradeNo: paymentId,
+      totalFee: Math.round(amount * 100),
+      openid,
+      attach: submission.id,
+      spbill_create_ip: ip,
+    })
+    console.log('预支付订单返回结果:', result)
 
     // 创建支付日志
     await prisma.paymentLog.create({
