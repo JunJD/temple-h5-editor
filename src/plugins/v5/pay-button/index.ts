@@ -69,9 +69,10 @@ class PayButtonPlugin extends BasePluginV5 {
                                     const amount = formData.amount || formData.totalAmount || 0
                                     const openid = new URLSearchParams(window.location.search).get('openid')
                                     const issueId = window.location.pathname.split('/').pop()
-                                    console.log((form as any).gForm, '<==formData')
-                                    console.log(amount, '<==amount', issueId, '<==issueId', openid, '<==openid')
-                                    
+                                    console.log('表单完整数据:', formData)
+                                    console.log('支付金额:', amount)
+                                    console.log('OpenID:', openid)
+                                    console.log('Issue ID:', issueId)
                                     
                                     if (!amount) {
                                         alert('请输入支付金额')

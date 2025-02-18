@@ -35,6 +35,8 @@ export async function POST(req: Request) {
     // 获取支付服务实例
     const payService = getWechatPayService()
 
+    console.log(amount, '<==amount ????')
+    
     // 创建预支付订单
     const result = await payService.createUnifiedOrder({
       body: `表单提交支付-${submission.id}`,
