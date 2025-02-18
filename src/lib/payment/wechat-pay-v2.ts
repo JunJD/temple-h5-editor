@@ -145,6 +145,8 @@ export class WechatPayV2Service {
       attach: params.attach,
     }
 
+    console.log(requestParams.total_fee, '<==requestParams.total_fee ????')
+    
     const result = await this.request(url, requestParams)
     
     // 生成支付参数
