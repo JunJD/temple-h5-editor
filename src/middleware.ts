@@ -18,12 +18,18 @@ export async function middleware(request: NextRequest) {
 
     // 如果是微信浏览器且没有 openid
     if (isWeixinBrowser && !nextUrl.searchParams.has('openid')) {
-      // 使用实际的域名而不是 0.0.0.0
-      const currentUrl = new URL(request.url)
-      currentUrl.host = new URL(process.env.NEXTAUTH_URL || '').host
+      // 使用实际的域名
+      const currentPath = request.nextUrl.pathname + request.nextUrl.search
+      const targetUrl = `${process.env.NEXTAUTH_URL}${currentPath}`
       
-      // 构建微信授权URL - 直接重定向用户到这个URL
-      const authUrl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${process.env.WECHAT_PAY_APP_ID}&redirect_uri=${encodeURIComponent(process.env.NEXTAUTH_URL + '/api/wechat/auth')}&response_type=code&scope=snsapi_base&state=${encodeURIComponent(currentUrl.toString())}#wechat_redirect`
+      // 构建微信授权URL
+      const authUrl = `https://open.weixin.qq.com/connect/oauth2/authorize?appid=${
+        process.env.WECHAT_PAY_APP_ID
+      }&redirect_uri=${encodeURIComponent(
+        process.env.NEXTAUTH_URL + '/api/wechat/auth'
+      )}&response_type=code&scope=snsapi_base&state=${encodeURIComponent(
+        targetUrl
+      )}#wechat_redirect`
       
       console.log('Redirecting to auth URL:', authUrl)
       return NextResponse.redirect(authUrl)

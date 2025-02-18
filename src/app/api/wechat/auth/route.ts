@@ -57,8 +57,8 @@ export async function GET(request: Request) {
             
             // 解码原始URL并添加openid参数
             const originalUrl = decodeURIComponent(state || '');
-            // 替换 0.0.0.0:3000 为实际的域名
-            const redirectUrl = new URL(originalUrl.replace('0.0.0.0:3000', process.env.NEXTAUTH_URL || ''));
+            // 直接使用原始URL，因为state中已经包含了正确的域名
+            const redirectUrl = new URL(originalUrl);
             redirectUrl.searchParams.set('openid', openid);
             
             // 使用完整的URL进行重定向
