@@ -3,6 +3,19 @@ import fs from 'fs'
 import axios from 'axios'
 import { XMLBuilder, XMLParser } from 'fast-xml-parser'
 
+interface WechatPayResponse {
+  return_code: string
+  return_msg: string
+  result_code?: string
+  err_code?: string
+  err_code_des?: string
+  paySign?: string
+  appId?: string
+  timeStamp?: string
+  nonceStr?: string
+  package?: string
+  signType?: string
+}
 export interface WechatPayV2Config {
   appId: string
   mchId: string
@@ -132,7 +145,7 @@ export class WechatPayV2Service {
   }
 
   // 统一下单
-  async createUnifiedOrder(params: PrepayOrderParamsV2) {
+  async createUnifiedOrder(params: PrepayOrderParamsV2): Promise<WechatPayResponse> {
     const url = 'https://api.mch.weixin.qq.com/pay/unifiedorder'
     const requestParams = {
       body: params.body,
@@ -169,7 +182,7 @@ export class WechatPayV2Service {
     return {
       ...payParams,
       paySign,
-    }
+    } as WechatPayResponse
   }
 
   // 查询订单
