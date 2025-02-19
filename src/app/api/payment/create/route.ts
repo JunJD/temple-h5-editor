@@ -80,7 +80,11 @@ export async function POST(req: Request) {
         }
       })
 
-      return NextResponse.json({ error: result.err_code_des || result.return_msg }, { status: 400 })
+      const errorMessage = result.err_code === 'NOAUTH' ? 
+        `appId:${result.appId} 商户无此接口权限` : 
+        (result.err_code_des || result.return_msg || '创建支付订单失败');
+
+      return NextResponse.json({ error: errorMessage }, { status: 400 })
     }
 
     // 支付成功，更新支付信息

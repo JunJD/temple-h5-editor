@@ -107,7 +107,8 @@ class PayButtonPlugin extends BasePluginV5 {
                                     console.log(createRes, '<==createRes')
                                     
                                     if (!createRes.ok) {
-                                        throw new Error('创建支付订单失败'+'createRes:'+JSON.stringify(createRes))
+                                        const errorData = await createRes.json();
+                                        throw new Error(errorData.error || '创建支付订单失败');
                                     }
 
                                     const payConfig = await createRes.json()
