@@ -19,6 +19,8 @@
 - [x] linkage form [block]
 - [ ] 订单、微信支付能力
 - [ ] 保存为block、模板、issue能力
+- [x] 被表达式影响的组件，每次change的时候 需要更新值到form data
+- [ ] 切换option的时候 traits的值 需要切换
 
 ### 交互优化
 - [x] 保存toast提示

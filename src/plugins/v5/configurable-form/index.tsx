@@ -5,7 +5,6 @@ import React from 'react';
 import BasePluginV5 from '../common/base';
 import { LINKAGE_FORM_TYPES, PRESETS } from '../linkage-form/constants';
 import { CASCADE_SELECTOR_TYPES } from '../linkage-form/constants';
-import { typeSubmitButton } from '@/plugins/linkageForm/components';
 import { FormField } from '@/schemas';
 import { OPtion } from '..';
 import { PAY_BUTTON_TYPE } from '../pay-button';
