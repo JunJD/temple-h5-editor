@@ -18,7 +18,7 @@ import gjsStyleEasing from 'grapesjs-style-easing';
 
 // import tailwindPlugin from 'grapesjs-tailwind'
 import formatTempList from '@/plugins/formatTempList'
-// import customCodePlugin from "grapesjs-custom-code";
+import customCodePlugin from "grapesjs-custom-code";
 // import grapesjsTabs from 'grapesjs-tabs';
 import grapesRulers from '@/plugins/customRules';
 // import grapesUserBlocks from 'grapesjs-user-blocks';
@@ -93,7 +93,7 @@ export default function BuilderEditor({ children, projectData, id, formConfig }:
           gjsWrapper,
           v5,
           formatTempList,
-          // customCodePlugin,
+          customCodePlugin,
           // grapesjsTabs,
           grapesRulers,
           // grapesUserBlocks,

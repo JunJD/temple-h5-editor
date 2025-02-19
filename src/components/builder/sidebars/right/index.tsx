@@ -23,7 +23,7 @@ export function RightSidebar() {
                 <div className="space-y-4">
                   {traits?.length ? (
                     traits.map((trait) => (
-                      <TraitField key={trait.getId() + "_" + trait.get('value')} trait={trait} />
+                      <TraitField key={trait.cid} trait={trait} />
                     ))
                   ) : (
                     <div className="text-sm text-muted-foreground">
