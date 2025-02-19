@@ -32,7 +32,32 @@ export async function middleware(request: NextRequest) {
       )}#wechat_redirect`
       
       console.log('Redirecting to auth URL:', authUrl)
-      return NextResponse.redirect(authUrl)
+      
+      // 创建重定向响应并保留原始请求头
+      const response = NextResponse.redirect(authUrl)
+      
+      // 保留关键请求头
+      const headersToKeep = [
+        'x-real-ip',
+        'x-forwarded-for',
+        'x-forwarded-proto',
+        'x-forwarded-host',
+        'x-forwarded-port',
+        'x-original-uri',
+        'x-original-host',
+        'origin',
+        'referer',
+        'user-agent'
+      ]
+
+      headersToKeep.forEach(header => {
+        const value = request.headers.get(header)
+        if (value) {
+          response.headers.set(header, value)
+        }
+      })
+
+      return response
     }
 
     // 如果已经有openid或不是微信浏览器，继续处理
@@ -45,7 +70,24 @@ export async function middleware(request: NextRequest) {
     if (openid) {
       url.searchParams.set('openid', openid)
     }
-    return NextResponse.rewrite(url)
+
+    // 创建重写响应并保留所有相关的请求头
+    const response = NextResponse.rewrite(url)
+    
+    // 确保设置正确的origin和其他关键头信息
+    response.headers.set('x-middleware-rewrite', url.toString())
+    response.headers.set('x-original-url', request.url)
+    
+    // 从原始请求复制所有请求头
+    request.headers.forEach((value, key) => {
+      response.headers.set(key, value)
+    })
+
+    // 特别确保设置这些关键头信息
+    response.headers.set('origin', process.env.NEXTAUTH_URL || request.headers.get('origin') || '')
+    response.headers.set('next-action', 'rewrite')
+
+    return response
   }
 
   return NextResponse.next()
