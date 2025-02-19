@@ -21,7 +21,7 @@
 - [ ] 保存为block、模板、issue能力
 - [x] 被表达式影响的组件，每次change的时候 需要更新值到form data
 - [x] 切换option的时候 traits的值 需要切换
-
+- [x] 配置表单字段的时候 会重新生成数据，导致表单原来的数据丢失
 ### 交互优化
 - [x] 保存toast提示
 ### components规划
