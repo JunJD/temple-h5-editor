@@ -270,16 +270,19 @@ export const loadInputGroup = (editor: Editor) => {
                             });
                         }
 
-                        // 监听输入变化，触发字段变更事件
-                        inputEl.addEventListener('input', (e) => {
-                            const value = (e.target as HTMLInputElement).value;
+                        // 触发字段变更事件
+                        function triggerChange() {
                             const formItem = el.closest('.form-item');
                             if (formItem) {
                                 const event = new CustomEvent('field:change', {
-                                    detail: { value }
+                                    detail: { value: inputEl.value }
                                 });
                                 formItem.dispatchEvent(event);
                             }
+                        }
+                        // 监听输入变化，触发字段变更事件
+                        inputEl.addEventListener('input', (e) => {
+                            triggerChange();
                         });
 
                         // 监听表单字段变化，处理联动
@@ -301,6 +304,9 @@ export const loadInputGroup = (editor: Editor) => {
 
                                     // 只更新显示值，不触发新的事件
                                     inputEl.value = String(newValue);
+
+                                    // 触发字段变更事件
+                                    triggerChange();
                                 } catch (error) {
                                     console.error('表达式计算错误:', error);
                                 }
@@ -778,6 +784,10 @@ export const loadInputGroup = (editor: Editor) => {
 
                                     // 只更新显示值，不触发新的事件
                                     inputEl.value = String(newValue);
+
+                                    // 触发字段变更事件
+                                    triggerChange();
+                                    
                                     updateButtonState();
                                 } catch (error) {
                                     console.error('表达式计算错误:', error);
