@@ -18,6 +18,7 @@
     "mergable",
     "movecb",
     "NEXTAUTH",
+    "NOAUTH",
     "noce",
     "nums",
     "pixelize",
