@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown'
 import { useRouter } from 'next/navigation'
 import { createIssue, deleteIssue } from '@/actions/issue'
 import { MoreHorizontal } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 import {
   Card,
@@ -94,7 +95,17 @@ export default function IssueCard({ issue }: Props) {
       <CardHeader className="flex-none">
         <div className="flex items-start justify-between">
           <div className="flex-1 pr-2">
-            <CardTitle className="text-lg truncate">{issue.title}</CardTitle>
+            <div className="flex items-center gap-2">
+              <CardTitle className="text-lg truncate">{issue.title}</CardTitle>
+              <span className={cn(
+                "inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ring-1 ring-inset",
+                issue.status === 'published' 
+                  ? "bg-green-50 text-green-700 ring-green-600/20"
+                  : "bg-yellow-50 text-yellow-700 ring-yellow-600/20"
+              )}>
+                {issue.status === 'published' ? '已发布' : '未发布'}
+              </span>
+            </div>
             <CardDescription>{issue.createdAt ? formatDate(issue.createdAt) : '-'}</CardDescription>
           </div>
           <DropdownMenu>

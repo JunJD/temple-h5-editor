@@ -61,6 +61,14 @@ export default async function Issues({
     where.AND.push({ createdAt: { lte: endDate } })
   }
 
+  // 添加发布状态筛选
+  const status = searchParams.status
+  if (status === 'published' || status === 'draft') {
+    where.AND.push({
+      status: status
+    })
+  }
+
   // 如果没有任何筛选条件，使用空对象
   const finalWhere = where.AND.length > 0 ? where : {}
 
@@ -86,6 +94,7 @@ export default async function Issues({
     title: issue.title as string,
     content: issue.content as any,
     description: issue.description as string,
+    status: issue.status as 'published' | 'draft',
     _count: issue._count
   }))
   

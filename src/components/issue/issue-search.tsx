@@ -6,6 +6,7 @@ import { Button } from '@/components/ui'
 import { Calendar as CalendarComponent } from '@/components/ui'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui'
 import { Input } from '@/components/ui'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui'
 import { cn } from '@/lib/utils'
 import { format } from 'date-fns'
 import { useEffect, useState } from 'react'
@@ -18,7 +19,8 @@ export function IssueSearch() {
     const [searchState, setSearchState] = useState({
         keyword: searchParams.get('keyword') ?? '',
         startDate: searchParams.get('startDate') ?? '',
-        endDate: searchParams.get('endDate') ?? ''
+        endDate: searchParams.get('endDate') ?? '',
+        status: searchParams.get('status') ?? 'all'
     })
 
     useEffect(() => {
@@ -49,6 +51,9 @@ export function IssueSearch() {
         if (searchState.endDate) {
             params.set('endDate', searchState.endDate)
         }
+        if (searchState.status && searchState.status !== 'all') {
+            params.set('status', searchState.status)
+        }
 
         handleSearch(params)
     }
@@ -68,12 +73,13 @@ export function IssueSearch() {
         setSearchState({
             keyword: '',
             startDate: '',
-            endDate: ''
+            endDate: '',
+            status: 'all'
         })
         handleSearch(new URLSearchParams())
     }
 
-    const hasFilters = !!(searchState.keyword || searchState.startDate || searchState.endDate)
+    const hasFilters = !!(searchState.keyword || searchState.startDate || searchState.endDate || (searchState.status && searchState.status !== 'all'))
 
     return (
         <form onSubmit={onSubmit} className="flex flex-wrap items-center gap-4">
@@ -173,6 +179,19 @@ export function IssueSearch() {
                     </PopoverContent>
                 </Popover>
             </div>
+            <Select
+                value={searchState.status}
+                onValueChange={(value) => setSearchState(prev => ({ ...prev, status: value }))}
+            >
+                <SelectTrigger className="w-[140px]">
+                    <SelectValue placeholder="发布状态" />
+                </SelectTrigger>
+                <SelectContent>
+                    <SelectItem value="all">全部</SelectItem>
+                    <SelectItem value="published">已发布</SelectItem>
+                    <SelectItem value="draft">未发布</SelectItem>
+                </SelectContent>
+            </Select>
             <div className="flex items-center gap-2">
                 <Button type="submit" size="sm" disabled={isLoading}>
                     {isLoading ? (
