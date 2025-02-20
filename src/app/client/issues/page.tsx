@@ -4,6 +4,7 @@ import { headers } from 'next/headers'
 
 import { Button } from '@/components/ui'
 import IssueCard from '@/components/issue/issue-card'
+import { IssueSearch } from '@/components/issue/issue-search'
 
 import { prisma } from '@/lib/prisma'
 import { RenderList } from 'atomic-utils'
@@ -11,10 +12,60 @@ import { FormConfig, WxPayConfig, Issue } from '@/schemas'
 
 export const revalidate = 0
 
-export default async function Issues() {
+export default async function Issues({
+  searchParams,
+}: {
+  searchParams: { [key: string]: string | string[] | undefined }
+}) {
   headers()
 
+  const keyword = typeof searchParams.keyword === 'string' ? searchParams.keyword : undefined
+  
+  // 改进日期处理逻辑
+  let startDate: Date | undefined
+  let endDate: Date | undefined
+  
+  if (typeof searchParams.startDate === 'string' && searchParams.startDate) {
+    const parsedStartDate = new Date(searchParams.startDate)
+    if (!isNaN(parsedStartDate.getTime())) {
+      startDate = parsedStartDate
+    }
+  }
+  
+  if (typeof searchParams.endDate === 'string' && searchParams.endDate) {
+    const parsedEndDate = new Date(searchParams.endDate)
+    if (!isNaN(parsedEndDate.getTime())) {
+      endDate = parsedEndDate
+    }
+  }
+
+  const where: any = {
+    AND: []
+  }
+
+  // 只在有关键词时添加关键词筛选
+  if (keyword) {
+    where.AND.push({
+      OR: [
+        { title: { contains: keyword } },
+        { description: { contains: keyword } }
+      ]
+    })
+  }
+
+  // 只在有有效日期时添加日期筛选
+  if (startDate) {
+    where.AND.push({ createdAt: { gte: startDate } })
+  }
+  if (endDate) {
+    where.AND.push({ createdAt: { lte: endDate } })
+  }
+
+  // 如果没有任何筛选条件，使用空对象
+  const finalWhere = where.AND.length > 0 ? where : {}
+
   const issues = await prisma.issue.findMany({
+    where: finalWhere,
     include: {
       _count: {
         select: {
@@ -52,6 +103,10 @@ export default async function Issues() {
           </Button>
         </Link>
       </header>
+
+      <div className="mb-6">
+        <IssueSearch />
+      </div>
 
       {issuesWithFormConfig.length === 0 ? (
         <div className='h-72 flex items-center justify-center'>
