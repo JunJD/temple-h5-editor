@@ -75,6 +75,23 @@ export const wxPayConfigSchema = z.object({
   attach: z.string().optional(),
   timeExpire: z.string().optional(),
 })
+// Submission 创建的 schema
+export const submissionSchema = z.object({
+  id: z.string(),
+  createdAt: z.date().default(() => new Date()),
+  updatedAt: z.date().default(() => new Date()),
+  paidAt: z.date().default(() => new Date()),
+  expiredAt: z.date().default(() => new Date()),
+  currency: z.string().optional(),
+  status: z.enum(['PENDING', 'PAID', 'FAILED', 'REFUNDED']),
+  issueId: z.string(),
+
+  formData: z.record(z.any()), // 动态表单数据
+  amount: z.number().min(0),
+  openid: z.string().optional(),
+})
+
+
 
 // Issue 创建和更新的 schema
 export const issueSchema = z.object({
@@ -88,16 +105,10 @@ export const issueSchema = z.object({
   wxPayConfig: wxPayConfigSchema.optional().nullable(),
   startTime: z.date().optional(),
   endTime: z.date().optional(),
-  createdAt: z.date().default(() => new Date())
+  createdAt: z.date().default(() => new Date()),
+  submissions: z.array(submissionSchema).optional(),
 })
 
-// Submission 创建的 schema
-export const submissionSchema = z.object({
-  issueId: z.string(),
-  formData: z.record(z.any()), // 动态表单数据
-  amount: z.number().min(0),
-  openid: z.string().optional(),
-})
 
 // 支付状态更新的 schema
 export const paymentStatusSchema = z.object({

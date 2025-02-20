@@ -22,8 +22,10 @@ import { formatDate } from '@/lib/utils'
 import { Issue } from '@/schemas'
 import { useState } from 'react'
 import { toast } from '@/hooks/use-toast'
+import { ViewSubmissionsButton } from './view-submissions-button'
+
 interface Props {
-  issue: Issue & { id: string }
+  issue: Issue & { id: string; _count?: { submissions: number } }
 }
 
 export default function IssueCard({ issue }: Props) {
@@ -108,6 +110,9 @@ export default function IssueCard({ issue }: Props) {
               <DropdownMenuItem asChild>
                 <Link href={`/client/issues/${issue.id}/edit`}>编辑</Link>
               </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link href={`/client/issues/${issue.id}/submissions`}>提交记录</Link>
+              </DropdownMenuItem>
               <DropdownMenuItem
                 disabled={isLoading}
                 onClick={handleDuplicate}
@@ -129,7 +134,11 @@ export default function IssueCard({ issue }: Props) {
           <ReactMarkdown>{issue.description}</ReactMarkdown>
         </article>
       </CardContent>
-      <CardFooter className="flex-none flex justify-end">
+      <CardFooter className="flex-none flex justify-between">
+        <ViewSubmissionsButton 
+          issueId={issue.id} 
+          submissionsCount={issue._count?.submissions}
+        />
         <Button size="sm" variant="default" asChild>
           <Link href={`/client/issues/${issue.id}/edit`}>编辑</Link>
         </Button>

@@ -7,16 +7,24 @@ import IssueCard from '@/components/issue/issue-card'
 
 import { prisma } from '@/lib/prisma'
 import { RenderList } from 'atomic-utils'
-import { FormConfig, WxPayConfig } from '@/schemas'
+import { FormConfig, WxPayConfig, Issue } from '@/schemas'
 
 export const revalidate = 0
 
 export default async function Issues() {
   headers()
 
-  const issues = (await prisma.issue.findMany({})).reverse()
+  const issues = await prisma.issue.findMany({
+    include: {
+      _count: {
+        select: {
+          submissions: true
+        }
+      }
+    }
+  });
 
-  const issuesWithFormConfig = issues.map(issue => ({
+  const issuesWithFormConfig = issues.reverse().map(issue => ({
     formConfig: issue.formConfig as FormConfig,
     startTime: issue.startTime as Date,
     endTime: issue.endTime as Date | undefined,
@@ -26,7 +34,8 @@ export default async function Issues() {
     id: issue.id as string,
     title: issue.title as string,
     content: issue.content as any,
-    description: issue.description as string
+    description: issue.description as string,
+    _count: issue._count
   }))
   
   return (
@@ -51,8 +60,10 @@ export default async function Issues() {
       ) : (
         <div className='py-4 grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3 items-stretch gap-6 rounded-md'>
           <RenderList
-            data={issuesWithFormConfig}
-            render={issue => <IssueCard issue={issue as any} key={issue.id} />}
+            data={issuesWithFormConfig as any}
+            render={(issue: Issue & { id: string; _count?: { submissions: number } }) => (
+              <IssueCard issue={issue} key={issue.id} />
+            )}
           />
         </div>
       )}
