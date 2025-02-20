@@ -187,7 +187,7 @@ export function IssueSearch() {
                     <SelectValue placeholder="发布状态" />
                 </SelectTrigger>
                 <SelectContent>
-                    <SelectItem value="all">全部</SelectItem>
+                    <SelectItem value="all">--是否发布--</SelectItem>
                     <SelectItem value="published">已发布</SelectItem>
                     <SelectItem value="draft">未发布</SelectItem>
                 </SelectContent>
