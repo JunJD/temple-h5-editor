@@ -175,7 +175,7 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                 type: 'form-item',
                 attributes: { name: field.name, label: '' },
                 components: [{
-                    type: LINKAGE_FORM_TYPES[field.type],
+                    type: LINKAGE_FORM_TYPES[field.type] || 'input-group',
                     label: `${field.label}:`,
                     suffix: field.suffix || '',
                     'input-type': field.type === 'input-group' ? 'number' : undefined,

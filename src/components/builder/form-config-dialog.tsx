@@ -223,7 +223,8 @@ export function FormConfigDialog({
                                                 </SelectTrigger>
                                                 <SelectContent>
                                                     <SelectItem value="input-group">数字输入框</SelectItem>
-                                                    <SelectItem value="input-group-rich-text">文本输入框</SelectItem>
+                                                    <SelectItem value="input-group-text">文本输入框</SelectItem>
+                                                    <SelectItem value="input-group-rich-text">富文本输入框</SelectItem>
                                                     <SelectItem value="input-number-group">数字加减框</SelectItem>
                                                 </SelectContent>
                                             </Select>
