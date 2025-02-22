@@ -198,7 +198,13 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                     type: 'form-item',
                     components: [{
                         type: PAY_BUTTON_TYPE,
-                        label: '立即支付'
+                        label: '立即支付',
+                        style: {
+                            'background-color': '#a67c37',
+                            'border-radius': '10px 10px 0 0',
+                            'padding': '20px 0',
+                            'box-sizing': 'border-box'
+                        }
                     }]
                 }]
             }

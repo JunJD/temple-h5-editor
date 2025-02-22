@@ -1,6 +1,7 @@
 import { Editor } from 'grapesjs'
 import BasePluginV5 from '../common/base'
 import { OPtion } from '..'
+import { toast } from '@/hooks/use-toast'
 
 export const PAY_BUTTON_TYPE = 'pay-button'
 
@@ -56,7 +57,18 @@ class PayButtonPlugin extends BasePluginV5 {
                     script: function () {
                         const el = this as HTMLButtonElement
                         const form = el.closest('form')
-                        console.log(form, '<==form')
+                        // 是否是编辑场景 - 通过检查元素是否有data-gjs-type属性来判断
+                        const isEdit = el.hasAttribute('data-gjs-type')
+
+                        if (isEdit) {
+                            console.log('编辑场景')
+                            toast({
+                                title: '编辑场景',
+                                description: '编辑场景'
+                            })
+                            return
+                        }
+
                         if (form) {
                             el.addEventListener('click', async (e) => {
                                 e.preventDefault()
