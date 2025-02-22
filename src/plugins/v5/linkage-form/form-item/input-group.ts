@@ -726,7 +726,7 @@ export const loadInputGroup = (editor: Editor) => {
                         }
 
                         // 设置默认值
-                        inputEl.value = defaultValue || '0';
+                        inputEl.value = defaultValue || '1';
 
                         // 更新按钮状态
                         function updateButtonState() {

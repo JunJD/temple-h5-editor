@@ -17,13 +17,16 @@
 - [x] selector [trait]
 - [x] formate order list [block]
 - [x] linkage form [block]
-- [ ] 订单、微信支付能力
-- [ ] 保存为block、模板、issue能力
 - [x] 被表达式影响的组件，每次change的时候 需要更新值到form data
 - [x] 切换option的时候 traits的值 需要切换
 - [x] 配置表单字段的时候 会重新生成数据，导致表单原来的数据丢失
 - [x] 表单组件没有支持 普通文本输入框 （name）
 - [x] 布局 border 没办法去掉
+- [ ] 订单、微信支付能力
+- [ ] 保存为block、模板、issue能力
+- [ ] 模板列表滚动 滚动完了之后 需要重置滚动
+- [ ] 联动能力需要加上设置禁止编辑的配置
+- [ ] 板式 支持 字体间距的style
 
 ### 交互优化
 - [x] 保存toast提示
