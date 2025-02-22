@@ -86,8 +86,9 @@ class PayButtonPlugin extends BasePluginV5 {
                                     console.log('OpenID:', openid)
                                     console.log('Issue ID:', issueId)
                                     
-                                    if (!amount) {
-                                        alert('请输入支付金额')
+                                    if (!amount || amount <= 0) {
+                                        alert('支付金额必须大于0')
+                                        el.disabled = false
                                         return
                                     }
 

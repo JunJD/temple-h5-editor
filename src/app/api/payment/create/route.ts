@@ -23,6 +23,14 @@ export async function POST(req: Request) {
       )
     }
 
+    // 验证支付金额必须大于0
+    if (amount <= 0) {
+      return NextResponse.json(
+        { error: '支付金额必须大于0' },
+        { status: 400 }
+      )
+    }
+
     const paymentId = nanoid()
     
     // 创建支付记录
