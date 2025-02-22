@@ -152,7 +152,7 @@ class PayButtonPlugin extends BasePluginV5 {
 
                                 } catch (error) {
                                     console.error('支付失败:', error)
-                                    alert('支付失败,请重试2'+ (error.message || error || '未知错误') )
+                                    alert('支付失败,'+ (error.message || error || '请重试') )
                                     el.disabled = false
                                 }
                             })
