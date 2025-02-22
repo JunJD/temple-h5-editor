@@ -272,9 +272,20 @@ export class GridComponents extends BaseLoadComponents {
                             type: GRID_BLOCKS['bs-col'],
                             classes: ['col'],
                             style: {
-                                minHeight: '50px',
-                                backgroundColor: 'rgba(0, 0, 0, 0.05)',
-                                border: '1px solid rgba(0, 0, 0, 0.1)'
+                                'min-height': '50px',
+                                'background-color': 'rgba(0, 0, 0, 0.05)',
+                                'border-top-width': '1px',
+                                'border-bottom-width': '1px',
+                                'border-left-width': '1px',
+                                'border-right-width': '1px',
+                                'border-top-style': 'solid',
+                                'border-bottom-style': 'solid',
+                                'border-left-style': 'solid',
+                                'border-right-style': 'solid',
+                                'border-top-color': 'rgba(0, 0, 0, 0.1)',
+                                'border-bottom-color': 'rgba(0, 0, 0, 0.1)',
+                                'border-left-color': 'rgba(0, 0, 0, 0.1)',
+                                'border-right-color': 'rgba(0, 0, 0, 0.1)',
                             }
                         };
 
@@ -330,9 +341,21 @@ export class GridComponents extends BaseLoadComponents {
                     draggable: '.row',
                     droppable: true,
                     style: {
-                        minHeight: '50px',
-                        backgroundColor: 'rgba(0, 0, 0, 0.05)',
-                        border: '1px solid rgba(0, 0, 0, 0.1)'
+                        'min-height': '50px',
+                        'background-color': 'rgba(0, 0, 0, 0.05)',
+                        'border-top-width': '1px',
+                        'border-bottom-width': '1px',
+                        'border-left-width': '1px',
+                        'border-right-width': '1px',
+                        'border-top-style': 'solid',
+                        'border-bottom-style': 'solid',
+                        'border-left-style': 'solid',
+                        'border-right-style': 'solid',
+                        'border-top-color': 'rgba(0, 0, 0, 0.1)',
+                        'border-bottom-color': 'rgba(0, 0, 0, 0.1)',
+                        'border-left-color': 'rgba(0, 0, 0, 0.1)',
+                        'border-right-color': 'rgba(0, 0, 0, 0.1)',
+                        
                     },
                     attributes: {
                         'data-gjs-highlightable': true,
@@ -399,29 +422,6 @@ export class GridComponents extends BaseLoadComponents {
                         updateClasses.call(this, props);
                     },
                 },
-
-                // init() {
-                //     // 属性名映射
-                //     const propMapping = {
-                //         'col-base': 'colBase',
-                //         'align-self': 'alignSelf',
-                //         'offset': 'offset',
-                //         'order': 'order',
-                //         'margin': 'margin'
-                //     };
-
-                //     // 统一的属性变化处理器
-                //     const handlePropChange = (prop) => {
-                //         const value = this.get(prop);
-                //         const scriptProp = propMapping[prop];
-                //         this.addAttributes({ 'data-gjs-props': JSON.stringify({ [scriptProp]: value }) });
-                //     };
-
-                //     // 监听所有属性变化
-                //     Object.keys(propMapping).forEach(prop => {
-                //         this.on(`change:${prop}`, () => handlePropChange(prop));
-                //     });
-                // }
             }
         });
     }

@@ -21,13 +21,25 @@ class LayoutBlockFactory {
             traits,
             components: [
                 {
-                    tagName: 'div',
+                    // tagName: 'div',
+                    type: 'default',
                     style: { 
-                        padding: '10px', 
-                        textAlign: 'center',
-                        minHeight: '50px',
-                        backgroundColor: 'rgba(0, 0, 0, 0.05)',
-                        border: '1px solid rgba(0, 0, 0, 0.1)'
+                        'padding': '10px', 
+                        'text-align': 'center',
+                        'min-height': '50px',
+                        'background-color': 'rgba(0, 0, 0, 0.05)',
+                        'border-top-width': '1px',
+                        'border-bottom-width': '1px',
+                        'border-left-width': '1px',
+                        'border-right-width': '1px',
+                        'border-top-style': 'solid',
+                        'border-bottom-style': 'solid',
+                        'border-left-style': 'solid',
+                        'border-right-style': 'solid',
+                        'border-top-color': 'rgba(0, 0, 0, 0.1)',
+                        'border-bottom-color': 'rgba(0, 0, 0, 0.1)',
+                        'border-left-color': 'rgba(0, 0, 0, 0.1)',
+                        'border-right-color': 'rgba(0, 0, 0, 0.1)',
                     },
                     components: [
                         {
