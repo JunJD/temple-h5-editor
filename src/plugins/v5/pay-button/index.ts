@@ -106,75 +106,34 @@ class PayButtonPlugin extends BasePluginV5 {
                                     // 检查本地存储中是否有用户信息
                                     let userInfo = localStorage.getItem('userInfo')
                                     if (!userInfo) {
-                                        // 如果没有用户信息，则获取
                                         const wx = (window as any).wx
                                         if (!wx) {
                                             throw new Error('未检测到微信JS SDK')
                                         }
 
-                                        wx.getUserInfo({
+                                        // 用户已经同意授权，直接获取用户信息
+                                        wx.getUserProfile({
+                                            desc: '用于获取您的头像和昵称', // 描述信息
                                             success: function (res) {
                                                 console.log(res.userInfo) // 包含用户的昵称、头像等信息
                                                 // 存储用户信息到本地存储
                                                 localStorage.setItem('userInfo', JSON.stringify(res.userInfo))
                                                 userInfo = res.userInfo // 更新 userInfo 变量
+                                                // 继续调用支付订单 API
+                                                callPaymentAPI(formData, amount, issueId, openid, userInfo, el)
                                             },
                                             fail: function (res) {
-                                                userInfo = null
                                                 console.log('获取用户信息失败！' + res.errMsg)
+                                                alert('获取用户信息失败，请重试')
+                                                el.disabled = false
                                             }
                                         })
                                     } else {
                                         // 如果有用户信息，解析 JSON
                                         userInfo = JSON.parse(userInfo)
+                                        // 继续调用支付订单 API
+                                        callPaymentAPI(formData, amount, issueId, openid, userInfo, el)
                                     }
-
-                                    // 调用创建支付订单API
-                                    const createRes = await fetch('/api/payment/create', {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/json'
-                                        },
-                                        body: JSON.stringify({
-                                            formData,
-                                            amount,
-                                            issueId,
-                                            openid,
-                                            userInfo // 将用户信息传递给支付订单 API
-                                        })
-                                    })
-
-                                    console.log(createRes, '<==createRes')
-
-                                    if (!createRes.ok) {
-                                        const errorData = await createRes.json()
-                                        throw new Error(errorData.error || '创建支付订单失败')
-                                    }
-
-                                    const payConfig = await createRes.json()
-
-                                    const wx = (window as any).wx
-                                    if (!wx) {
-                                        throw new Error('未检测到微信JS SDK')
-                                    }
-
-                                    wx.chooseWXPay({
-                                        timestamp: payConfig.timeStamp,
-                                        nonceStr: payConfig.nonceStr,
-                                        package: payConfig.package,
-                                        signType: payConfig.signType,
-                                        paySign: payConfig.paySign,
-                                        success: () => {
-                                            alert('支付成功')
-                                            window.location.reload()
-                                        },
-                                        fail: (res: any) => {
-                                            alert('支付失败:' + res.errMsg)
-                                        },
-                                        complete: () => {
-                                            el.disabled = false
-                                        }
-                                    })
 
                                 } catch (error) {
                                     console.error('支付失败:', error)
@@ -211,6 +170,53 @@ class PayButtonPlugin extends BasePluginV5 {
             }
         })
     }
+}
+
+// 调用支付订单 API 的函数
+async function callPaymentAPI(formData, amount, issueId, openid, userInfo, el) {
+    const createRes = await fetch('/api/payment/create', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            formData,
+            amount,
+            issueId,
+            openid,
+            userInfo // 将用户信息传递给支付订单 API
+        })
+    })
+
+    if (!createRes.ok) {
+        const errorData = await createRes.json()
+        throw new Error(errorData.error || '创建支付订单失败')
+    }
+
+    const payConfig = await createRes.json()
+
+    const wx = (window as any).wx
+    if (!wx) {
+        throw new Error('未检测到微信JS SDK')
+    }
+
+    wx.chooseWXPay({
+        timestamp: payConfig.timeStamp,
+        nonceStr: payConfig.nonceStr,
+        package: payConfig.package,
+        signType: payConfig.signType,
+        paySign: payConfig.paySign,
+        success: () => {
+            alert('支付成功')
+            window.location.reload()
+        },
+        fail: (res: any) => {
+            alert('支付失败:' + res.errMsg)
+        },
+        complete: () => {
+            el.disabled = false
+        }
+    })
 }
 
 export default PayButtonPlugin
