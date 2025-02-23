@@ -33,6 +33,7 @@ model Submission {
   status        PaymentStatus @default(PENDING)
   payMethod     PaymentMethod @default(WXPAY)
   openid        String?  // 微信用户openid
+  userInfo      Json?    // 用户信息
   wxPayInfo     Json?    // 微信支付请求/返回的原始信息
   paidAt        DateTime? // 支付完成时间
   expiredAt     DateTime? // 支付过期时间

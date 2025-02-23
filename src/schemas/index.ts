@@ -89,6 +89,7 @@ export const submissionSchema = z.object({
   formData: z.record(z.any()), // 动态表单数据
   amount: z.number().min(0),
   openid: z.string().optional(),
+  userInfo: z.record(z.any()).optional(),
 })
 
 

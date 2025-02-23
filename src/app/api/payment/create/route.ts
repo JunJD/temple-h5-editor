@@ -6,13 +6,14 @@ import { prisma } from '@/lib/prisma'
 export async function POST(req: Request) {
   try {
     const ip = req.headers['x-forwarded-for'] || req.headers['x-real-ip']
-    const { issueId, formData, amount, openid } = await req.json()
+    const { issueId, formData, amount, openid, userInfo } = await req.json()
 
     console.log('支付请求参数:', {
       issueId,
       amount,
       openid,
       ip,
+      userInfo,
       timestamp: new Date().toISOString()
     })
 
@@ -22,7 +23,7 @@ export async function POST(req: Request) {
         { status: 400 }
       )
     }
-
+    
     // 验证支付金额必须大于0
     if (amount <= 0) {
       return NextResponse.json(
@@ -43,6 +44,7 @@ export async function POST(req: Request) {
         paymentId,
         status: 'PENDING',
         payMethod: 'WXPAY',
+        userInfo: userInfo || null,
       },
     })
 
