@@ -69,6 +69,7 @@ export default function SectorTypography({ sector }: Props) {
       <div className="grid grid-cols-2 gap-4">
         {renderField(sector.getProperty('text-align'), 'select')}
         {renderField(sector.getProperty('text-decoration'), 'select')}
+        {renderField(sector.getProperty('text-align-last'), 'select')}
       </div>
 
       {/* Text Transform & Direction */}

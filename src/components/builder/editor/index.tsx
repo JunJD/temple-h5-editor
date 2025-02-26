@@ -5,7 +5,7 @@ import zh from 'grapesjs/locale/zh';
 import grapesjs from 'grapesjs';
 import type { Editor, EditorConfig, ObjectAny } from 'grapesjs'
 import { devices } from '@/lib/constants/devices'
-import { registerComponents } from '@/lib/components'
+
 // import { useState } from 'react'
 import LinkageForm from '@/plugins/linkageForm'
 import gjsWrapper from '@/plugins/wrapper'
@@ -45,7 +45,6 @@ export default function BuilderEditor({ children, projectData, id, formConfig }:
   const updateFormConfig = useUpdateFormConfigField()
   const onEditor = (editor: Editor) => {
     // 注册组件
-    registerComponents(editor)
   }
 
   return (
