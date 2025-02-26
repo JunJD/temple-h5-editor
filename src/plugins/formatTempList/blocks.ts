@@ -21,7 +21,8 @@ export default function (editor: Editor, opt: Required<PluginOptions>) {
     </svg>`,
     content: {
       type: typeFormatTempList,
-      classes: ['format-temp-list']
+      classes: ['format-temp-list'],
+      autoScroll: true,
     }
   });
 } 

@@ -227,9 +227,6 @@ export default function (editor: Editor) {
               const container = document.createElement('div');
               container.className = 'infinite-scroll';
 
-              console.log('textAlign => ', textAlign);
-              console.log('fontWeight => ', fontWeight);
-
               const createList = () => {
                 const ul = document.createElement('ul');
                 data.forEach(item => {
