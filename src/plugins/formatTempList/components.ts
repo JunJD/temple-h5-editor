@@ -251,46 +251,29 @@ export default function (editor: Editor) {
               if (autoScroll) {
                 const ulDefaultHeight = container.offsetHeight > list1.offsetHeight ? list1.offsetHeight : 0;
                 const liDefaultValues = container.querySelectorAll('.infinite-scroll ul li');
-                console.log('初始化滚动:', {
-                  containerHeight: container.offsetHeight,
-                  listHeight: list1.offsetHeight,
-                  ulDefaultHeight,
-                  itemCount: liDefaultValues.length
-                });
+
 
                 if (container.offsetHeight > list1.offsetHeight) {
                   const diff = Math.ceil(container.offsetHeight / list1.offsetHeight);
-                  console.log('容器高度大于列表高度，需要补充项目:', diff);
                   for (let j = 0; j < diff; j++) {
                     appendToDown();
                     appendToUp();
                   }
                 } else {
-                  console.log('容器高度小于列表高度，补充一次项目');
                   appendToDown();
                   appendToUp();
                 }
 
                 container.scrollTop = ulDefaultHeight / 2;
-                console.log('设置初始滚动位置:', ulDefaultHeight / 2);
 
                 container.addEventListener("scroll", event => {
                   const currentScroll = container.scrollTop;
-                  const maxScroll = list1.offsetHeight - container.offsetHeight;
-                  console.log('滚动事件:', {
-                    currentScroll,
-                    maxScroll,
-                    containerHeight: container.offsetHeight,
-                    listHeight: list1.offsetHeight,
-                    quarterHeight: container.offsetHeight / 4,
-                    threeQuarterHeight: (container.offsetHeight * 3) / 4
-                  });
-
+                  // const   = list1.offsetHeight - container.offsetHeight;
+               
                   if (
                     currentScroll > (container.offsetHeight * 3) / 4 &&
                     list1.offsetHeight - container.offsetHeight < currentScroll
                   ) {
-                    console.log('触发底部追加');
                     appendToDown();
                     for (let i = 0; i < liDefaultValues.length; i++) {
                       container.querySelector('ul li')?.remove();
@@ -301,7 +284,6 @@ export default function (editor: Editor) {
                     currentScroll < container.offsetHeight / 4 &&
                     container.scrollTop < container.offsetHeight - ulDefaultHeight
                   ) {
-                    console.log('触发顶部追加');
                     appendToUp();
                     for (let i = 0; i < liDefaultValues.length; i++) {
                       container.querySelector('ul li')?.remove();
@@ -310,21 +292,17 @@ export default function (editor: Editor) {
                 });
 
                 function appendToDown() {
-                  console.log('向下追加项目，当前列表高度:', list1.offsetHeight);
                   for (let i = 0; i < liDefaultValues.length; i++) {
                     const node = liDefaultValues[i].cloneNode(true);
                     list1.append(node);
                   }
-                  console.log('向下追加后列表高度:', list1.offsetHeight);
                 }
 
                 function appendToUp() {
-                  console.log('向上追加项目，当前列表高度:', list1.offsetHeight);
                   for (let i = (liDefaultValues.length - 1); i >= 0; i--) {
                     const node = liDefaultValues[i].cloneNode(true);
                     list1.prepend(node);
                   }
-                  console.log('向上追加后列表高度:', list1.offsetHeight);
                 }
 
                 let lastScrollTop = container.scrollTop;
@@ -332,16 +310,15 @@ export default function (editor: Editor) {
                   if (container) {
                     const currentScrollTop = container.scrollTop;
                     const maxScroll = list1.offsetHeight - container.offsetHeight;
-                    console.log('自动滚动:', {
-                      currentScrollTop,
-                      lastScrollTop,
-                      maxScroll,
-                      containerHeight: container.offsetHeight,
-                      listHeight: list1.offsetHeight
-                    });
                     
-                    container.scrollTop = currentScrollTop + 1;
-                    lastScrollTop = currentScrollTop;
+                    // 如果接近底部，重置到顶部
+                    if (currentScrollTop >= maxScroll - 10) {
+                      container.scrollTop = 0;
+                      lastScrollTop = 0;
+                    } else {
+                      container.scrollTop = currentScrollTop + 1;
+                      lastScrollTop = currentScrollTop;
+                    }
                   }
                 }, 50);
               }
