@@ -112,17 +112,25 @@ class PayButtonPlugin extends BasePluginV5 {
                                     // 获取用户信息
                                     let userInfo: any = null;
                                     try {
+                                        // 使用wx.login替代wx.getUserInfo
                                         const userInfoPromise = new Promise<any>((resolve, reject) => {
-                                            wx.getUserInfo({
-                                                success: function (res) {
-                                                    console.log(res.userInfo); // 包含用户的昵称、头像等信息
-                                                    resolve(res.userInfo);
-                                                },
-                                                fail: function (res) {
-                                                    console.log('获取用户信息失败！' + res.errMsg);
-                                                    reject(res.errMsg);
-                                                }
-                                            });
+                                            // 判断是否有wx.login API
+                                            if (wx.login) {
+                                                wx.login({
+                                                    success: function(loginRes) {
+                                                        console.log('获取登录凭证成功', loginRes.code);
+                                                        // 只传递code，后端通过code获取用户信息
+                                                        resolve({ code: loginRes.code });
+                                                    },
+                                                    fail: function(res) {
+                                                        console.log('登录失败：' + res.errMsg);
+                                                        reject(res.errMsg);
+                                                    }
+                                                });
+                                            } else {
+                                                console.log('当前环境不支持wx.login');
+                                                reject('当前环境不支持wx.login');
+                                            }
                                         });
                                         
                                         // 设置超时，避免阻塞支付流程
@@ -131,7 +139,7 @@ class PayButtonPlugin extends BasePluginV5 {
                                             new Promise<null>(resolve => setTimeout(() => resolve(null), 2000))
                                         ]);
                                     } catch (error) {
-                                        console.error('获取用户信息出错:', error);
+                                        console.error('获取用户登录凭证出错:', error);
                                         // 继续支付流程，不阻塞
                                     }
 
@@ -146,7 +154,7 @@ class PayButtonPlugin extends BasePluginV5 {
                                             amount,
                                             issueId,
                                             openid,
-                                            userInfo // 添加用户信息
+                                            userInfo // 现在userInfo包含code，后端可用于获取用户信息
                                         })
                                     })
 
