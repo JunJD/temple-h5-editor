@@ -15,7 +15,10 @@ export interface Props extends React.HTMLProps<HTMLDivElement> {
 }
 
 export default function SectorTypography({ sector }: Props) {
-  const renderField = (prop: any, type: 'number' | 'color' | 'select') => (
+  const renderField = (prop: any, type: 'number' | 'color' | 'select') => {
+    if (!prop) return null;
+    
+    return (
     <div className="space-y-1.5">
       <Label className="text-xs font-medium text-foreground/70">
         {prop.getLabel()}
@@ -43,7 +46,9 @@ export default function SectorTypography({ sector }: Props) {
         </Select>
       )}
     </div>
-  )
+  )}
+
+  const textAlignLastProp = sector.getProperty('text-align-last');
 
   return (
     <div className="space-y-4">
@@ -69,7 +74,7 @@ export default function SectorTypography({ sector }: Props) {
       <div className="grid grid-cols-2 gap-4">
         {renderField(sector.getProperty('text-align'), 'select')}
         {renderField(sector.getProperty('text-decoration'), 'select')}
-        {renderField(sector.getProperty('text-align-last'), 'select')}
+        {textAlignLastProp && renderField(textAlignLastProp, 'select')}
       </div>
 
       {/* Text Transform & Direction */}
