@@ -8,6 +8,7 @@ import { CASCADE_SELECTOR_TYPES } from '../linkage-form/constants';
 import { FormField } from '@/schemas';
 import { OPtion } from '..';
 import { PAY_BUTTON_TYPE } from '../pay-button';
+import { CascadeSelectorOptions, DEFAULT_OPTIONS } from '../linkage-form/form-item/cascade-selector/constants';
 
 interface FormComponent {
     type: string;
@@ -18,9 +19,14 @@ interface FormComponent {
     [key: string]: any;
 }
 
+interface FormConfig {
+    fields: FormField[];
+    goodsOptions?: CascadeSelectorOptions;
+}
+
 class ConfigurableFormPlugin extends BasePluginV5 {
     private dialogRoot: Root | null = null;
-    private config = {
+    private config: FormConfig = {
         fields: [
             {
                 name: 'amount',
@@ -28,16 +34,23 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                 type: 'input-group',
                 required: true,
                 suffix: '元',
-                placeholder: '请输入金额'
+                placeholder: '请输入金额',
+                expression: ''
             }
-        ] as FormField[]
+        ],
+        goodsOptions: DEFAULT_OPTIONS
     };
 
     constructor(editor: Editor,  options: OPtion) {
         super(editor, options);
         this.options = options
-        if(options.formConfig && options.formConfig.fields.length > 0) {
-            this.config.fields = options.formConfig.fields
+        if(options.formConfig) {
+            if(options.formConfig.fields.length > 0) {
+                this.config.fields = options.formConfig.fields;
+            }
+            if(options.formConfig.goodsOptions) {
+                this.config.goodsOptions = options.formConfig.goodsOptions;
+            }
         }
     }
 
@@ -62,7 +75,7 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                         }}
                         onSave={(newConfig) => {
                             this.config = newConfig;
-                            this.options.updateFormConfig!(newConfig)
+                            this.options.updateFormConfig!(newConfig as any)
                             this.updateFormComponent();
                         }}
                         initialConfig={this.config}
@@ -111,6 +124,19 @@ class ConfigurableFormPlugin extends BasePluginV5 {
             // 保持头部和尾部不变
             const headerComponent = existingFields[0];
             const footerComponent = existingFields[existingFields.length - 1];
+
+            // 更新头部商品选择器组件的配置
+            if (headerComponent) {
+                const cascadeSelector = headerComponent.findType(CASCADE_SELECTOR_TYPES['cascade-selector'])[0];
+                if (cascadeSelector) {
+                    // 直接设置新的选项数据，不再使用traits
+                    cascadeSelector.set('options', this.config.goodsOptions);
+                    // 触发重渲染
+                    cascadeSelector.trigger('rerender');
+                    // 触发change:options事件，这会自动调用updateComponents
+                    cascadeSelector.trigger('change:options', cascadeSelector, this.config.goodsOptions);
+                }
+            }
 
             // 清除中间的字段（保留头尾）
             const currentFieldComponents = existingFields.slice(1, -1);
@@ -166,7 +192,8 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                     },
                     {
                         type: CASCADE_SELECTOR_TYPES['cascade-selector'],
-                        required: true
+                        required: true,
+                        options: this.config.goodsOptions
                     }
                 ],
             },

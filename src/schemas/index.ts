@@ -45,7 +45,7 @@ export const formFieldSchema = z.object({
   required: z.boolean().default(false),
   suffix: z.string(),
   defaultValue: z.any().optional(),
-  expression: z.string(),
+  expression: z.string().optional(),
   placeholder: z.string(),
   options: z.array(z.object({
     label: z.string(),
@@ -54,11 +54,12 @@ export const formFieldSchema = z.object({
   })).optional(),
 })
 
-// 修改表单配置 schema，添加计算规则
+// 修改表单配置 schema，添加商品选择器配置
 export const formConfigSchema = z.object({
   fields: z.array(formFieldSchema),
   // layout: z.enum(['vertical', 'horizontal']).default('vertical'),
   submitButtonText: z.string().default('提交'),
+  goodsOptions: z.any().optional(),
   // calculations: z.array(z.object({        // 金额计算规则
   //   targetField: z.string(),              // 计算结果存储字段
   //   rule: calculationSchema,              // 计算规则

@@ -16,8 +16,8 @@ import PayButtonPlugin from './pay-button';
 export interface OPtion extends PluginOptions {
   cssAssert?: string;
   jsAssert?: string;
-  formConfig?: FormConfig,
-  updateFormConfig?: (newConfig: Partial<FormConfig>) => void
+  formConfig?: FormConfig;
+  updateFormConfig?: (newConfig: FormConfig) => void;
 }
 
 export default (editor: Editor, opts: OPtion) => {

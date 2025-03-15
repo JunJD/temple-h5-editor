@@ -182,7 +182,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                     if (!this.get('options')) {
                         this.set('options', DEFAULT_OPTIONS);
                     }
-                    this.on('change:options', this.handleOptionsChange);
+                    this.listenTo(this, 'change:options', this.handleOptionsChange);
                 },
 
                 handleOptionsChange() {

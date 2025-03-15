@@ -25,7 +25,7 @@ export const DEFAULT_OPTIONS: CascadeSelectorOptions = {
     level1: [
         {
             id: 'l1_1',
-            label: '花果供佛',
+            label: '花果供佛22',
             value: 'flower',
             image: DEFAULT_OPTION_IMAGE
         },
