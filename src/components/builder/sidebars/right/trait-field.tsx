@@ -11,7 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { PopoverPicker } from './PopoverPicker'
 import { RichInput } from '@/components/ui/rich-input'
-import { OptionsManager } from './OptionsManager'
+// import { OptionsManager } from './OptionsManager'
 
 interface TraitFieldProps {
   trait: Trait
@@ -172,8 +172,8 @@ export function TraitField({ trait }: TraitFieldProps) {
         </div>
       )
 
-    case 'custom-options-manager':
-      return <OptionsManager trait={trait} />
+    // case 'custom-options-manager':
+    //   return <OptionsManager trait={trait} />
 
     case 'color':
       return (

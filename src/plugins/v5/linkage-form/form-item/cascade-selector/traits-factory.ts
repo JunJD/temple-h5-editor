@@ -161,19 +161,19 @@ export class CascadeSelectorTraitsFactory extends BaseTraitsFactory {
                 default: '#a67c37'
             },
             // 一级选项管理
-            {
-                type: 'custom-options-manager',
-                label: '一级选项',
-                name: 'level1-options',
-                attributes: { isLevel2: false }
-            },
-            // 二级选项管理
-            {
-                type: 'custom-options-manager',
-                label: '二级选项',
-                name: 'level2-options',
-                attributes: { isLevel2: true }
-            }
+            // {
+            //     type: 'custom-options-manager',
+            //     label: '一级选项',
+            //     name: 'level1-options',
+            //     attributes: { isLevel2: false }
+            // },
+            // // 二级选项管理
+            // {
+            //     type: 'custom-options-manager',
+            //     label: '二级选项',
+            //     name: 'level2-options',
+            //     attributes: { isLevel2: true }
+            // }
         ];
     }
 } 

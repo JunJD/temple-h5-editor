@@ -195,7 +195,7 @@ export default function (editor: Editor) {
             transition: all 0.2s ease-in-out;
           }
         `,
-        'script-props': ['apiUrl', 'template', 'template', 'autoScroll', 'textAlign', 'textColor', 'fontSize', 'fontWeight', 'backgroundColor', 'borderColor'],
+        'script-props': ['apiUrl', 'template', 'autoScroll', 'textAlign', 'textColor', 'fontSize', 'fontWeight', 'backgroundColor', 'borderColor'],
         script: function (props) {
           const el = this;
           const apiUrl = props.apiUrl || '/api/list';
@@ -207,21 +207,30 @@ export default function (editor: Editor) {
           const fontWeight = props.fontWeight || '400';
           const backgroundColor = props.backgroundColor || '#f8f9fa';
           const borderColor = props.borderColor || '#dee2e6';
-
+          console.log('props===》', props);
           const fetchAndRender = async () => {
             try {
-              let data;
+              let data = [
+                { name: '示例项目1', value: '¥1,234.00' },
+                { name: '示例项目2', value: '¥2,345.00' },
+                { name: '示例项目3', value: '¥3,456.00' },
+                { name: '示例项目4', value: '¥4,567.00' },
+                { name: '示例项目5', value: '¥5,678.00' },
+              ];
               if (!(window as any).editor) {
-                data = [
-                  { name: '示例项目1', value: '¥1,234.00' },
-                  { name: '示例项目2', value: '¥2,345.00' },
-                  { name: '示例项目3', value: '¥3,456.00' },
-                  { name: '示例项目4', value: '¥4,567.00' },
-                  { name: '示例项目5', value: '¥5,678.00' },
-                ];
-              } else {
-                const response = await fetch(apiUrl);
-                data = await response.json();
+                try {
+                  const response = await fetch(apiUrl);
+                  const result = await response.json();
+                  data = result.data.map((item)=>{
+                    return {
+                      ...item,
+                      ...(item.formData ?? {})
+                    }
+                  })
+                  console.log('data', data);
+                } catch (error) {
+                  
+                }
               }
 
               const container = document.createElement('div');
@@ -333,6 +342,7 @@ export default function (editor: Editor) {
     },
     view: {
       init() {
+        console.log('init');
         this.listenTo(this.model, 'change:traits', this.render);
       }
     }
