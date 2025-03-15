@@ -430,7 +430,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                     traits: [
                         ...CascadeSelectorTraitsFactory.getOptionSettingTraits(),
                         ...CascadeSelectorTraitsFactory.getImageSettingTraits(),
-                        CascadeSelectorTraitsFactory.getRemoveOptionTrait(),
+                        // CascadeSelectorTraitsFactory.getRemoveOptionTrait(),
                         {
                             type: 'select',
                             name: 'button-size',

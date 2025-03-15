@@ -69,36 +69,36 @@ export class CascadeSelectorTraitsFactory extends BaseTraitsFactory {
     }
 
     // 添加选项按钮
-    static getAddOptionTrait() {
-        return {
-            type: 'button',
-            label: '添加选项',
-            name: 'add-option',
-            text: '添加',
-            command: (editor, trait) => {
-                const component = trait.target;
-                if (component) {
-                    component.addNewOption();
-                }
-            }
-        };
-    }
+    // static getAddOptionTrait() {
+    //     return {
+    //         type: 'button',
+    //         label: '添加选项',
+    //         name: 'add-option',
+    //         text: '添加',
+    //         command: (editor, trait) => {
+    //             const component = trait.target;
+    //             if (component) {
+    //                 component.addNewOption();
+    //             }
+    //         }
+    //     };
+    // }
 
     // 删除选项按钮
-    static getRemoveOptionTrait() {
-        return {
-            type: 'button',
-            label: '删除选项',
-            name: 'remove-option',
-            text: '删除',
-            command: (editor, trait) => {
-                const component = trait.target;
-                if (component) {
-                    component.remove();
-                }
-            }
-        };
-    }
+    // static getRemoveOptionTrait() {
+    //     return {
+    //         type: 'button',
+    //         label: '删除选项',
+    //         name: 'remove-option',
+    //         text: '删除',
+    //         command: (editor, trait) => {
+    //             const component = trait.target;
+    //             if (component) {
+    //                 component.remove();
+    //             }
+    //         }
+    //     };
+    // }
 
     // 选项基本设置
     static getOptionSettingTraits() {

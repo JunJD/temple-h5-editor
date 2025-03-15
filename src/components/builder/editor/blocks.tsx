@@ -84,14 +84,14 @@ export const blocks: BlockProperties[] = [
   },
 
   // 表单组件
-  {
-    id: 'form',
-    label: '表单',
-    category: 'form',
-    media: BlockIcon(icons.form),
-    content: {
-      type: 'form',
-      attributes: { class: 'form' }
-    }
-  }
+  // {
+  //   id: 'form',
+  //   label: '表单',
+  //   category: 'form',
+  //   media: BlockIcon(icons.form),
+  //   content: {
+  //     type: 'form',
+  //     attributes: { class: 'form' }
+  //   }
+  // }
 ] 
