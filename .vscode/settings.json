@@ -20,6 +20,7 @@
     "NEXTAUTH",
     "NOAUTH",
     "noce",
+    "noncestr",
     "nums",
     "pixelize",
     "rulerz",

@@ -81,6 +81,19 @@ class PayButtonPlugin extends BasePluginV5 {
                                     const amount = formData.amount || formData.totalAmount || 0
                                     const openid = new URLSearchParams(window.location.search).get('openid')
                                     const issueId = window.location.pathname.split('/').pop()
+                                    
+                                    // 尝试从URL参数中获取用户信息
+                                    let userInfo = null;
+                                    try {
+                                        const userInfoStr = new URLSearchParams(window.location.search).get('user_info');
+                                        if (userInfoStr) {
+                                            userInfo = JSON.parse(decodeURIComponent(userInfoStr));
+                                            console.log('从URL参数获取到用户信息:', userInfo);
+                                        }
+                                    } catch (error) {
+                                        console.error('解析用户信息失败:', error);
+                                    }
+                                    
                                     console.log('表单完整数据:', formData)
                                     console.log('支付金额:', amount)
                                     console.log('OpenID:', openid)
@@ -109,40 +122,6 @@ class PayButtonPlugin extends BasePluginV5 {
                                         throw new Error('未检测到微信JS SDK')
                                     }
 
-                                    // 获取用户信息
-                                    let userInfo: any = null;
-                                    try {
-                                        // 使用wx.login替代wx.getUserInfo
-                                        const userInfoPromise = new Promise<any>((resolve, reject) => {
-                                            // 判断是否有wx.login API
-                                            if (wx.login) {
-                                                wx.login({
-                                                    success: function(loginRes) {
-                                                        console.log('获取登录凭证成功', loginRes.code);
-                                                        // 只传递code，后端通过code获取用户信息
-                                                        resolve({ code: loginRes.code });
-                                                    },
-                                                    fail: function(res) {
-                                                        console.log('登录失败：' + res.errMsg);
-                                                        reject(res.errMsg);
-                                                    }
-                                                });
-                                            } else {
-                                                console.log('当前环境不支持wx.login');
-                                                reject('当前环境不支持wx.login');
-                                            }
-                                        });
-                                        
-                                        // 设置超时，避免阻塞支付流程
-                                        userInfo = await Promise.race([
-                                            userInfoPromise,
-                                            new Promise<null>(resolve => setTimeout(() => resolve(null), 2000))
-                                        ]);
-                                    } catch (error) {
-                                        console.error('获取用户登录凭证出错:', error);
-                                        // 继续支付流程，不阻塞
-                                    }
-
                                     // 调用创建支付订单API
                                     const createRes = await fetch('/api/payment/create', {
                                         method: 'POST',
@@ -154,7 +133,7 @@ class PayButtonPlugin extends BasePluginV5 {
                                             amount,
                                             issueId,
                                             openid,
-                                            userInfo // 现在userInfo包含code，后端可用于获取用户信息
+                                            userInfo
                                         })
                                     })
 

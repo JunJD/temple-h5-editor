@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
+import { getUserInfo } from '@/lib/wechat-api';
 
 class WechatAuthService {
     private static instance: WechatAuthService;
@@ -55,11 +56,32 @@ export async function GET(request: Request) {
             // 获取 openid
             const openid = await wechatAuth.getOpenid(code);
             
+            // 尝试获取用户信息
+            let userInfo = null;
+            try {
+                // 使用共享模块获取用户信息
+                userInfo = await getUserInfo(openid);
+                console.log('获取用户信息成功:', userInfo);
+            } catch (error) {
+                console.error('获取用户信息失败，继续处理:', error);
+                // 不阻断流程，继续处理
+            }
+            
             // 解码原始URL并添加openid参数
             const originalUrl = decodeURIComponent(state || '');
             // 直接使用原始URL，因为state中已经包含了正确的域名
             const redirectUrl = new URL(originalUrl);
             redirectUrl.searchParams.set('openid', openid);
+            
+            // 如果成功获取了用户信息，添加到URL参数
+            if (userInfo) {
+                // 将用户信息转为 JSON 字符串并编码，避免 URL 参数问题
+                const userInfoStr = encodeURIComponent(JSON.stringify(userInfo));
+                // 如果数据太大，可能需要考虑存储在数据库或缓存中
+                if (userInfoStr.length < 1500) { // 避免 URL 过长
+                    redirectUrl.searchParams.set('user_info', userInfoStr);
+                }
+            }
             
             // 使用完整的URL进行重定向
             const finalUrl = redirectUrl.toString();
