@@ -23,7 +23,7 @@ export async function updateIssue(id: string, content: {
             }
         })
 
-        revalidatePath(`/client/issues/${id}`)
+        // revalidatePath(`/client/issues/${id}`)
         return actionData(newIssue)
     } catch (error) {
         console.error('Issue creation failed:', error instanceof Error ? error.message : String(error))

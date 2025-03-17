@@ -5,6 +5,7 @@ import zh from 'grapesjs/locale/zh';
 import grapesjs from 'grapesjs';
 import type { Editor, EditorConfig, ObjectAny } from 'grapesjs'
 import { devices } from '@/lib/constants/devices'
+import { toast } from '@/hooks/use-toast'
 
 // import { useState } from 'react'
 import LinkageForm from '@/plugins/linkageForm'
@@ -29,6 +30,7 @@ import gjsStyleBg from 'grapesjs-style-bg';
 import gjsStyleFilter from 'grapesjs-style-filter';
 import gjsStyleGradient from 'grapesjs-style-gradient';
 import gjsTuiImageEditor from 'grapesjs-tui-image-editor';
+import autoSavePlugin from '@/plugins/autoSave';
 import { styleManager } from './config/styleManager';
 import 'grapesjs/dist/css/grapes.min.css';
 import '@/styles/grapesjs.css';
@@ -69,6 +71,20 @@ export default function BuilderEditor({ children, projectData, id, formConfig }:
             [v5 as unknown as string]: {
               formConfig,
               updateFormConfig
+            },
+            [autoSavePlugin as unknown as string]: {
+              debounceTime: 1000, // 设置为1秒防抖时间
+              beforeSave: () => console.log('准备自动保存...'),
+              afterSave: () => {
+                console.log('自动保存成功');
+                // 不在这里显示toast，交由builder-header组件处理
+              },
+              onError: (error: any) => {
+                console.error('自动保存失败:', error);
+                // 不在这里显示toast，交由builder-header组件处理
+              },
+              pageId: id, // 将页面ID传递给自动保存插件
+              showToast: false // 不显示每次自动保存的提示，避免过多通知干扰用户
             }
           }
         }}
@@ -100,6 +116,7 @@ export default function BuilderEditor({ children, projectData, id, formConfig }:
           gjsStyleFilter,
           gjsStyleGradient,
           gjsTuiImageEditor,
+          autoSavePlugin,
         ]}
         onReady={onEditor}
       >

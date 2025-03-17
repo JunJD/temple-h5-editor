@@ -278,6 +278,7 @@ export default function SectorBackground({ sector }: Props) {
                 <Select
                   value={propSize.getValue()}
                   onValueChange={value => {
+                    console.log('value', value)
                     if (value === 'custom') {
                       propSize.upValue('100% 100%');
                     } else {
