@@ -736,18 +736,16 @@ export const styleManager = {
                 }))
               },
               {
-                // Keyword: contain | cover; One-value syntax; Two-value syntax
                 property: 'background-size',
-                type: 'composite',
-                properties: [
-                  'background-size-x',
-                  'background-size-y',
-                ].map(prop => ({
-                  type: 'integer',
-                  property: prop,
-                  units: unitsSize,
-                  default: 'auto',
-                }))
+                type: 'select',
+                default: 'auto',
+                options: [
+                  { id: 'cover', label: '填充' },
+                  { id: 'contain', label: '包含' },
+                  { id: '100% 100%', label: '拉伸' },
+                  { id: 'auto', label: '自动' },
+                  { id: 'custom', label: '自定义' },
+                ]
               },
               {
                 property: 'background-repeat', // box (x, y)
