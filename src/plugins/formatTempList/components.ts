@@ -110,7 +110,7 @@ export default function (editor: Editor) {
             default: '<span class="temp-item-name">${name}</span>: <span class="temp-item-value">${value}</span>',
             changeProp: true,
             attributes: {
-              mentionItems: [ 'name', 'value' ]
+              mentionItems: [ 'amount', 'name' ]
             }
           },
           {
