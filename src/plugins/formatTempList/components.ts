@@ -109,6 +109,9 @@ export default function (editor: Editor) {
             label: '格式化模板',
             default: '<span class="temp-item-name">${name}</span>: <span class="temp-item-value">${value}</span>',
             changeProp: true,
+            attributes: {
+              mentionItems: [ 'name', 'value' ]
+            }
           },
           {
             type: 'select',
@@ -207,7 +210,7 @@ export default function (editor: Editor) {
           const fontWeight = props.fontWeight || '400';
           const backgroundColor = props.backgroundColor || '#f8f9fa';
           const borderColor = props.borderColor || '#dee2e6';
-          console.log('props===》', props);
+
           const fetchAndRender = async () => {
             try {
               let data = [

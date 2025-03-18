@@ -367,13 +367,12 @@ export class GridComponents extends BaseLoadComponents {
                     'custom-name': '列2',
                     'script-props': ['col-base', 'align-self', 'offset', 'order', 'margin'],
                     script: function(props) {
-                        console.log('props', props);
                         const updateClasses = function(props) {
                             const el = this;
                             
                             // 处理 col-base
                             const colBase = props['col-base'];
-                            console.log(colBase, "colBase !== undefined");
+
                             if (colBase !== undefined) {
                                 const colClasses = el.className.split(' ')
                                     .filter(cls => cls.startsWith('col-') || cls === 'col');

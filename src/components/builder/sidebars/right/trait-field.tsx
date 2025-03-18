@@ -193,6 +193,7 @@ export function TraitField({ trait }: TraitFieldProps) {
           <RichInput
             content={value}
             className="focus-visible:ring-1 focus-visible:ring-offset-0 border-input"
+            mentionItems={trait.get('attributes')?.mentionItems}
             onChange={(value) => {
               handleChange(value);
             }}

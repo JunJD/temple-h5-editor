@@ -69,6 +69,7 @@ class ConfigurableFormPlugin extends BasePluginV5 {
 
                 this.dialogRoot.render(
                     <FormConfigDialog
+                        editor={this.editor}
                         open={true}
                         onOpenChange={() => {
                             this.editor.Commands.stop('configurable-form');
