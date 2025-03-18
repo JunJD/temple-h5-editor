@@ -214,13 +214,13 @@ export default function (editor: Editor) {
           const fetchAndRender = async () => {
             try {
               let data = [
-                { name: '示例项目1', value: '¥1,234.00' },
-                { name: '示例项目2', value: '¥2,345.00' },
-                { name: '示例项目3', value: '¥3,456.00' },
-                { name: '示例项目4', value: '¥4,567.00' },
-                { name: '示例项目5', value: '¥5,678.00' },
+                { name: '张三', amount: '¥1,234.00' },
+                { name: '李四', amount: '¥2,345.00' },
+                { name: '王五', amount: '¥3,456.00' },
+                { name: '赵六', amount: '¥4,567.00' },
+                { name: '孙七', amount: '¥5,678.00' },
               ];
-              if (!(window as any).editor) {
+              if ((window as any).editor) {
                 try {
                   const response = await fetch(apiUrl);
                   const result = await response.json();
