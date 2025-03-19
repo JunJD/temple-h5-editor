@@ -15,33 +15,19 @@ export default function(editor: Editor) {
         tagName: 'form',
         droppable: ':not(form)',
         draggable: ':not(form)',
-        attributes: { method: 'get' },
-        traits: [
-          {
-            type: 'select',
-            name: 'method',
-            options: [
-              {id: 'get', value: 'get', name: 'GET'},
-              {id: 'post', value: 'post', name: 'POST'},
-            ],
-          },
-          {
-            type: 'text',
-            name: 'submitUrl',
-            label: '提交地址',
-          }
-        ],
         style: {
         },
-        'script-props': ['formData', 'submitUrl'],
+        'script-props': ['formData', 'columns'],
         script: function(props) {
           const el = this;
-          const submitUrl = props.submitUrl;
           
           const form = {
             // 表单数据对象
-            formData: {},
-            
+            formData: props.formData,
+            columns: props.columns,
+            getColumns() {
+              return this.columns;
+            },
             /**
              * 更新字段值并触发联动
              * @param name 字段名
@@ -95,34 +81,6 @@ export default function(editor: Editor) {
 
           // 将 form 对象挂载到元素上
           (el as any).gForm = form;
-
-          // 监听表单提交
-          el.addEventListener('form:submit', async (e) => {
-            const formData = e.detail.formData;
-
-            if (submitUrl) {
-              try {
-                const response = await fetch(submitUrl, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify(formData)
-                });
-                console.log('response', response);
-                const result = await response.json();
-                const submitResultEvent = new CustomEvent('form:submit:result', {
-                  detail: { success: true, data: result }
-                });
-                el.dispatchEvent(submitResultEvent);
-              } catch (error) {
-                const submitResultEvent = new CustomEvent('form:submit:result', {
-                  detail: { success: false, error }
-                });
-                el.dispatchEvent(submitResultEvent);
-              }
-            }
-          });
         }
       },
 
@@ -131,23 +89,6 @@ export default function(editor: Editor) {
         this.set('formData', {});
       },
 
-      // 提供给子组件的方法
-      // updateField(name, value) {
-      //   const formData = this.get('formData');
-      //   formData[name] = value;
-      //   this.set('formData', { ...formData });
-        
-      //   // 触发数据变化事件，用于联动计算
-      //   this.trigger('form:data:change', { name, value, formData });
-      // },
-
-      // getField(name: string) {
-      //   return this.get('formData')[name];
-      // },
-
-      // getData() {
-      //   return this.get('formData');
-      // }
     },
   });
 
@@ -235,10 +176,29 @@ export default function(editor: Editor) {
       init() {
         this.on('change:attributes:name', this.handleNameChange);
         this.on('change:attributes:label', this.handleLabelChange);
+        
+        // 初始化时确保属性同步到DOM
+        this.updateHtmlAttributes();
+      },
+
+      // 更新HTML元素属性
+      updateHtmlAttributes() {
+        const attrs = this.getAttributes();
+        if (this.view && this.view.el) {
+          if (attrs.name) {
+            this.view.el.setAttribute('name', attrs.name);
+          }
+          if (attrs.label) {
+            this.view.el.setAttribute('label', attrs.label);
+          }
+        }
       },
 
       handleNameChange() {
         const name = this.getAttributes().name;
+        // 更新DOM元素上的name属性
+        this.view.el.setAttribute('name', name);
+        
         // 查找父级 form
         const form = this.closest(typeForm);
         if (form && name) {
@@ -257,6 +217,10 @@ export default function(editor: Editor) {
       },
 
       handleLabelChange() {
+        const label = this.getAttributes().label;
+        // 更新DOM元素上的label属性
+        this.view.el.setAttribute('label', label);
+        
         // 标签变化时重新渲染
         this.view.render();
       }

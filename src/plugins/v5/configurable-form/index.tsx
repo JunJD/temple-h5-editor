@@ -51,11 +51,66 @@ class ConfigurableFormPlugin extends BasePluginV5 {
             if(options.formConfig.goodsOptions) {
                 this.config.goodsOptions = options.formConfig.goodsOptions;
             }
+            
+            // 初始加载时更新表单组件
+            setTimeout(() => {
+                this.updateFormComponent();
+                this.updateFormDataAndColumns();
+            }, 200); // 延迟执行，确保组件已加载
         }
     }
 
     load(): void {
         this._loadCommands();
+    }
+
+    /**
+     * 更新表单组件的formData和columns数据
+     * @param config 可选，自定义配置，默认使用this.config
+     */
+    private updateFormDataAndColumns(config = this.config) {
+        // 更新表单组件的formData和columns
+        const wrapper = this.editor.Components.getWrapper();
+        const formComponent = wrapper?.find('form')[0];
+        if (formComponent) {
+            // 获取表单DOM元素
+            const formEl = formComponent.getEl();
+            // 通过类型断言访问gForm属性
+            const gForm = formEl && (formEl as any).gForm;
+            
+            if (gForm) {
+                // 将表单字段转换为formData格式
+                const formData: Record<string, any> = {};
+                
+                // 构建columns数据，表示字段名和标签的关系
+                const columns: Array<{label: string, value: string, required: boolean}> = [];
+                
+                // 添加商品选择器对应的列信息
+                columns.push({
+                    label: '选择项目',
+                    value: 'goods',
+                    required: true
+                });
+                
+                config.fields.forEach(field => {
+                    // 更新formData
+                    formData[field.name] = field.defaultValue || '';
+                    
+                    // 更新columns
+                    columns.push({
+                        label: field.label,
+                        value: field.name,
+                        required: true
+                    });
+                });
+                
+                // 调用form组件的方法更新数据
+                gForm.setData(formData);
+                gForm.columns = columns;
+                
+                console.log('表单数据已更新:', { formData, columns });
+            }
+        }
     }
 
     _loadCommands(): void {
@@ -78,6 +133,7 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                             this.config = newConfig;
                             this.options.updateFormConfig!(newConfig as any)
                             this.updateFormComponent();
+                            this.updateFormDataAndColumns(newConfig);
                         }}
                         initialConfig={this.config}
                     />
