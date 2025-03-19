@@ -56,7 +56,10 @@ export function PopoverPicker({ color, onChange, className }: PopoverPickerProps
       </Popover>
       <Input
         value={currentColor}
-        onChange={e => onChange(e.target.value)}
+        onChange={e => {
+          setCurrentColor(e.target.value)
+          onChange(e.target.value)
+        }}
         className="h-8 flex-1"
         placeholder="#000000"
       />
