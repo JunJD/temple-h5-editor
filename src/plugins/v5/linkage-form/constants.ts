@@ -1,5 +1,6 @@
 export const LINKAGE_FORM_TYPES = {
     'input-group': 'input-group',
+    'input-group-text': 'input-group-text',
     'input-group-rich-text': 'input-group-rich-text',
     'input-number-group': 'input-number-group',
     // 级联选择器
