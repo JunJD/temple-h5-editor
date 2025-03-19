@@ -41,7 +41,7 @@ export const calculationSchema = z.object({
 export const formFieldSchema = z.object({
   name: z.string(),
   label: z.string(),
-  type: z.enum(['input-group', 'input-group-rich-text', 'input-number-group', 'cascade-selector']),
+  type: z.enum(['input-group', 'input-group-text', 'input-group-rich-text', 'input-number-group', 'cascade-selector']),
   required: z.boolean().default(false),
   suffix: z.string(),
   defaultValue: z.any().optional(),
