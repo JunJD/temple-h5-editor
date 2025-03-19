@@ -96,3 +96,11 @@ enum RefundStatus {
   SUCCESS    // 退款成功
   FAILED     // 退款失败
 }
+
+model ImageAsset {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   // 图片名称
+  url         String   // 阿里云 OSS URL
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}

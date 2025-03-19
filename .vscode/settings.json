@@ -1,7 +1,9 @@
 {
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "cSpell.words": [
+    "ALIYUN",
     "aliyuncs",
+    "apiclient",
     "artboard",
     "Calsss",
     "Classs",
@@ -14,6 +16,7 @@
     "gjsblockbasic",
     "grapesjs",
     "JSAPI",
+    "LTAI",
     "mchid",
     "mergable",
     "movecb",
@@ -30,10 +33,12 @@
     "tccqwbmfjjvf",
     "tiptap",
     "toggleable",
+    "Vfhuv",
     "Wechat",
     "weiruanyahei",
     "Weixin",
     "Wpforms",
+    "wuxicdn",
     "WXPAY"
   ]
 }

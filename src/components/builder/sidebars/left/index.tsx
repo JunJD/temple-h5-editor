@@ -1,14 +1,15 @@
 'use client'
 
-import { GoListUnordered, GoPackage } from 'react-icons/go'
+import { GoListUnordered, GoPackage, GoImage } from 'react-icons/go'
 import { Button } from '@/components/ui'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { BlocksProvider } from '@grapesjs/react'
 import { CustomBlockManager } from './block-manager'
 import { useState } from 'react'
 import { LayerManager } from './layer-manager'
+import { ImageLibrary } from './image-library'
 
-type TabType = 'blocks' | 'layers'
+type TabType = 'blocks' | 'layers' | 'images'
 
 export const LeftSidebar = () => {
   const [activeTab, setActiveTab] = useState<TabType>('blocks')
@@ -46,6 +47,20 @@ export const LeftSidebar = () => {
               </TooltipTrigger>
               <TooltipContent side="right">大纲树</TooltipContent>
             </Tooltip>
+
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  size="icon"
+                  variant={activeTab === 'images' ? 'default' : 'ghost'}
+                  className="size-8 rounded-full"
+                  onClick={() => setActiveTab('images')}
+                >
+                  <GoImage size={14} />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">图片库</TooltipContent>
+            </Tooltip>
           </div>
         </div>
 
@@ -55,8 +70,10 @@ export const LeftSidebar = () => {
             <BlocksProvider>
               {(props) => <CustomBlockManager {...props} />}
             </BlocksProvider>
-          ) : (
+          ) : activeTab === 'layers' ? (
             <LayerManager />
+          ) : (
+            <ImageLibrary />
           )}
         </div>
       </div>

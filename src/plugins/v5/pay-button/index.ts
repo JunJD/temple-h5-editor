@@ -23,21 +23,37 @@ class PayButtonPlugin extends BasePluginV5 {
                     attributes: { class: 'pay-button' },
                     style: {
                         'width': '60%',
-                        'height': '47.76px',
+                        'height': '56px',
                         'color': '#fff',
-                        'background-color': '#07c160',
+                        'background-color': '#a77c37',
                         'border': 'none',
-                        'border-radius': '7.96px',
-                        'margin': '31.84px 0',
-                        'font-size': '19.9px',
+                        'border-radius': '8px',
+                        'margin': '30px auto',
+                        'font-size': '18px',
+                        'font-weight': '500',
                         'padding': '0',
                         'display': 'flex',
                         'justify-content': 'center',
                         'align-items': 'center',
                         'cursor': 'pointer',
+                        'box-shadow': '0 4px 10px rgba(167, 124, 55, 0.3)',
+                        'transition': 'all 0.3s ease',
+                        '&:hover': {
+                            'background-color': '#8e6b2f',
+                            'box-shadow': '0 6px 15px rgba(167, 124, 55, 0.4)',
+                            'transform': 'translateY(-2px)'
+                        },
+                        '&:active': {
+                            'background-color': '#a77c37',
+                            'box-shadow': '0 2px 5px rgba(167, 124, 55, 0.4)',
+                            'transform': 'translateY(1px)'
+                        },
                         '&:disabled': {
-                            'opacity': '0.5',
-                            'cursor': 'not-allowed'
+                            'opacity': '0.6',
+                            'cursor': 'not-allowed',
+                            'background-color': '#b89865',
+                            'box-shadow': 'none',
+                            'transform': 'none'
                         }
                     },
                     traits: [
@@ -190,11 +206,7 @@ class PayButtonPlugin extends BasePluginV5 {
 
                 handleDisabledChange() {
                     const disabled = this.get('attributes').disabled
-                    if (disabled) {
-                        this.addClass('opacity-50 cursor-not-allowed')
-                    } else {
-                        this.removeClass('opacity-50 cursor-not-allowed')
-                    }
+                    this.set('attributes', { ...this.get('attributes'), disabled: disabled })
                 }
             }
         })
