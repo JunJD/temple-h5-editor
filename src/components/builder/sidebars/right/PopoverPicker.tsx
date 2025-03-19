@@ -16,7 +16,7 @@ interface PopoverPickerProps {
 export function PopoverPicker({ color, onChange, className }: PopoverPickerProps) {
   const [isOpen, setIsOpen] = useState(false)
   
-  const [currentColor, setCurrentColor] = useState(color)
+  const [currentColor, setCurrentColor] = useState(color || 'transparent')
   
   const popover = useRef<HTMLDivElement>(null)
 
@@ -57,11 +57,11 @@ export function PopoverPicker({ color, onChange, className }: PopoverPickerProps
       <Input
         value={currentColor}
         onChange={e => {
-          setCurrentColor(e.target.value)
-          onChange(e.target.value)
+          setCurrentColor(e.target.value || 'transparent')
+          onChange(e.target.value || 'transparent')
         }}
         className="h-8 flex-1"
-        placeholder="#000000"
+        placeholder={currentColor}
       />
     </div>
   )
