@@ -85,12 +85,22 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                 // 构建columns数据，表示字段名和标签的关系
                 const columns: Array<{label: string, value: string, required: boolean}> = [];
                 
-                // 添加商品选择器对应的列信息
-                columns.push({
-                    label: '选择项目',
-                    value: 'goods',
-                    required: true
-                });
+                config.goodsOptions?.level1.forEach(item => {
+                    columns.push({
+                        label: item.label,
+                        value: item.value as string,
+                        required: false
+                    });
+                })
+                Object.values(config.goodsOptions?.level2 || {}).forEach(item => {
+                    item.forEach(item => {
+                        columns.push({
+                            label: item.label,
+                            value: item.value as string,
+                            required: false
+                        });
+                    })
+                })
                 
                 config.fields.forEach(field => {
                     // 更新formData

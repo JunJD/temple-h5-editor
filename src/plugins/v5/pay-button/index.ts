@@ -96,7 +96,7 @@ class PayButtonPlugin extends BasePluginV5 {
                                     const issueId = window.location.pathname.split('/').pop()
                                     
                                     for (const column of columns) {
-                                        if(formData && column.required && !formData[column.name]) {
+                                        if(formData && column.required && !formData[column.value]) {
                                             alert(`请填写${column.label}`)
                                             return
                                         }
@@ -174,8 +174,8 @@ class PayButtonPlugin extends BasePluginV5 {
                                     })
 
                                 } catch (error) {
-                                    console.error('支付失败:', error)
                                     alert('支付失败,' + (error.message || error || '请重试'))
+                                } finally {
                                     el.disabled = false
                                 }
                             })

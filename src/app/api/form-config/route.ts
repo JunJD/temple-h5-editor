@@ -183,14 +183,25 @@ function generateFormData(formConfig: any) {
  * 根据表单配置生成columns数组
  */
 function generateColumns(formConfig: any) {
-    const columns: Array<{label: string, value: string, required: boolean}> = [
-        // 添加商品选择器
-        {
-            label: '选择项目',
-            value: 'goods',
-            required: true
-        }
-    ];
+    const columns: Array<{label: string, value: string, required: boolean}> = [];
+
+                 
+    formConfig.goodsOptions?.level1.forEach(item => {
+        columns.push({
+            label: item.label,
+            value: item.value as string,
+            required: false
+        });
+    })
+    Object.values(formConfig.goodsOptions?.level2 || {}).forEach((item: any) => {
+        item.forEach((item: any) => {
+            columns.push({
+                label: item.label,
+                value: item.value as string,
+                required: false
+            });
+        })
+    })
     
     // 添加其他字段
     if (Array.isArray(formConfig.fields)) {
