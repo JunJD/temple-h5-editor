@@ -1,7 +1,6 @@
 import { Editor } from 'grapesjs'
 import BasePluginV5 from '../common/base'
 import { OPtion } from '..'
-import { toast } from '@/hooks/use-toast'
 
 export const PAY_BUTTON_TYPE = 'pay-button'
 
@@ -76,14 +75,11 @@ class PayButtonPlugin extends BasePluginV5 {
                         // 是否是编辑场景 - 通过检查元素是否有data-gjs-type属性来判断
                         const isEdit = el.hasAttribute('data-gjs-type')
 
-                        if (isEdit) {
-                            console.log('编辑场景')
-                            toast({
-                                title: '编辑场景',
-                                description: '编辑场景'
-                            })
-                            return
-                        }
+                        // if (isEdit) {
+                        //     console.log('编辑场景')
+                        //     alert('编辑场景')
+                        //     return
+                        // }
 
                         if (form) {
                             el.addEventListener('click', async (e) => {
@@ -94,9 +90,17 @@ class PayButtonPlugin extends BasePluginV5 {
 
                                     // 获取表单数据
                                     const formData = (form as any).gForm?.getData() || {}
+                                    const columns = (form as any).gForm?.getColumns() || []
                                     const amount = formData.amount || formData.totalAmount || 0
                                     const openid = new URLSearchParams(window.location.search).get('openid')
                                     const issueId = window.location.pathname.split('/').pop()
+                                    
+                                    for (const column of columns) {
+                                        if(formData && column.required && !formData[column.name]) {
+                                            alert(`请填写${column.label}`)
+                                            return
+                                        }
+                                    }
                                     
                                     // 尝试从URL参数中获取用户信息
                                     let userInfo = null;
@@ -109,11 +113,6 @@ class PayButtonPlugin extends BasePluginV5 {
                                     } catch (error) {
                                         console.error('解析用户信息失败:', error);
                                     }
-                                    
-                                    console.log('表单完整数据:', formData)
-                                    console.log('支付金额:', amount)
-                                    console.log('OpenID:', openid)
-                                    console.log('Issue ID:', issueId)
 
                                     if (!amount || amount <= 0) {
                                         alert('支付金额必须大于0')
@@ -121,14 +120,8 @@ class PayButtonPlugin extends BasePluginV5 {
                                         return
                                     }
 
-                                    if (!issueId) {
-                                        alert('获取issueId失败')
-                                        return
-                                    }
-
-                                    if (!openid) {
-                                        alert('获取openid失败==>' + window.location.href)
-                                        // alert('获取openid失败')
+                                    if (!openid || !issueId) {
+                                        alert('出错了，请联系工作人员或重试')
                                         return
                                     }
 

@@ -18,13 +18,69 @@ export default function(editor: Editor) {
         style: {
         },
         'script-props': ['formData', 'columns'],
+        formData: {}, // 默认空对象
+        columns: [],  // 默认空数组
         script: function(props) {
           const el = this;
           
+          // 初始化表单数据和列
+          let initialFormData = props.formData || {};
+          let initialColumns = props.columns || [];
+          
+          // 检查当前环境
+          const isH5Environment = () => {
+            // 检查URL路径，判断是否为H5预览模式
+            const pathname = window.location.pathname;
+            return pathname.startsWith('/h5/');
+          };
+          
+          // 从URL获取issueId
+          const getIssueIdFromUrl = () => {
+            const pathname = window.location.pathname;
+            // 提取/h5/后面的部分作为issueId
+            const match = pathname.match(/\/h5\/([^/]+)/);
+            return match ? match[1] : null;
+          };
+          
+          // 获取表单元素上的issue-id属性或从URL提取
+          const issueId = (isH5Environment() ? getIssueIdFromUrl() : null);
+          
           const form = {
             // 表单数据对象
-            formData: props.formData,
-            columns: props.columns,
+            formData: initialFormData,
+            columns: initialColumns,
+            
+            // 加载表单数据
+            async loadFormData(issueId: string) {
+              try {
+                console.log('开始从API加载表单数据, issueId:', issueId);
+                const response = await fetch(`/api/form-config?issueId=${issueId}`);
+                if (!response.ok) {
+                  throw new Error(`无法获取表单数据: ${response.status}`);
+                }
+                const data = await response.json();
+                
+                // 更新表单数据
+                this.formData = data.formData || {};
+                this.columns = data.columns || [];
+                
+                console.log('从API加载表单数据成功:', { 
+                  formData: this.formData, 
+                  columns: this.columns 
+                });
+                
+                // 触发表单数据更新事件
+                const event = new CustomEvent('form:data:change', {
+                  detail: { formData: this.formData }
+                });
+                el.dispatchEvent(event);
+                
+                return data;
+              } catch (error) {
+                console.error('加载表单数据失败:', error);
+              }
+            },
+            
             getColumns() {
               return this.columns;
             },
@@ -81,6 +137,17 @@ export default function(editor: Editor) {
 
           // 将 form 对象挂载到元素上
           (el as any).gForm = form;
+
+          if(issueId) {
+            form.loadFormData(issueId).then(data => {
+              if (data) {
+                console.log('表单数据加载完成:', data);
+              } else {
+                console.warn('表单数据加载失败或为空，使用默认数据');
+              }
+            });
+          }
+          
         }
       },
 
