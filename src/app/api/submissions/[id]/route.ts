@@ -26,9 +26,9 @@ export async function GET(
       data: submission
     })
   } catch (error) {
-    console.error('获取提交记录失败:', error instanceof Error ? error.message : String(error))
+    console.error('获取提交记录失败2:', error instanceof Error ? error.message : String(error))
     return NextResponse.json(
-      { success: false, error: '获取提交记录失败' },
+      { success: false, error: '获取提交记录失败2' },
       { status: 500 }
     )
   }

@@ -100,7 +100,7 @@ export default function (editor: Editor) {
             type: 'text',
             name: 'apiUrl',
             label: 'API地址',
-            default: '/api/list',
+            default: '/api/submissions?issueId=',
             changeProp: true,
           },
           {
@@ -201,7 +201,7 @@ export default function (editor: Editor) {
         'script-props': ['apiUrl', 'template', 'autoScroll', 'textAlign', 'textColor', 'fontSize', 'fontWeight', 'backgroundColor', 'borderColor'],
         script: function (props) {
           const el = this;
-          const apiUrl = props.apiUrl || '/api/list';
+          const apiUrl = props.apiUrl || '/api/submissions?issueId=';
           const template = props.template || '<span class="temp-item-name">${name}</span>: <span class="temp-item-value">${value}</span>';
           const autoScroll = props.autoScroll || true;
           const textAlign = props.textAlign || 'left';
@@ -214,25 +214,31 @@ export default function (editor: Editor) {
           const fetchAndRender = async () => {
             try {
               let data = [
-                { name: '张三', amount: '¥1,234.00' },
-                { name: '李四', amount: '¥2,345.00' },
-                { name: '王五', amount: '¥3,456.00' },
-                { name: '赵六', amount: '¥4,567.00' },
-                { name: '孙七', amount: '¥5,678.00' },
+                { name: '张三', amount: '¥1,234.00', name1: '张某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
+                { name: '李四', amount: '¥2,345.00', name1: '李某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
+                { name: '王五', amount: '¥3,456.00', name1: '王某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
+                { name: '赵六', amount: '¥4,567.00', name1: '赵某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
+                { name: '孙七', amount: '¥5,678.00', name1: '孙某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
               ];
-              if ((window as any).editor) {
+              if (!(window as any).editor) {
                 try {
                   const response = await fetch(apiUrl);
                   const result = await response.json();
                   data = result.data.map((item)=>{
+                    const formatted = formatDateWithTimezone(new Date(item.createdAt))
                     return {
                       ...item,
-                      ...(item.formData ?? {})
+                      ...(item.formData ?? {}),
+                      name2: item.formData?.name ,
+                      date1: formatted.fullDate,
+                      date2: formatted.shortDate,
+                      goods1: item.formData?.goods1 ?? '功德',
+                      goods2: item.formData?.goods2 ?? '阖家',
                     }
                   })
-                  console.log('data', data);
+                  console.log('data===>', data);
                 } catch (error) {
-                  
+                  console.log('error===>', error);
                 }
               }
 
@@ -340,6 +346,37 @@ export default function (editor: Editor) {
           };
 
           fetchAndRender();
+
+          /**
+           * 将日期转换为指定格式（东八区）
+           * @param date Date对象
+           * @returns 包含两种格式的日期字符串的对象
+           */
+          function formatDateWithTimezone(date: Date) {
+            // 获取UTC时间
+            const utc = date.getTime() + (date.getTimezoneOffset() * 60000);
+            
+            // 东八区偏移量（+8小时）
+            const cnTime = new Date(utc + (3600000 * 8));
+            
+            // 获取年、月、日
+            const year = cnTime.getFullYear();
+            // 月份需要+1，并确保两位数格式
+            const month = String(cnTime.getMonth() + 1).padStart(2, '0');
+            const day = String(cnTime.getDate()).padStart(2, '0');
+            
+            // 完整日期格式 YYYY-MM-DD
+            const fullDate = `${year}-${month}-${day}`;
+            
+            // 月-日格式 MM-DD
+            const shortDate = `${month}-${day}`;
+            
+            return {
+              fullDate,  // 如: "2024-01-01"
+              shortDate  // 如: "01-01"
+            };
+          }
+          
         }
       }
     },
