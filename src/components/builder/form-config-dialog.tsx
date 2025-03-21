@@ -266,6 +266,12 @@ export function FormConfigDialog({
                 if (formatTempComponents.length > 0) {
                     // 从字段中提取字段名
                     const fieldNames = fields.map(field => field.name);
+
+                    fieldNames.push('goods1')
+                    fieldNames.push('goods2')
+                    fieldNames.push('name2')
+                    fieldNames.push('date1')
+                    fieldNames.push('date2')
                     
                     // 更新每个格式化模板列表组件的mentionItems
                     formatTempComponents.forEach((component: any) => {
