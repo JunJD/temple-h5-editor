@@ -241,70 +241,6 @@ export function FormConfigDialog({
             return;
         }
 
-        // 更新格式化模板列表组件的mentionItems
-        try {
-            if (editor) {
-                console.log('正在获取格式化模板组件...');
-                
-                // 递归查找所有组件，包括嵌套组件
-                const getAllComponents = (components: any[]): any[] => {
-                    let allComps: any[] = [];
-                    components.forEach(comp => {
-                        allComps.push(comp);
-                        const children = comp.get('components');
-                        if (children && children.length) {
-                            allComps = allComps.concat(getAllComponents(children.models));
-                        }
-                    });
-                    return allComps;
-                };
-                
-                const allComponents = getAllComponents(editor.Components.getComponents().models);
-                const formatTempComponents = allComponents.filter(comp => comp.get('type') === 'format-temp-list');
-                console.log('找到格式化模板组件数量:', formatTempComponents.length);
-                
-                if (formatTempComponents.length > 0) {
-                    // 从字段中提取字段名
-                    const fieldNames = fields.map(field => field.name);
-
-                    fieldNames.push('goods1')
-                    fieldNames.push('goods2')
-                    fieldNames.push('name2')
-                    fieldNames.push('date1')
-                    fieldNames.push('date2')
-                    
-                    // 更新每个格式化模板列表组件的mentionItems
-                    formatTempComponents.forEach((component: any) => {
-                        try {
-                            const traits = component.get('traits');
-                            if (!traits || typeof traits.where !== 'function') {
-                                console.log('组件traits不存在或不是预期类型');
-                                return;
-                            }
-                            
-                            const templateTrait = traits.where({ name: 'template' })[0];
-                            
-                            if (templateTrait) {
-                                templateTrait.set('attributes', { 
-                                    ...templateTrait.get('attributes'),
-                                    mentionItems: fieldNames 
-                                });
-                                console.log('已更新格式化模板组件mentionItems:', fieldNames);
-                            } else {
-                                console.log('未找到模板trait');
-                            }
-                        } catch (compError) {
-                            console.error('处理组件时出错:', compError);
-                        }
-                    });
-                } else {
-                    console.log('未找到任何格式化模板列表组件');
-                }
-            }
-        } catch (error) {
-            console.error('更新格式化模板列表组件mentionItems失败:', error);
-        }
-
         // 保存配置
         onSave({ 
             fields,
@@ -321,9 +257,12 @@ export function FormConfigDialog({
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl" aria-describedby="form-config-description">
                 <DialogHeader>
                     <DialogTitle>配置表单</DialogTitle>
+                    <p id="form-config-description" className="text-sm text-muted-foreground">
+                        在这里配置表单字段和商品选择器选项
+                    </p>
                 </DialogHeader>
                 
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -417,8 +356,8 @@ export function FormConfigDialog({
                                     onOpenChange={() => togglePanel(index)}
                                     className="border rounded-lg"
                                 >
-                                    <CollapsibleTrigger className="flex items-center justify-between w-full p-4 bg-accent">
-                                        <div className="flex items-center gap-2">
+                                    <div className="flex items-center justify-between w-full bg-accent">
+                                        <CollapsibleTrigger className="flex items-center gap-2 p-4 flex-grow text-left">
                                             <ChevronDown className={cn(
                                                 "h-4 w-4 transition-transform",
                                                 openPanels.includes(index) && "transform rotate-180"
@@ -426,19 +365,21 @@ export function FormConfigDialog({
                                             <span className="font-medium">
                                                 {field.label || '未命名字段'} ({field.name || '未设置字段名'})
                                             </span>
+                                        </CollapsibleTrigger>
+                                        <div className="pr-2">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    handleRemoveField(index);
+                                                }}
+                                                disabled={field.name === 'amount'}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
                                         </div>
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                handleRemoveField(index);
-                                            }}
-                                            disabled={field.name === 'amount'}
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                        </Button>
-                                    </CollapsibleTrigger>
+                                    </div>
                                     <CollapsibleContent className="p-4 space-y-4 border-t bg-accent/5">
                                         <div className="grid grid-cols-2 gap-4">
                                             <div className="space-y-2">
