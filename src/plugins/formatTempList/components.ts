@@ -224,19 +224,21 @@ export default function (editor: Editor) {
                 try {
                   const response = await fetch(apiUrl);
                   const result = await response.json();
-                  data = result.data.map((item)=>{
-                    const formatted = formatDateWithTimezone(new Date(item.createdAt))
-                    return {
+                  if(result && result.data) {
+                    data = result.data.map((item)=>{
+                      const formatted = formatDateWithTimezone(new Date(item.createdAt))
+                      return {
                       ...item,
                       ...(item.formData ?? {}),
-                      name2: item.formData?.name ,
+                      name2: item.formData.name ,
                       date1: formatted.fullDate,
                       date2: formatted.shortDate,
-                      goods1: item.formData?.goods1 ?? '功德',
-                      goods2: item.formData?.goods2 ?? '阖家',
-                    }
-                  })
-                  console.log('data===>', data);
+                      goods1: item.formData.goods1 ?? '功德',
+                      goods2: item.formData.goods2 ?? '阖家',
+                      }
+                    })
+                    console.log('data===>', data);
+                  }
                 } catch (error) {
                   console.log('error===>', error);
                 }
