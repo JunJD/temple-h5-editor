@@ -327,6 +327,7 @@ export const RichInput = forwardRef<Editor, RichInputProps>(
             ],
             content: content || "<p></p>",
             onUpdate: ({ editor }) => onChange?.(editor.getHTML()),
+            immediatelyRender: false,
             editorProps: {
                 attributes: {
                     class: cn(
@@ -342,7 +343,7 @@ export const RichInput = forwardRef<Editor, RichInputProps>(
         }
 
         return (
-            <div className="w-full overflow-hidden rounded-md border">
+            <div className="w-full overflow-hidden rounded-md border" >
                 {!hideToolbar && <Toolbar editor={editor} />}
                 <EditorContent editor={editor} />
             </div>
