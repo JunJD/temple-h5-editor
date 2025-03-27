@@ -23,6 +23,7 @@ export default function (editor: Editor, opt: Required<PluginOptions>) {
       type: typeFormatTempList,
       classes: ['format-temp-list'],
       autoScroll: true,
+      mentionItems: [ 'name', 'amount', 'name1', 'date1', 'date2', 'goods1', 'goods2' ]
     }
   });
 } 

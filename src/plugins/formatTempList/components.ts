@@ -97,20 +97,13 @@ export default function (editor: Editor) {
             changeProp: true,
           },
           {
-            type: 'text',
-            name: 'apiUrl',
-            label: 'API地址',
-            default: '/api/submissions?issueId=',
-            changeProp: true,
-          },
-          {
             type: 'rich-input',
             name: 'template',
             label: '格式化模板',
-            default: '<span class="temp-item-name">${name}</span>: <span class="temp-item-value">${value}</span>',
+            default: '<span class="temp-item-name">${name}</span>: <span class="temp-item-value">${amount}</span>',
             changeProp: true,
             attributes: {
-              mentionItems: [ 'amount', 'name' ]
+              mentionItems: [ 'name', 'amount', 'name1', 'date1', 'date2', 'goods1', 'goods2' ]
             }
           },
           {
@@ -198,11 +191,10 @@ export default function (editor: Editor) {
             transition: all 0.2s ease-in-out;
           }
         `,
-        'script-props': ['apiUrl', 'template', 'autoScroll', 'textAlign', 'textColor', 'fontSize', 'fontWeight', 'backgroundColor', 'borderColor'],
+        'script-props': ['template', 'autoScroll', 'textAlign', 'textColor', 'fontSize', 'fontWeight', 'backgroundColor', 'borderColor'],
         script: function (props) {
           const el = this;
-          const apiUrl = props.apiUrl || '/api/submissions?issueId=';
-          const template = props.template || '<span class="temp-item-name">${name}</span>: <span class="temp-item-value">${value}</span>';
+          const template = props.template || '<span class="temp-item-name">${name}</span>: <span class="temp-item-value">${amount}</span>';
           const autoScroll = props.autoScroll || true;
           const textAlign = props.textAlign || 'left';
           const textColor = props.textColor || '#212529';
@@ -220,21 +212,33 @@ export default function (editor: Editor) {
                 { name: '赵六', amount: '¥4,567.00', name1: '赵某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
                 { name: '孙七', amount: '¥5,678.00', name1: '孙某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
               ];
-              if (!(window as any).editor) {
+              
+              // 检测是否在编辑器中的更可靠方法
+              const isInEditor = () => {
+                // @ts-ignore
+                return !window.is_h5
+              };
+              
+              if (!isInEditor()) {
                 try {
-                  const response = await fetch(apiUrl);
-                  const result = await response.json();
-                  if(result && result.data) {
-                    data = result.data.map((item)=>{
-                      const formatted = formatDateWithTimezone(new Date(item.createdAt))
+                  // @ts-ignore
+                  const submissionData = typeof window.submissionData === 'string' ? JSON.parse(window.submissionData) : []
+                  if(submissionData) {
+                    data = submissionData.map((item) => {
+                      if(item && item.formData && item.createdAt) {
+                        const formatted = formatDateWithTimezone(new Date(item.createdAt))
+                        return {
+                          ...item,
+                          ...(item.formData ?? {}),
+                          name2: item.formData.name ,
+                          date1: formatted.fullDate,
+                          date2: formatted.shortDate,
+                          goods1: item.formData.goods1 ?? '功德',
+                          goods2: item.formData.goods2 ?? '阖家',
+                        }
+                      }
                       return {
-                      ...item,
-                      ...(item.formData ?? {}),
-                      name2: item.formData.name ,
-                      date1: formatted.fullDate,
-                      date2: formatted.shortDate,
-                      goods1: item.formData.goods1 ?? '功德',
-                      goods2: item.formData.goods2 ?? '阖家',
+                        ...item,
                       }
                     })
                     console.log('data===>', data);

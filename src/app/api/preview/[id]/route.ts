@@ -31,6 +31,16 @@ export async function GET(
             return new NextResponse('Not Found', { status: 404 })
         }
 
+        const submission = await prisma!.submission.findUnique({
+            where: { id: params.id },
+            include: { issue: true }
+          })
+          
+          if (!submission) {
+            return new NextResponse('Not Found', { status: 404 })
+          }
+          
+        
         // 生成完整的 HTML
         const html = `
 <!DOCTYPE html>
@@ -63,6 +73,7 @@ export async function GET(
         ` : ''}
     </style>
 </head>
+
 <body>
     ${content.html || ''}
     ${isPreview ? `
@@ -83,6 +94,10 @@ export async function GET(
     <!-- Bootstrap JS -->
     <script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
+    <script>
+        var is_h5 = true
+        var submissionData = ${JSON.stringify(submission)}
+    </script>
     <script>
     var vConsole = new window.VConsole();
     </script>

@@ -288,7 +288,7 @@ interface RichInputProps {
 }
 
 export const RichInput = forwardRef<Editor, RichInputProps>(
-    ({ content, onChange, hideToolbar = false, className, mentionItems = [ 'name', 'value' ] }, _ref) => {
+    ({ content, onChange, hideToolbar = false, className, mentionItems = [ 'name', 'amount', 'name1', 'date1', 'date2', 'goods1', 'goods2' ] }, _ref) => {
         const { theme } = useTheme();
         const editor = useEditor({
             extensions: [
