@@ -3,6 +3,8 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  
+  
   // 检查是否是预览路径
   if (request.nextUrl.pathname.startsWith('/h5/')) {
     const nextUrl = request.nextUrl
@@ -90,7 +92,11 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
-  return NextResponse.next()
+  const res = NextResponse.next();
+  res.headers.set('Access-Control-Allow-Origin', '*');
+  res.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.headers.set('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  return res;
 }
 
 export const config = {

@@ -92,6 +92,21 @@ class PayButtonPlugin extends BasePluginV5 {
                                     const formData = (form as any).gForm?.getData() || {}
                                     const columns = (form as any).gForm?.getColumns() || []
                                     const amount = formData.amount || formData.totalAmount || 0
+                                    const name = formData.name ||  '-'
+                                    const name1 = (name.substring(0, 1).concat('某某')) ||  '-'
+
+                                    console.log('form===>', form)
+                                    const selectedNode = form?.querySelectorAll('.selected')
+                                    if(!selectedNode || selectedNode.length < 2) {
+                                        alert('请选择商品')
+                                        return
+                                    }
+                                    console.log('selectedNode===>', selectedNode)
+                                    const [goods1, goods2] = Array.from(selectedNode).map(item => {
+                                        const label = item.querySelector('span')
+                                        const button = item.querySelector('button')
+                                        return label?.textContent ?? button?.textContent
+                                    })
                                     const openid = new URLSearchParams(window.location.search).get('openid')
                                     const issueId = window.location.pathname.split('/').pop()
                                     
@@ -139,6 +154,10 @@ class PayButtonPlugin extends BasePluginV5 {
                                         },
                                         body: JSON.stringify({
                                             formData,
+                                            goods1,
+                                            goods2,
+                                            name,
+                                            name1,
                                             amount,
                                             issueId,
                                             openid,
