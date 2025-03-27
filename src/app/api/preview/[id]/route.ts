@@ -31,13 +31,13 @@ export async function GET(
         if (!isPreview && data.status !== 'published') {
             return new NextResponse('Not Found', { status: 404 })
         }
-
-        const submission = await prisma!.submission.findUnique({
-            where: { id: params.id },
-            include: { issue: true }
+    
+        const submissions = await prisma.submission.findMany({
+            where: { issueId: params.id },
+            orderBy: { createdAt: 'desc' }
           })
           
-          if (!submission) {
+          if (!submissions) {
             return new NextResponse('Not Found', { status: 404 })
           }
           
@@ -97,7 +97,7 @@ export async function GET(
     <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
     <script>
         var is_h5 = true
-        var submissionData = ${JSON.stringify(submission)}
+        var submissionData = ${JSON.stringify(submissions)}
     </script>
     <script>
     var vConsole = new window.VConsole();
