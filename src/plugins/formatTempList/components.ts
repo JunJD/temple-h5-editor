@@ -222,7 +222,7 @@ export default function (editor: Editor) {
               if (!isInEditor()) {
                 try {
                   // @ts-ignore
-                  const submissionData = typeof window.submissionData === 'string' ? JSON.parse(window.submissionData) : []
+                  const submissionData = typeof window.submissionData === 'string' ? JSON.parse(window.submissionData) : window.submissionData || []
                   if(submissionData) {
                     data = submissionData.map((item) => {
                       if(item && item.formData && item.createdAt) {
@@ -230,11 +230,8 @@ export default function (editor: Editor) {
                         return {
                           ...item,
                           ...(item.formData ?? {}),
-                          name2: item.formData.name ,
                           date1: formatted.fullDate,
-                          date2: formatted.shortDate,
-                          goods1: item.formData.goods1 ?? '功德',
-                          goods2: item.formData.goods2 ?? '阖家',
+                          date2: formatted.shortDate
                         }
                       }
                       return {

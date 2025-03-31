@@ -93,7 +93,7 @@ class PayButtonPlugin extends BasePluginV5 {
                                     const columns = (form as any).gForm?.getColumns() || []
                                     const amount = formData.amount || formData.totalAmount || 0
                                     const name = formData.name ||  '-'
-                                    const name1 = (name.substring(0, 1).concat('某某')) ||  '-'
+                                    const name1 = (name.substring(0, 1).concat(name.length > 2 ? '某某' : '某')) ||  '-'
 
                                     console.log('form===>', form)
                                     const selectedNode = form?.querySelectorAll('.selected')
