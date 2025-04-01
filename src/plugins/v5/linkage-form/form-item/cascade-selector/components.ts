@@ -87,6 +87,19 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 level2Group?.dispatchEvent(new CustomEvent('update-selection', {
                                     detail: { selectedId: selectedOption.id }
                                 }));
+                                
+                                // 根据选项的editable属性控制amount字段是否可编辑
+                                const amountField = document.querySelector('.form-item[data-field-name="amount"] input');
+                                if (amountField) {
+                                    // 如果选项有editable属性且为true，则启用输入框
+                                    if (selectedOption.editable) {
+                                        amountField.removeAttribute('readonly');
+                                        amountField.removeAttribute('disabled');
+                                    } else {
+                                        amountField.setAttribute('readonly', 'true');
+                                        amountField.setAttribute('disabled', 'true');
+                                    }
+                                }
                             }
 
                             const formItem = el.closest('.form-item');
@@ -156,9 +169,10 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     components: [
                                         {
                                             type: CASCADE_SELECTOR_TYPES['option'],
-                                            attributes: { 'data-id': it.id, 'data-level': 2, 'data-parent-id': parentId },
+                                            attributes: { 'data-id': it.id, 'data-level': 2, 'data-parent-id': parentId, 'data-editable': it.editable ? 'true' : 'false' },
                                             label: it.label,
                                             value: it.value,
+                                            editable: it.editable,
                                             defaultImage: it.image
                                         }
                                     ]
@@ -262,10 +276,12 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                         type: CASCADE_SELECTOR_TYPES['option'],
                                         attributes: {
                                             'data-id': option.id,
-                                            'data-level': 2
+                                            'data-level': 2,
+                                            'data-editable': option.editable ? 'true' : 'false'
                                         },
                                         label: option.label,
                                         value: option.value,
+                                        editable: option.editable,
                                         defaultImage: DEFAULT_OPTION_IMAGE
                                     }]
                                 }))
@@ -459,7 +475,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                     defaultImage: DEFAULT_OPTION_IMAGE,
                     'script-props': [
                         'label', 'image', 'object-fit', 'defaultImage',
-                        'button-variant', 'button-size', 'value', 'selected'
+                        'button-variant', 'button-size', 'value', 'selected', 'editable'
                     ],
                     script: function (props) {
                         const el = this;
@@ -526,6 +542,8 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
 
                         el.onclick = () => {
                             const groupId = parent?.getAttribute('data-group-id');
+                            // 获取editable属性
+                            const editable = props.editable || el.getAttribute('data-editable') === 'true';
 
                             el.dispatchEvent(new CustomEvent('option-click', {
                                 detail: {
@@ -534,7 +552,8 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     image: props.image,
                                     value: props.value || props.label,
                                     level: el.dataset.level,
-                                    groupId
+                                    groupId,
+                                    editable
                                 },
                                 bubbles: true
                             }));

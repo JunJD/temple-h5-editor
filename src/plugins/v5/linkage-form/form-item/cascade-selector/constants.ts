@@ -9,6 +9,7 @@ export interface OptionData {
     label: string;
     value: string | number;
     image?: string;
+    editable?: boolean;
 }
 
 export interface CascadeSelectorOptions {
@@ -47,51 +48,60 @@ export const DEFAULT_OPTIONS: CascadeSelectorOptions = {
             {
                 id: 'l2_1_1',
                 label: '1盆',
-                value: 1
+                value: 1,
+                editable: false
             },
             {
                 id: 'l2_1_2',
                 label: '1殿堂',
-                value: 2
+                value: 2,
+                editable: false
             },
             {
                 id: 'l2_1_3',
                 label: '全寺',
-                value: 3
+                value: 3,
+                editable: false
             }
         ],
         'l1_2': [
             {
                 id: 'l2_2_1',
                 label: '1天',
-                value: 1
+                value: 1,
+                editable: false
             },
             {
                 id: 'l2_2_2',
                 label: '3天',
-                value: 3
+                value: 3,
+                editable: false
             },
             {
                 id: 'l2_2_3',
                 label: '7天',
-                value: 7
+                value: 7,
+                editable: false
             }
         ],
         'l1_3': [
             {
                 id: 'l2_3_1',
                 label: '1天',
-                value: 1
+                value: 1,
+                editable: false
             },
             {
                 id: 'l2_3_2',
                 label: '3天',
-                value: 3
+                value: 3,
+                editable: false
             },
             {
                 id: 'l2_3_3',
                 label: '7天',
-                value: 7
+                value: 7,
+                editable: false
             }
         ]
     }

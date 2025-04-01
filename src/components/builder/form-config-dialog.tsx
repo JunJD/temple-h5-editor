@@ -152,7 +152,7 @@ export function FormConfigDialog({
         setGoodsOptions(newOptions);
     };
 
-    const handleUpdateOption = (optionId: string, field: string, value: string | number) => {
+    const handleUpdateOption = (optionId: string, field: string, value: string | number | boolean) => {
         const newOptions = structuredClone(goodsOptions);
         if (selectedParentId) {
             // 更新二级选项
@@ -187,7 +187,7 @@ export function FormConfigDialog({
             // 删除一级选项以及其对应的所有二级选项
             newOptions.level1 = newOptions.level1.filter(opt => opt.id !== optionId);
             delete newOptions.level2[optionId];
-            
+
             // 如果删除的正是当前选中的父级，需要重置选择
             if (optionId === selectedParentId) {
                 const remainingIds = Object.keys(newOptions.level2);
@@ -208,7 +208,7 @@ export function FormConfigDialog({
             });
             return;
         }
-        
+
         // 检查字段名唯一性
         const names = fields.map(f => f.name);
         if (new Set(names).size !== names.length) {
@@ -234,7 +234,7 @@ export function FormConfigDialog({
         // 检查级联选择器选项
         if (goodsOptions.level1.length === 0) {
             toast({
-                variant: "destructive", 
+                variant: "destructive",
                 title: "验证错误",
                 description: "商品选择器至少需要一个一级选项"
             });
@@ -242,13 +242,13 @@ export function FormConfigDialog({
         }
 
         // 保存配置
-        onSave({ 
+        onSave({
             fields,
-            goodsOptions 
+            goodsOptions
         });
-        
+
         onOpenChange(false);
-        
+
         toast({
             title: "保存成功",
             description: "表单配置已更新"
@@ -264,13 +264,13 @@ export function FormConfigDialog({
                         在这里配置表单字段和商品选择器选项
                     </p>
                 </DialogHeader>
-                
+
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                     <TabsList className="grid w-full grid-cols-2">
                         <TabsTrigger value="goods">商品选择器</TabsTrigger>
                         <TabsTrigger value="fields">表单字段</TabsTrigger>
                     </TabsList>
-                    
+
                     {/* 商品选择器配置 */}
                     <TabsContent value="goods" className="space-y-4">
                         <div className="flex justify-between items-center">
@@ -292,7 +292,7 @@ export function FormConfigDialog({
                                 </SelectContent>
                             </Select>
                         </div>
-                        
+
                         <ScrollArea className="h-[400px] pr-4">
                             <div className="space-y-2">
                                 {getCurrentOptions().map(option => (
@@ -303,12 +303,18 @@ export function FormConfigDialog({
                                             placeholder="选项标签"
                                         />
                                         {selectedParentId ? (
-                                            <Input
-                                                type="number"
-                                                value={option.value}
-                                                onChange={(e) => handleUpdateOption(option.id, 'value', Number(e.target.value))}
-                                                placeholder="选项值"
-                                            />
+                                            <>
+                                                <Input
+                                                    type="number"
+                                                    value={option.value}
+                                                    onChange={(e) => handleUpdateOption(option.id, 'value', Number(e.target.value))}
+                                                    placeholder="选项值"
+                                                />
+                                                <Checkbox
+                                                    checked={option.editable}
+                                                    onCheckedChange={(checked) => handleUpdateOption(option.id, 'editable', !!checked)}
+                                                />
+                                            </>
                                         ) : (
                                             <>
                                                 <Input
@@ -335,12 +341,16 @@ export function FormConfigDialog({
                                 ))}
                             </div>
                         </ScrollArea>
-                        
+
+                        <div className="mt-2 text-sm text-muted-foreground">
+                            <p>说明：对于二级选项的"允许修改金额"设置，勾选后表示用户选择该选项时可以手动修改金额字段的值。</p>
+                        </div>
+
                         <Button onClick={handleAddOption}>
                             添加{selectedParentId ? '二级' : '一级'}选项
                         </Button>
                     </TabsContent>
-                    
+
                     {/* 表单字段配置 */}
                     <TabsContent value="fields" className="space-y-4">
                         <div className="flex justify-end">
@@ -404,11 +414,11 @@ export function FormConfigDialog({
                                                 <Label>字段类型</Label>
                                                 <Select
                                                     value={field.type}
-                                                    onValueChange={(value: keyof typeof LINKAGE_FORM_TYPES) => 
-                                                        handleFieldChange(index, { 
+                                                    onValueChange={(value: keyof typeof LINKAGE_FORM_TYPES) =>
+                                                        handleFieldChange(index, {
                                                             type: value,
                                                             // 切换类型时清空默认值，避免类型不匹配
-                                                            defaultValue: undefined 
+                                                            defaultValue: undefined
                                                         })
                                                     }
                                                 >
@@ -427,10 +437,10 @@ export function FormConfigDialog({
                                                 <Label>默认值</Label>
                                                 <Input
                                                     value={field.defaultValue || ''}
-                                                    onChange={e => handleFieldChange(index, { 
-                                                        defaultValue: field.type === 'input-group' ? 
-                                                            Number(e.target.value) || undefined : 
-                                                            e.target.value 
+                                                    onChange={e => handleFieldChange(index, {
+                                                        defaultValue: field.type === 'input-group' ?
+                                                            Number(e.target.value) || undefined :
+                                                            e.target.value
                                                     })}
                                                     placeholder={`请输入${field.type === 'input-group' ? '数字' : '文本'}默认值`}
                                                     type={field.type === 'input-group' ? 'number' : 'text'}
@@ -460,7 +470,7 @@ export function FormConfigDialog({
                                                     <Checkbox
                                                         id={`required-${index}`}
                                                         checked={field.required}
-                                                        onCheckedChange={(checked) => 
+                                                        onCheckedChange={(checked) =>
                                                             handleFieldChange(index, { required: Boolean(checked) })
                                                         }
                                                     />
@@ -485,7 +495,7 @@ export function FormConfigDialog({
                         </ScrollArea>
                     </TabsContent>
                 </Tabs>
-                
+
                 <DialogFooter>
                     <DialogClose asChild>
                         <Button variant="outline">取消</Button>

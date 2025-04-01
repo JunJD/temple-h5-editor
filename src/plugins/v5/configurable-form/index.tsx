@@ -75,66 +75,51 @@ class ConfigurableFormPlugin extends BasePluginV5 {
      * 更新格式化模板列表组件的mentionItems
      */
     private updateFormatTempListMentionItems() {
-        try {
-            console.log('正在获取格式化模板组件...');
-            
-            // 递归查找所有组件，包括嵌套组件
-            const getAllComponents = (components: any[]): any[] => {
-                let allComps: any[] = [];
-                components.forEach(comp => {
-                    allComps.push(comp);
-                    const children = comp.get('components');
-                    if (children && children.length) {
-                        allComps = allComps.concat(getAllComponents(children.models));
-                    }
-                });
-                return allComps;
-            };
-            
-            const allComponents = getAllComponents(this.editor.Components.getComponents().models);
-            const formatTempComponents = allComponents.filter(comp => comp.get('type') === 'format-temp-list');
-            console.log('找到格式化模板组件数量:', formatTempComponents.length);
-            
-            if (formatTempComponents.length > 0) {
-                // 从字段中提取字段名
-                const fieldNames = this.config.fields.map(field => field.name);
+    
+        // 递归查找所有组件，包括嵌套组件
+        const getAllComponents = (components: any[]): any[] => {
+            let allComps: any[] = [];
+            components.forEach(comp => {
+                allComps.push(comp);
+                const children = comp.get('components');
+                if (children && children.length) {
+                    allComps = allComps.concat(getAllComponents(children.models));
+                }
+            });
+            return allComps;
+        };
+        
+        const allComponents = getAllComponents(this.editor.Components.getComponents().models);
+        const formatTempComponents = allComponents.filter(comp => comp.get('type') === 'format-temp-list');
+        
+        if (formatTempComponents.length > 0) {
+            // 从字段中提取字段名
+            const fieldNames = this.config.fields.map(field => field.name);
 
-                fieldNames.push('goods1')
-                fieldNames.push('goods2')
-                fieldNames.push('name')
-                fieldNames.push('name1')
-                fieldNames.push('date1')
-                fieldNames.push('date2')
+            fieldNames.push('goods1')
+            fieldNames.push('goods2')
+            fieldNames.push('name')
+            fieldNames.push('name1')
+            fieldNames.push('date1')
+            fieldNames.push('date2')
+            
+            // 更新每个格式化模板列表组件的mentionItems
+            formatTempComponents.forEach((component: any) => {
+
+                const traits = component.get('traits');
+                if (!traits || typeof traits.where !== 'function') {
+                    return;
+                }
                 
-                // 更新每个格式化模板列表组件的mentionItems
-                formatTempComponents.forEach((component: any) => {
-                    try {
-                        const traits = component.get('traits');
-                        if (!traits || typeof traits.where !== 'function') {
-                            console.log('组件traits不存在或不是预期类型');
-                            return;
-                        }
-                        
-                        const templateTrait = traits.where({ name: 'template' })[0];
-                        
-                        if (templateTrait) {
-                            templateTrait.set('attributes', { 
-                                ...templateTrait.get('attributes'),
-                                mentionItems: fieldNames 
-                            });
-                            console.log('已更新格式化模板组件mentionItems:', fieldNames);
-                        } else {
-                            console.log('未找到模板trait');
-                        }
-                    } catch (compError) {
-                        console.error('处理组件时出错:', compError);
-                    }
-                });
-            } else {
-                console.log('未找到任何格式化模板列表组件');
-            }
-        } catch (error) {
-            console.error('更新格式化模板列表组件mentionItems失败:', error);
+                const templateTrait = traits.where({ name: 'template' })[0];
+                
+                if (templateTrait) {
+                    templateTrait.set('attributes', { 
+                        ...templateTrait.get('attributes'),
+                        mentionItems: fieldNames 
+                    });
+                }
+            });
         }
     }
 
@@ -292,7 +277,11 @@ class ConfigurableFormPlugin extends BasePluginV5 {
             // 插入新的字段到头部和尾部之间
             const newFieldComponents = this.config.fields.map(field => ({
                 type: 'form-item',
-                attributes: { name: field.name, label: '' },
+                attributes: { 
+                    name: field.name, 
+                    label: '',
+                    'data-field-name': field.name 
+                },
                 components: [{
                     type: LINKAGE_FORM_TYPES[field.type],
                     label: `${field.label}:`,
