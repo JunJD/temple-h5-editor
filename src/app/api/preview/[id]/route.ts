@@ -76,6 +76,12 @@ export async function GET(
 </head>
 
 <body>
+    <!-- 先加载关键变量声明 -->
+    <script>
+        var is_h5 = true
+        var submissionData = ${JSON.stringify(submissions)}
+    </script>
+    
     ${content.html || ''}
     ${isPreview ? `
     <div class="preview-banner" style="
@@ -95,10 +101,7 @@ export async function GET(
     <!-- Bootstrap JS -->
     <script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
-    <script>
-        var is_h5 = true
-        var submissionData = ${JSON.stringify(submissions)}
-    </script>
+    
     <script>
     var vConsole = new window.VConsole();
     </script>
