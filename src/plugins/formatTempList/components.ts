@@ -213,13 +213,10 @@ export default function (editor: Editor) {
                 { name: '孙七', amount: '¥5,678.00', name1: '孙某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
               ];
               
-              // 检测是否在编辑器中的更可靠方法
-              const isInEditor = () => {
-                // @ts-ignore
-                return !window.is_h5
-              };
-              
-              if (!isInEditor()) {
+              // @ts-ignore
+              console.log('window.is_h5===>', window.is_h5);
+              // @ts-ignore
+              if (window.is_h5) {
                 try {
                   // @ts-ignore
                   const submissionData = typeof window.submissionData === 'string' ? JSON.parse(window.submissionData) : window.submissionData || []

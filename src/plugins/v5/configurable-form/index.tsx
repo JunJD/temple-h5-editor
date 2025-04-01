@@ -92,7 +92,8 @@ class ConfigurableFormPlugin extends BasePluginV5 {
 
                 fieldNames.push('goods1')
                 fieldNames.push('goods2')
-                fieldNames.push('name2')
+                fieldNames.push('name')
+                fieldNames.push('name1')
                 fieldNames.push('date1')
                 fieldNames.push('date2')
                 
