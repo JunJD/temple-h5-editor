@@ -40,6 +40,12 @@ model Submission {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
   
+  // 商品信息
+  goods1        String?  // 商品1信息
+  goods2        String?  // 商品2信息
+  name          String?  // 姓名
+  name1         String?  // 备用姓名
+  
   // 退款相关
   refundId      String?  // 退款单号
   refundStatus  RefundStatus? 

@@ -6,16 +6,7 @@ import { prisma } from '@/lib/prisma'
 export async function POST(req: Request) {
   try {
     const ip = req.headers['x-forwarded-for'] || req.headers['x-real-ip']
-    const { issueId, formData, amount, openid, userInfo } = await req.json()
-
-    console.log('支付请求参数:', {
-      issueId,
-      amount,
-      openid,
-      ip,
-      userInfo,
-      timestamp: new Date().toISOString()
-    })
+    const { issueId, formData, amount, openid, userInfo, goods1, goods2, name, name1 } = await req.json()
 
     if (!issueId || !formData || !amount || !openid) {
       return NextResponse.json(
@@ -40,6 +31,10 @@ export async function POST(req: Request) {
         issueId,
         formData,
         amount: parseFloat(amount),
+        goods1,
+        goods2,
+        name,
+        name1,
         openid,
         paymentId,
         status: 'PENDING',
