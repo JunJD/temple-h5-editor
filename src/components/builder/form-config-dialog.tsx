@@ -94,7 +94,7 @@ export function FormConfigDialog({
     };
 
     const handleRemoveField = (index: number) => {
-        if (fields[index].name === 'amount') return;
+        if (fields[index].name === 'amount' || fields[index].name === 'name') return;
         const newFields = [...fields];
         newFields.splice(index, 1);
         setFields(newFields);
@@ -324,11 +324,12 @@ export function FormConfigDialog({
                                             </>
                                         )}
                                         <Button
+                                            className='px-5'
                                             variant="destructive"
                                             size="icon"
                                             onClick={() => handleDeleteOption(option.id)}
                                         >
-                                            <TrashIcon className="h-4 w-4" />
+                                            <TrashIcon className="w-4" />
                                         </Button>
                                     </div>
                                 ))}
@@ -374,7 +375,7 @@ export function FormConfigDialog({
                                                     e.stopPropagation();
                                                     handleRemoveField(index);
                                                 }}
-                                                disabled={field.name === 'amount'}
+                                                disabled={field.name === 'amount' || field.name === 'name'}
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                             </Button>
@@ -388,7 +389,7 @@ export function FormConfigDialog({
                                                     value={field.name}
                                                     onChange={e => handleFieldChange(index, { name: e.target.value })}
                                                     placeholder="请输入字段名称"
-                                                    disabled={field.name === 'amount'}
+                                                    disabled={field.name === 'amount' || field.name === 'name'}
                                                 />
                                             </div>
                                             <div className="space-y-2">

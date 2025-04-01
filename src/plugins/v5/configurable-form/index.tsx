@@ -36,6 +36,15 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                 suffix: '元',
                 placeholder: '请输入金额',
                 expression: ''
+            },
+            {
+                name: 'name',
+                label: '姓名',
+                type: 'input-group-text',
+                required: true,
+                expression: '',
+                suffix: '',
+                placeholder: ''
             }
         ],
         goodsOptions: DEFAULT_OPTIONS
