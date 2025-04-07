@@ -254,7 +254,7 @@ export default function (editor: Editor) {
                   li.style.fontSize = fontSize + 'px';
                   li.style.fontWeight = fontWeight;
                   li.style.backgroundColor = backgroundColor;
-                  li.style.border = '1px solid ' + borderColor;
+                  li.style.borderTop = '1px solid ' + borderColor;
                   li.innerHTML = template.replace(/\${(\w+)}/g, (_, key) => item[key] || '');
                   ul.appendChild(li);
                 });

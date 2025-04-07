@@ -274,18 +274,6 @@ export class GridComponents extends BaseLoadComponents {
                             style: {
                                 'min-height': '50px',
                                 'background-color': 'transparent',
-                                // 'border-top-width': '1px',
-                                // 'border-bottom-width': '1px',
-                                // 'border-left-width': '1px',
-                                // 'border-right-width': '1px',
-                                // 'border-top-style': 'solid',
-                                // 'border-bottom-style': 'solid',
-                                // 'border-left-style': 'solid',
-                                // 'border-right-style': 'solid',
-                                // 'border-top-color': 'rgba(0, 0, 0, 0.1)',
-                                // 'border-bottom-color': 'rgba(0, 0, 0, 0.1)',
-                                // 'border-left-color': 'rgba(0, 0, 0, 0.1)',
-                                // 'border-right-color': 'rgba(0, 0, 0, 0.1)',
                             }
                         };
 
@@ -343,18 +331,6 @@ export class GridComponents extends BaseLoadComponents {
                     style: {
                         'min-height': '50px',
                         'background-color': 'transparent',
-                        // 'border-top-width': '1px',
-                        // 'border-bottom-width': '1px',
-                        // 'border-left-width': '1px',
-                        // 'border-right-width': '1px',
-                        // 'border-top-style': 'solid',
-                        // 'border-bottom-style': 'solid',
-                        // 'border-left-style': 'solid',
-                        // 'border-right-style': 'solid',
-                        // 'border-top-color': 'rgba(0, 0, 0, 0.1)',
-                        // 'border-bottom-color': 'rgba(0, 0, 0, 0.1)',
-                        // 'border-left-color': 'rgba(0, 0, 0, 0.1)',
-                        // 'border-right-color': 'rgba(0, 0, 0, 0.1)',
                         
                     },
                     attributes: {

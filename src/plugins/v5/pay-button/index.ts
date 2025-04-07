@@ -17,11 +17,11 @@ class PayButtonPlugin extends BasePluginV5 {
         this.editor.Components.addType(PAY_BUTTON_TYPE, {
             model: {
                 defaults: {
-                    tagName: 'button',
+                    tagName: 'div',
                     droppable: false,
-                    attributes: { class: 'pay-button' },
+                    attributes: { class: 'pay-button', role: 'button', 'aria-label': '立即支付' },
                     style: {
-                        'width': '60%',
+                        'width': '100%',
                         'height': '56px',
                         'color': '#fff',
                         'background-color': '#a77c37',
@@ -62,24 +62,24 @@ class PayButtonPlugin extends BasePluginV5 {
                             label: '按钮文本',
                             default: '立即支付',
                             changeProp: true
-                        },
-                        {
-                            type: 'checkbox',
-                            name: 'disabled',
-                            label: '禁用'
                         }
                     ],
-                    script: function () {
+                    'script-props': ['text'],
+                    content: '立即支付',
+                    script: function (props) {
                         const el = this as HTMLButtonElement
                         const form = el.closest('form')
                         // 是否是编辑场景 - 通过检查元素是否有data-gjs-type属性来判断
                         const isEdit = el.hasAttribute('data-gjs-type')
 
-                        // if (isEdit) {
-                        //     console.log('编辑场景')
-                        //     alert('编辑场景')
-                        //     return
-                        // }
+                        // 处理按钮文本和禁用状态
+                        if (props.text) {
+                            el.textContent = props.text;
+                        }
+
+                        if (isEdit) {
+                            return
+                        }
 
                         if (form) {
                             el.addEventListener('click', async (e) => {
@@ -203,23 +203,8 @@ class PayButtonPlugin extends BasePluginV5 {
                 },
 
                 init() {
-                    this.on('change:attributes:text', this.handleTextChange)
-                    this.on('change:attributes:disabled', this.handleDisabledChange)
-
-                    // 设置初始文本
-                    const text = this.get('attributes').text || '立即支付'
-                    this.set('content', text)
                 },
 
-                handleTextChange() {
-                    const text = this.get('attributes').text
-                    this.set('content', text || '立即支付')
-                },
-
-                handleDisabledChange() {
-                    const disabled = this.get('attributes').disabled
-                    this.set('attributes', { ...this.get('attributes'), disabled: disabled })
-                }
             }
         })
     }
