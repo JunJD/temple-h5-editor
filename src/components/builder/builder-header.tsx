@@ -3,7 +3,8 @@
 import { 
   GoHome,
   GoLock,
-  GoSync
+  GoSync,
+  GoLink
 } from 'react-icons/go'
 import { Button } from '@/components/ui'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
@@ -15,11 +16,29 @@ import { updateIssue } from '@/actions/builder'
 import { useIssue, usePublishIssue } from '@/contexts/issue-context'
 import { useMemo, useState, useEffect } from 'react'
 import { toast } from '@/hooks/use-toast'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import {QRCodeSVG} from 'qrcode.react';
+
+
+// 获取当前域名的函数
+const getDomain = () => {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return '';
+};
 
 export const BuilderHeader = () => {
   const { issue } = useIssue()
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
+  const [qrDialogOpen, setQrDialogOpen] = useState(false)
 
   const title = issue?.title ?? '未命名页面'
   const locked = useMemo(() => {
@@ -33,6 +52,63 @@ export const BuilderHeader = () => {
 
   const id = useParams().id as string
   const publishIssue = usePublishIssue()
+  
+  // 二维码链接
+  const qrCodeUrl = useMemo(() => {
+    return `${getDomain()}/h5/${id}`;
+  }, [id]);
+  
+  // 下载二维码
+  const downloadQRCode = () => {
+    const svgElement = document.getElementById('qr-code') as unknown as SVGSVGElement;
+    if (!svgElement) return;
+    
+    try {
+      // 创建Canvas元素
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const XMLSerializer = window.XMLSerializer;
+      const serializer = new XMLSerializer();
+      const svgStr = serializer.serializeToString(svgElement);
+      
+      // 创建图片元素
+      const img = new Image();
+      img.onload = function() {
+        // 设置Canvas大小
+        canvas.width = img.width;
+        canvas.height = img.height;
+        
+        // 绘制图片
+        ctx?.drawImage(img, 0, 0);
+        
+        // 转换为DataURL并下载
+        const pngUrl = canvas.toDataURL('image/png');
+        
+        const downloadLink = document.createElement('a');
+        downloadLink.href = pngUrl;
+        downloadLink.download = `${title || 'h5-page'}-qrcode.png`;
+        document.body.appendChild(downloadLink);
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+        
+        toast({
+          title: '下载成功',
+          description: '二维码已成功下载',
+          variant: 'default',
+        });
+      };
+      
+      // 设置图片源为SVG字符串
+      img.src = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(svgStr)));
+    } catch (error) {
+      toast({
+        title: '下载失败',
+        description: '生成二维码图片时出错',
+        variant: 'destructive',
+      });
+      console.error('下载二维码失败:', error);
+    }
+  };
   
   // 监听自动保存事件
   useEffect(() => {
@@ -108,6 +184,7 @@ export const BuilderHeader = () => {
       }
       
       const projectData = editor.getProjectData() ?? {}
+
       await updateIssue(id, { html, css, projectData })
       toast({
         title: '保存成功',
@@ -235,6 +312,19 @@ export const BuilderHeader = () => {
           </DevicesProvider>
 
           <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setQrDialogOpen(true)}
+                >
+                  <GoLink className="mr-1" size={16} />
+                  二维码
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>生成页面二维码</TooltipContent>
+            </Tooltip>
             <Button variant="outline" onClick={onPublish} size="sm">
               发布
             </Button>
@@ -247,6 +337,40 @@ export const BuilderHeader = () => {
           </div>
         </div>
       </div>
+      
+      {/* 二维码对话框 */}
+      <Dialog open={qrDialogOpen} onOpenChange={setQrDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>页面二维码</DialogTitle>
+            <DialogDescription>
+              扫描下方二维码可直接访问此H5页面
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center justify-center p-4">
+            <div className="p-4 bg-white rounded-lg border border-gray-200">
+              <QRCodeSVG
+                id="qr-code"
+                value={qrCodeUrl}
+                size={200}
+                level={"H"}
+                includeMargin={true}
+                title={`${title}页面的二维码`}
+                bgColor={"#FFFFFF"}
+                fgColor={"#000000"}
+              />
+            </div>
+            <div className="mt-4 text-xs text-center text-muted-foreground break-all">
+              {qrCodeUrl}
+            </div>
+          </div>
+          <div className="flex justify-center mt-2">
+            <Button onClick={downloadQRCode}>
+              下载二维码
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </TooltipProvider>
   )
 }
