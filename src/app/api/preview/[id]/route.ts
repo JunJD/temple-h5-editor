@@ -19,6 +19,9 @@ export async function GET(
             return new NextResponse('openid not found' + request.url, { status: 404 })
         }
         
+        // 数据库查询前
+        console.log('尝试获取Issue数据:', params.id);
+
         const result = await getIssue(params.id)
         if (!('data' in result) || !result.data) {
             return new NextResponse('Not Found', { status: 404 })
@@ -32,6 +35,9 @@ export async function GET(
             return new NextResponse('Not Found', { status: 404 })
         }
     
+        // 获取Issue后
+        console.log('Issue数据结果:', JSON.stringify(result));
+
         const submissions = await prisma.submission.findMany({
             where: { issueId: params.id },
             orderBy: { createdAt: 'desc' }
@@ -41,7 +47,12 @@ export async function GET(
             return new NextResponse('Not Found', { status: 404 })
           }
           
-        
+        // 提交查询前
+        console.log('尝试查询提交数据');
+
+        // 提交查询后
+        console.log('提交数据结果:', JSON.stringify(submissions));
+    
         // 生成完整的 HTML
         const html = `
 <!DOCTYPE html>
@@ -49,7 +60,7 @@ export async function GET(
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>${data.title || '预览'}</title>
+    <title>${data.title + '2222' || '预览'}</title>
     <!-- 添加微信 JSSDK -->
     <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
     <!-- Bootstrap CSS -->
