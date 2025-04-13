@@ -48,6 +48,13 @@ export async function createIssue(issue: createIssueDto) {
 
 export async function deleteIssue(id: string) {
   try {
+    await prisma.submission.deleteMany({
+      where: {
+        issueId: id
+      }
+    });
+
+    // 然后删除Issue本身
     const deletedIssue = await prisma.issue.delete({
       where: {
         id: id
@@ -64,7 +71,8 @@ export async function deleteIssue(id: string) {
     return actionData(deletedIssue, {
       status: 200
     })
-  } catch {
+  } catch (error) {
+    console.error('Issue deletion failed:', error instanceof Error ? error.message : String(error))
     return actionData(null, {
       status: 500
     })
