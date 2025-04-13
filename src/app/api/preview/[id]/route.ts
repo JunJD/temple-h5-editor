@@ -154,6 +154,18 @@ export async function GET(
         })
     } catch (error) {
         console.error('Preview error:', error)
-        return new NextResponse('Internal Server Error', { status: 500 })
+        return new NextResponse(`
+        <!DOCTYPE html>
+        <html>
+        <head><title>测试 - 出错</title></head>
+        <body>
+          <h1 style="color:red">加载成功 ${new Date().toISOString()}</h1>
+          <div>ID: ${params.id}</div>
+          <div>openid:  '无'}</div>
+        </body>
+        </html>
+        `, {
+          headers: { 'Content-Type': 'text/html; charset=utf-8' }
+        });
     }
 } 
