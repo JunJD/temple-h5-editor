@@ -141,6 +141,7 @@ export async function GET(
                 });
             })
             .catch(error => {
+                alert('获取微信配置失败:' + error)
                 console.error('获取微信配置失败:', error);
             });
     </script>
