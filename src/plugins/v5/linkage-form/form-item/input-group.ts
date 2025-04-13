@@ -601,7 +601,7 @@ export const loadInputGroup = (editor: Editor) => {
                         font-size: 16px;
                         color: #696969;
                         width: 100%;
-                        padding: 8px 12px;
+                        padding: 0px;
                         text-align: left;
                         background: transparent;
                         resize: vertical;

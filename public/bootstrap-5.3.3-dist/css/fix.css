@@ -1,3 +1,7 @@
 :root {
   --bs-border-radius: 4px;
 }
+
+.form-control {
+  padding: 0px;
+}
