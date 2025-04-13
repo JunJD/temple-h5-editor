@@ -272,7 +272,7 @@ export default function (editor: Editor) {
 
 
                 if (container.offsetHeight > list1.offsetHeight) {
-                  const diff = Math.ceil(container.offsetHeight / list1.offsetHeight);
+                  const diff = Math.min(Math.ceil(container.offsetHeight / list1.offsetHeight), 20);
                   for (let j = 0; j < diff; j++) {
                     appendToDown();
                     appendToUp();
