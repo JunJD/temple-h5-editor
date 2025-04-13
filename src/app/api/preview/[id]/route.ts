@@ -162,6 +162,7 @@ export async function GET(
           <h1 style="color:red">加载成功 ${new Date().toISOString()}</h1>
           <div>ID: ${params.id}</div>
           <div>openid:  '无'}</div>
+          <div>error: ${JSON.stringify(error, null, 2)}</div>
         </body>
         </html>
         `, {
