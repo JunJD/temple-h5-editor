@@ -183,7 +183,6 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                     style: {
                         padding: '23px 5%',
                         border: '1px solid #ccc',
-                        'border-top': 'none',
                         'background-color': '#fff',
                         'border-radius': '0 0 10px 10px',
                         display: 'flex',
