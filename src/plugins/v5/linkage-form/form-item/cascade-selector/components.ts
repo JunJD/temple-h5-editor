@@ -514,17 +514,33 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 `;
                             } else {
                                 // 按钮基础样式
-                                const buttonStyle = {
-                                    padding: '7.67px 15.33px', // 0.2rem 0.4rem
+                                const buttonStyle: Record<string, string> = {
                                     'border-radius': '6px', // 0.15rem
                                     'text-align': 'center',
-                                    'font-size': '15px', // 0.39rem
                                     color: '#8c8d8d',
                                     border: `1px solid ${selectedColor}`,
                                     'background': 'transparent',
                                     'transition': 'all 0.3s ease',
-                                    cursor: 'pointer'
+                                    cursor: 'pointer',
+                                    padding: '', // 将在下面根据大小设置
+                                    'font-size': '' // 将在下面根据大小设置
                                 };
+                                
+                                // 根据按钮大小设置不同样式
+                                const buttonSize = props['button-size'] || '';
+                                if (buttonSize === 'btn-sm') {
+                                    // 小按钮
+                                    buttonStyle.padding = '4px 8px';
+                                    buttonStyle['font-size'] = '12px';
+                                } else if (buttonSize === 'btn-lg') {
+                                    // 大按钮
+                                    buttonStyle.padding = '12px 24px';
+                                    buttonStyle['font-size'] = '18px';
+                                } else {
+                                    // 中按钮（默认）
+                                    buttonStyle.padding = '7.67px 15.33px';
+                                    buttonStyle['font-size'] = '15px';
+                                }
 
                                 // 选中状态样式
                                 if (el.classList.contains('selected')) {
