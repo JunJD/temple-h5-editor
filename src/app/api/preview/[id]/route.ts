@@ -60,7 +60,7 @@ export async function GET(
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>${data.title + '2222' || '预览'}</title>
+    <title>${data.title || '预览'}</title>
     <!-- 添加微信 JSSDK -->
     <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
     <!-- Bootstrap CSS -->
