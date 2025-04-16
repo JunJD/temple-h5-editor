@@ -266,7 +266,22 @@ export const loadInputGroup = (editor: Editor) => {
                         if (inputType === 'number') {
                             inputEl.addEventListener('input', (e) => {
                                 const target = e.target as HTMLInputElement;
-                                target.value = target.value.replace(/[^\d]/g, '');
+                                // 允许数字和小数点，但确保只有一个小数点
+                                const value = target.value;
+                                // 移除所有非数字和非小数点字符
+                                let newValue = value.replace(/[^\d.]/g, '');
+                                // 确保只有一个小数点
+                                const dotCount = (newValue.match(/\./g) || []).length;
+                                if (dotCount > 1) {
+                                    // 保留第一个小数点
+                                    const parts = newValue.split('.');
+                                    newValue = parts[0] + '.' + parts.slice(1).join('');
+                                }
+                                // 确保小数点不在开头
+                                if (newValue.startsWith('.')) {
+                                    newValue = '0' + newValue;
+                                }
+                                target.value = newValue;
                             });
                         }
 
