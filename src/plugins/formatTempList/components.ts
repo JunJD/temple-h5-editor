@@ -270,44 +270,58 @@ export default function (editor: Editor) {
                 const ulDefaultHeight = container.offsetHeight > list1.offsetHeight ? list1.offsetHeight : 0;
                 const liDefaultValues = container.querySelectorAll('.infinite-scroll ul li');
 
-
-                if (container.offsetHeight > list1.offsetHeight) {
-                  const diff = Math.min(Math.ceil(container.offsetHeight / list1.offsetHeight), 20);
-                  for (let j = 0; j < diff; j++) {
-                    appendToDown();
-                    appendToUp();
-                  }
-                } else {
+                // 只在内容超出容器高度时才进行数据复制和滚动处理
+                if (list1.offsetHeight > container.offsetHeight) {
+                  // 添加足够的项目以确保滚动流畅
                   appendToDown();
                   appendToUp();
+                  
+                  // 设置初始滚动位置
+                  container.scrollTop = ulDefaultHeight / 2;
+
+                  // 添加滚动事件监听
+                  container.addEventListener("scroll", event => {
+                    const currentScroll = container.scrollTop;
+                 
+                    if (
+                      currentScroll > (container.offsetHeight * 3) / 4 &&
+                      list1.offsetHeight - container.offsetHeight < currentScroll
+                    ) {
+                      appendToDown();
+                      for (let i = 0; i < liDefaultValues.length; i++) {
+                        container.querySelector('ul li')?.remove();
+                      }
+                    }
+
+                    if (
+                      currentScroll < container.offsetHeight / 4 &&
+                      container.scrollTop < container.offsetHeight - ulDefaultHeight
+                    ) {
+                      appendToUp();
+                      for (let i = 0; i < liDefaultValues.length; i++) {
+                        container.querySelector('ul li')?.remove();
+                      }
+                    }
+                  });
+
+                  // 启用自动滚动
+                  let lastScrollTop = container.scrollTop;
+                  setInterval(function () {
+                    if (container) {
+                      const currentScrollTop = container.scrollTop;
+                      const maxScroll = list1.offsetHeight - container.offsetHeight;
+                      
+                      // 如果接近底部，重置到顶部
+                      if (currentScrollTop >= maxScroll - 10) {
+                        container.scrollTop = 0;
+                        lastScrollTop = 0;
+                      } else {
+                        container.scrollTop = currentScrollTop + 1;
+                        lastScrollTop = currentScrollTop;
+                      }
+                    }
+                  }, 50);
                 }
-
-                container.scrollTop = ulDefaultHeight / 2;
-
-                container.addEventListener("scroll", event => {
-                  const currentScroll = container.scrollTop;
-                  // const   = list1.offsetHeight - container.offsetHeight;
-               
-                  if (
-                    currentScroll > (container.offsetHeight * 3) / 4 &&
-                    list1.offsetHeight - container.offsetHeight < currentScroll
-                  ) {
-                    appendToDown();
-                    for (let i = 0; i < liDefaultValues.length; i++) {
-                      container.querySelector('ul li')?.remove();
-                    }
-                  }
-
-                  if (
-                    currentScroll < container.offsetHeight / 4 &&
-                    container.scrollTop < container.offsetHeight - ulDefaultHeight
-                  ) {
-                    appendToUp();
-                    for (let i = 0; i < liDefaultValues.length; i++) {
-                      container.querySelector('ul li')?.remove();
-                    }
-                  }
-                });
 
                 function appendToDown() {
                   for (let i = 0; i < liDefaultValues.length; i++) {
@@ -322,23 +336,6 @@ export default function (editor: Editor) {
                     list1.prepend(node);
                   }
                 }
-
-                let lastScrollTop = container.scrollTop;
-                setInterval(function () {
-                  if (container) {
-                    const currentScrollTop = container.scrollTop;
-                    const maxScroll = list1.offsetHeight - container.offsetHeight;
-                    
-                    // 如果接近底部，重置到顶部
-                    if (currentScrollTop >= maxScroll - 10) {
-                      container.scrollTop = 0;
-                      lastScrollTop = 0;
-                    } else {
-                      container.scrollTop = currentScrollTop + 1;
-                      lastScrollTop = currentScrollTop;
-                    }
-                  }
-                }, 50);
               }
             } catch (error) {
               console.error('Failed to fetch data:', error);
