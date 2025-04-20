@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { LINKAGE_FORM_TYPES } from '@/plugins/v5/linkage-form/constants';
-import { PlusCircle, Trash2, ChevronDown } from 'lucide-react';
+import { PlusCircle, Trash2, ChevronDown, GripVertical } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import {
     Collapsible,
@@ -34,6 +34,25 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CascadeSelectorOptions, DEFAULT_OPTIONS, DEFAULT_OPTION_IMAGE } from '@/plugins/v5/linkage-form/form-item/cascade-selector/constants';
 import { TrashIcon } from 'lucide-react';
 import { Editor } from 'grapesjs';
+import {
+    DndContext,
+    closestCenter,
+    KeyboardSensor,
+    PointerSensor,
+    useSensor,
+    useSensors,
+    DragEndEvent
+} from '@dnd-kit/core';
+import {
+    SortableContext,
+    sortableKeyboardCoordinates,
+    verticalListSortingStrategy,
+    useSortable
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { FormFieldsTab } from './form-field/form-fields-tab';
+import { GoodsSelectorsTab } from './form-field/goods-selectors-tab';
+import { validateFields, validateGoodsOptions } from './form-field/form-validator';
 
 // interface FormField {
 //     name: string;
@@ -59,6 +78,187 @@ interface FormConfigDialogProps {
     editor?: Editor;
 }
 
+// 创建一个可排序的字段组件
+interface SortableFieldItemProps {
+    field: FormField;
+    index: number;
+    id: string;
+    openPanels: number[];
+    togglePanel: (index: number) => void;
+    handleRemoveField: (index: number) => void;
+    handleFieldChange: (index: number, field: Partial<FormField>) => void;
+    fields: FormField[];
+}
+
+function SortableFieldItem({
+    field,
+    index,
+    id,
+    openPanels,
+    togglePanel,
+    handleRemoveField,
+    handleFieldChange,
+    fields
+}: SortableFieldItemProps) {
+    const {
+        attributes,
+        listeners,
+        setNodeRef,
+        transform,
+        transition,
+        isDragging
+    } = useSortable({ id });
+
+    const style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        zIndex: isDragging ? 10 : 1,
+        opacity: isDragging ? 0.8 : 1
+    };
+
+    return (
+        <div ref={setNodeRef} style={style}>
+            <Collapsible
+                key={index}
+                open={openPanels.includes(index)}
+                onOpenChange={() => togglePanel(index)}
+                className={cn("border rounded-lg", isDragging && "border-primary")}
+            >
+                <div className="flex items-center justify-between w-full bg-accent">
+                    <div 
+                        {...attributes} 
+                        {...listeners} 
+                        className="flex items-center justify-center p-3 cursor-grab active:cursor-grabbing"
+                    >
+                        <GripVertical className="h-4 w-4 text-muted-foreground" />
+                    </div>
+                    <CollapsibleTrigger className="flex items-center gap-2 p-4 flex-grow text-left">
+                        <ChevronDown className={cn(
+                            "h-4 w-4 transition-transform",
+                            openPanels.includes(index) && "transform rotate-180"
+                        )} />
+                        <span className="font-medium">
+                            {field.label || '未命名字段'} ({field.name || '未设置字段名'})
+                        </span>
+                    </CollapsibleTrigger>
+                    <div className="pr-2">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemoveField(index);
+                            }}
+                            disabled={field.name === 'amount' || field.name === 'name'}
+                        >
+                            <Trash2 className="h-4 w-4" />
+                        </Button>
+                    </div>
+                </div>
+                <CollapsibleContent className="p-4 space-y-4 border-t bg-accent/5">
+                    <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                            <Label>字段名称</Label>
+                            <Input
+                                value={field.name}
+                                onChange={e => handleFieldChange(index, { name: e.target.value })}
+                                placeholder="请输入字段名称"
+                                disabled={field.name === 'amount' || field.name === 'name'}
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>字段标签</Label>
+                            <Input
+                                value={field.label}
+                                onChange={e => handleFieldChange(index, { label: e.target.value })}
+                                placeholder="请输入字段标签"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>字段类型</Label>
+                            <Select
+                                value={field.type}
+                                onValueChange={(value: keyof typeof LINKAGE_FORM_TYPES) =>
+                                    handleFieldChange(index, {
+                                        type: value,
+                                        // 切换类型时清空默认值，避免类型不匹配
+                                        defaultValue: undefined
+                                    })
+                                }
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="请选择字段类型" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="input-group">数字输入框</SelectItem>
+                                    <SelectItem value="input-group-text">文本输入框</SelectItem>
+                                    <SelectItem value="input-group-rich-text">富文本输入框</SelectItem>
+                                    <SelectItem value="input-number-group">数字加减框</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>默认值</Label>
+                            <Input
+                                value={field.defaultValue || ''}
+                                onChange={e => handleFieldChange(index, {
+                                    defaultValue: field.type === 'input-group' ?
+                                        Number(e.target.value) || undefined :
+                                        e.target.value
+                                })}
+                                placeholder={`请输入${field.type === 'input-group' ? '数字' : '文本'}默认值`}
+                                type={field.type === 'input-group' ? 'number' : 'text'}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                                {field.type === 'input-group' ? '数字类型字段，请输入数字默认值' : '文本类型字段，可输入任意默认值'}
+                            </p>
+                        </div>
+                        <div className="space-y-2">
+                            <Label>占位文本</Label>
+                            <Input
+                                value={field.placeholder || ''}
+                                onChange={e => handleFieldChange(index, { placeholder: e.target.value })}
+                                placeholder="请输入占位文本"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <Label>后缀</Label>
+                            <Input
+                                value={field.suffix || ''}
+                                onChange={e => handleFieldChange(index, { suffix: e.target.value })}
+                                placeholder="请输入后缀（如：元、个等）"
+                            />
+                        </div>
+                        <div className="space-y-2 col-span-2">
+                            <div className="flex items-center gap-2">
+                                <Checkbox
+                                    id={`required-${index}`}
+                                    checked={field.required}
+                                    onCheckedChange={(checked) =>
+                                        handleFieldChange(index, { required: Boolean(checked) })
+                                    }
+                                />
+                                <Label htmlFor={`required-${index}`}>必填字段</Label>
+                            </div>
+                        </div>
+                        <div className="space-y-2 col-span-2">
+                            <Label>公式表达式（用于联动计算）</Label>
+                            <ExpressionEditor
+                                value={field.expression || ''}
+                                onChange={(value) => handleFieldChange(index, { expression: value })}
+                                fields={fields.filter(f => f.name !== field.name)}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                                可以引用其他字段进行计算，例如：amount * 2 + 10
+                            </p>
+                        </div>
+                    </div>
+                </CollapsibleContent>
+            </Collapsible>
+        </div>
+    );
+}
+
 export function FormConfigDialog({
     open,
     onOpenChange,
@@ -76,6 +276,18 @@ export function FormConfigDialog({
         Object.keys(goodsOptions.level2)[0] || null
     );
     const { toast } = useToast();
+
+    // 配置拖拽传感器
+    const sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 8, // 需要拖动多少像素才激活
+            },
+        }),
+        useSensor(KeyboardSensor, {
+            coordinateGetter: sortableKeyboardCoordinates,
+        })
+    );
 
     const handleAddField = () => {
         const newField: FormField = {
@@ -113,6 +325,32 @@ export function FormConfigDialog({
                 ? openPanels.filter(i => i !== index)
                 : [...openPanels, index]
         );
+    };
+
+    // 处理拖拽结束事件
+    const handleDragEnd = (event: DragEndEvent) => {
+        const { active, over } = event;
+        
+        if (over && active.id !== over.id) {
+            const oldIndex = fields.findIndex((_, index) => `field-${index}` === active.id);
+            const newIndex = fields.findIndex((_, index) => `field-${index}` === over.id);
+            
+            if (oldIndex !== -1 && newIndex !== -1) {
+                const newFields = [...fields];
+                const [movedField] = newFields.splice(oldIndex, 1);
+                newFields.splice(newIndex, 0, movedField);
+                setFields(newFields);
+                
+                // 更新打开的面板索引
+                const newOpenPanels = openPanels.map(panelIndex => {
+                    if (panelIndex === oldIndex) return newIndex;
+                    if (oldIndex < panelIndex && panelIndex <= newIndex) return panelIndex - 1;
+                    if (newIndex <= panelIndex && panelIndex < oldIndex) return panelIndex + 1;
+                    return panelIndex;
+                });
+                setOpenPanels(newOpenPanels);
+            }
+        }
     };
 
     // 级联选择器选项相关函数
@@ -198,46 +436,29 @@ export function FormConfigDialog({
     };
 
     const handleSave = () => {
-        // 添加字段验证
-        const invalidFields = fields.filter(field => !field.name || !field.label);
-        if (invalidFields.length > 0) {
+        // 验证表单字段
+        const fieldsValidation = validateFields(fields);
+        if (!fieldsValidation.valid) {
             toast({
                 variant: "destructive",
                 title: "验证错误",
-                description: "请填写完整的字段名和标签"
+                description: fieldsValidation.error
             });
+            // 验证失败时，自动切换到字段配置标签页
+            setActiveTab("fields");
             return;
         }
 
-        // 检查字段名唯一性
-        const names = fields.map(f => f.name);
-        if (new Set(names).size !== names.length) {
+        // 验证商品选择器
+        const goodsValidation = validateGoodsOptions(goodsOptions);
+        if (!goodsValidation.valid) {
             toast({
                 variant: "destructive",
                 title: "验证错误",
-                description: "字段名不能重复"
+                description: goodsValidation.error
             });
-            return;
-        }
-
-        // 检查字段名格式（只允许字母、数字和下划线）
-        const invalidNameFields = fields.filter(field => !/^[a-zA-Z][a-zA-Z0-9_]*$/.test(field.name));
-        if (invalidNameFields.length > 0) {
-            toast({
-                variant: "destructive",
-                title: "验证错误",
-                description: "字段名只能包含字母、数字和下划线，且必须以字母开头"
-            });
-            return;
-        }
-
-        // 检查级联选择器选项
-        if (goodsOptions.level1.length === 0) {
-            toast({
-                variant: "destructive",
-                title: "验证错误",
-                description: "商品选择器至少需要一个一级选项"
-            });
+            // 验证失败时，自动切换到商品选择器标签页
+            setActiveTab("goods");
             return;
         }
 
@@ -272,227 +493,23 @@ export function FormConfigDialog({
                     </TabsList>
 
                     {/* 商品选择器配置 */}
-                    <TabsContent value="goods" className="space-y-4">
-                        <div className="flex justify-between items-center">
-                            <h3 className="text-lg font-medium">商品选择器配置</h3>
-                            <Select
-                                value={selectedParentId || "level1"}
-                                onValueChange={(value) => setSelectedParentId(value === "level1" ? null : value)}
-                            >
-                                <SelectTrigger className="w-[200px]">
-                                    <SelectValue placeholder="选择一级选项进行配置" />
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="level1">一级选项</SelectItem>
-                                    {goodsOptions.level1.map(option => (
-                                        <SelectItem key={option.id} value={option.id}>
-                                            {option.label}的二级选项
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
-                        </div>
-
-                        <ScrollArea className="h-[400px] pr-4">
-                            <div className="space-y-2">
-                                {getCurrentOptions().map(option => (
-                                    <div key={option.id} className="flex gap-2 items-center">
-                                        <Input
-                                            value={option.label}
-                                            onChange={(e) => handleUpdateOption(option.id, 'label', e.target.value)}
-                                            placeholder="选项标签"
-                                        />
-                                        {selectedParentId ? (
-                                            <>
-                                                <Input
-                                                    type="number"
-                                                    value={option.value}
-                                                    onChange={(e) => handleUpdateOption(option.id, 'value', Number(e.target.value))}
-                                                    placeholder="选项值"
-                                                />
-                                                <Checkbox
-                                                    checked={option.editable}
-                                                    onCheckedChange={(checked) => handleUpdateOption(option.id, 'editable', !!checked)}
-                                                />
-                                            </>
-                                        ) : (
-                                            <>
-                                                <Input
-                                                    value={String(option.value)}
-                                                    onChange={(e) => handleUpdateOption(option.id, 'value', e.target.value)}
-                                                    placeholder="选项值"
-                                                />
-                                                <Input
-                                                    value={option.image || ''}
-                                                    onChange={(e) => handleUpdateOption(option.id, 'image', e.target.value)}
-                                                    placeholder="图片地址"
-                                                />
-                                            </>
-                                        )}
-                                        <Button
-                                            className='px-5'
-                                            variant="destructive"
-                                            size="icon"
-                                            onClick={() => handleDeleteOption(option.id)}
-                                        >
-                                            <TrashIcon className="w-4" />
-                                        </Button>
-                                    </div>
-                                ))}
-                            </div>
-                        </ScrollArea>
-
-                        <div className="mt-2 text-sm text-muted-foreground">
-                            <p>说明：对于二级选项的"允许修改金额"设置，勾选后表示用户选择该选项时可以手动修改金额字段的值。</p>
-                        </div>
-
-                        <Button onClick={handleAddOption}>
-                            添加{selectedParentId ? '二级' : '一级'}选项
-                        </Button>
+                    <TabsContent value="goods">
+                        <GoodsSelectorsTab 
+                            goodsOptions={goodsOptions}
+                            selectedParentId={selectedParentId}
+                            setGoodsOptions={setGoodsOptions}
+                            setSelectedParentId={setSelectedParentId}
+                        />
                     </TabsContent>
 
                     {/* 表单字段配置 */}
-                    <TabsContent value="fields" className="space-y-4">
-                        <div className="flex justify-end">
-                            <Button onClick={handleAddField} variant="outline" size="sm">
-                                <PlusCircle className="mr-2 h-4 w-4" />
-                                添加字段
-                            </Button>
-                        </div>
-                        <ScrollArea className="space-y-2 h-[400px]">
-                            {fields.map((field, index) => (
-                                <Collapsible
-                                    key={index}
-                                    open={openPanels.includes(index)}
-                                    onOpenChange={() => togglePanel(index)}
-                                    className="border rounded-lg"
-                                >
-                                    <div className="flex items-center justify-between w-full bg-accent">
-                                        <CollapsibleTrigger className="flex items-center gap-2 p-4 flex-grow text-left">
-                                            <ChevronDown className={cn(
-                                                "h-4 w-4 transition-transform",
-                                                openPanels.includes(index) && "transform rotate-180"
-                                            )} />
-                                            <span className="font-medium">
-                                                {field.label || '未命名字段'} ({field.name || '未设置字段名'})
-                                            </span>
-                                        </CollapsibleTrigger>
-                                        <div className="pr-2">
-                                            <Button
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    handleRemoveField(index);
-                                                }}
-                                                disabled={field.name === 'amount' || field.name === 'name'}
-                                            >
-                                                <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    </div>
-                                    <CollapsibleContent className="p-4 space-y-4 border-t bg-accent/5">
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <Label>字段名称</Label>
-                                                <Input
-                                                    value={field.name}
-                                                    onChange={e => handleFieldChange(index, { name: e.target.value })}
-                                                    placeholder="请输入字段名称"
-                                                    disabled={field.name === 'amount' || field.name === 'name'}
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label>字段标签</Label>
-                                                <Input
-                                                    value={field.label}
-                                                    onChange={e => handleFieldChange(index, { label: e.target.value })}
-                                                    placeholder="请输入字段标签"
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label>字段类型</Label>
-                                                <Select
-                                                    value={field.type}
-                                                    onValueChange={(value: keyof typeof LINKAGE_FORM_TYPES) =>
-                                                        handleFieldChange(index, {
-                                                            type: value,
-                                                            // 切换类型时清空默认值，避免类型不匹配
-                                                            defaultValue: undefined
-                                                        })
-                                                    }
-                                                >
-                                                    <SelectTrigger>
-                                                        <SelectValue placeholder="请选择字段类型" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        <SelectItem value="input-group">数字输入框</SelectItem>
-                                                        <SelectItem value="input-group-text">文本输入框</SelectItem>
-                                                        <SelectItem value="input-group-rich-text">富文本输入框</SelectItem>
-                                                        <SelectItem value="input-number-group">数字加减框</SelectItem>
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label>默认值</Label>
-                                                <Input
-                                                    value={field.defaultValue || ''}
-                                                    onChange={e => handleFieldChange(index, {
-                                                        defaultValue: field.type === 'input-group' ?
-                                                            Number(e.target.value) || undefined :
-                                                            e.target.value
-                                                    })}
-                                                    placeholder={`请输入${field.type === 'input-group' ? '数字' : '文本'}默认值`}
-                                                    type={field.type === 'input-group' ? 'number' : 'text'}
-                                                />
-                                                <p className="text-xs text-muted-foreground">
-                                                    {field.type === 'input-group' ? '数字类型字段，请输入数字默认值' : '文本类型字段，可输入任意默认值'}
-                                                </p>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label>占位文本</Label>
-                                                <Input
-                                                    value={field.placeholder || ''}
-                                                    onChange={e => handleFieldChange(index, { placeholder: e.target.value })}
-                                                    placeholder="请输入占位文本"
-                                                />
-                                            </div>
-                                            <div className="space-y-2">
-                                                <Label>后缀</Label>
-                                                <Input
-                                                    value={field.suffix || ''}
-                                                    onChange={e => handleFieldChange(index, { suffix: e.target.value })}
-                                                    placeholder="请输入后缀（如：元、个等）"
-                                                />
-                                            </div>
-                                            <div className="space-y-2 col-span-2">
-                                                <div className="flex items-center gap-2">
-                                                    <Checkbox
-                                                        id={`required-${index}`}
-                                                        checked={field.required}
-                                                        onCheckedChange={(checked) =>
-                                                            handleFieldChange(index, { required: Boolean(checked) })
-                                                        }
-                                                    />
-                                                    <Label htmlFor={`required-${index}`}>必填字段</Label>
-                                                </div>
-                                            </div>
-                                            <div className="space-y-2 col-span-2">
-                                                <Label>公式表达式（用于联动计算）</Label>
-                                                <ExpressionEditor
-                                                    value={field.expression || ''}
-                                                    onChange={(value) => handleFieldChange(index, { expression: value })}
-                                                    fields={fields.filter(f => f.name !== field.name)}
-                                                />
-                                                <p className="text-xs text-muted-foreground">
-                                                    可以引用其他字段进行计算，例如：amount * 2 + 10
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </CollapsibleContent>
-                                </Collapsible>
-                            ))}
-                        </ScrollArea>
+                    <TabsContent value="fields">
+                        <FormFieldsTab 
+                            fields={fields}
+                            openPanels={openPanels}
+                            setFields={setFields}
+                            setOpenPanels={setOpenPanels}
+                        />
                     </TabsContent>
                 </Tabs>
 

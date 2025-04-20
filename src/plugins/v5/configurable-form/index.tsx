@@ -1,9 +1,9 @@
-import { Editor, PluginOptions } from 'grapesjs';
+import { Editor } from 'grapesjs';
 import { FormConfigDialog } from '@/components/builder/form-config-dialog';
 import { createRoot, Root } from 'react-dom/client';
 import React from 'react';
 import BasePluginV5 from '../common/base';
-import { LINKAGE_FORM_TYPES, PRESETS } from '../linkage-form/constants';
+import { LINKAGE_FORM_TYPES } from '../linkage-form/constants';
 import { CASCADE_SELECTOR_TYPES } from '../linkage-form/constants';
 import { FormField } from '@/schemas';
 import { OPtion } from '..';
