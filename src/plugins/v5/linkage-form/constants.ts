@@ -11,22 +11,22 @@ export const LINKAGE_FORM_TYPES = {
 export const PRESETS = {
     // 商品
     goods: {
-        label: '商品:',
+        label: '商品：',
         suffix: '',
         type: 'text'
     },
     number: {
-        label: '数量:',
+        label: '数量：',
         suffix: '',
         type: 'number'
     },
     amount: {
-        label: '金额:',
+        label: '金额：',
         suffix: '元',
         type: 'number'
     },
     name: {
-        label: '姓名:',
+        label: '姓名：',
         suffix: '',
         type: 'text'
     }

@@ -284,7 +284,7 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                 },
                 components: [{
                     type: LINKAGE_FORM_TYPES[field.type],
-                    label: `${field.label}:`,
+                    label: `${field.label}：`,
                     suffix: field.suffix || '',
                     'input-type': field.type === 'input-group' ? 'number' : undefined,
                     required: field.required,
@@ -339,7 +339,7 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                 attributes: { name: field.name, label: '' },
                 components: [{
                     type: LINKAGE_FORM_TYPES[field.type] || 'input-group',
-                    label: `${field.label}:`,
+                    label: `${field.label}：`,
                     suffix: field.suffix || '',
                     'input-type': field.type === 'input-group' ? 'number' : undefined,
                     required: field.required,
