@@ -32,3 +32,25 @@ export async function updateIssue(id: string, content: {
         }
     }
 }
+
+// 新增：更新issue标题
+export async function updateIssueTitle(id: string, title: string) {
+    try {
+        const newIssue = await prisma.issue.update({
+            where: {
+                id: id
+            },
+            data: {
+                title: title
+            }
+        })
+
+        revalidatePath(`/client/issues`)
+        return actionData(newIssue)
+    } catch (error) {
+        console.error('Issue title update failed:', error instanceof Error ? error.message : String(error))
+        return {
+            status: 500
+        }
+    }
+}

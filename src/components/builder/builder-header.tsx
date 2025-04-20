@@ -12,7 +12,7 @@ import { cn } from 'atomic-utils'
 import Link from 'next/link'
 import { DevicesProvider, useEditorMaybe } from '@grapesjs/react'
 import { useParams } from 'next/navigation'
-import { updateIssue } from '@/actions/builder'
+import { updateIssue, updateIssueTitle } from '@/actions/builder'
 import { useIssue, usePublishIssue } from '@/contexts/issue-context'
 import { useMemo, useState, useEffect } from 'react'
 import { toast } from '@/hooks/use-toast'
@@ -35,12 +35,13 @@ const getDomain = () => {
 };
 
 export const BuilderHeader = () => {
-  const { issue } = useIssue()
+  const { issue, setIssue } = useIssue()
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
   const [qrDialogOpen, setQrDialogOpen] = useState(false)
+  const [isEditingTitle, setIsEditingTitle] = useState(false)
+  const [titleValue, setTitleValue] = useState(issue?.title ?? '未命名页面')
 
-  const title = issue?.title ?? '未命名页面'
   const locked = useMemo(() => {
     console.log(issue?.status, 'issue?.status')
     return issue?.status === 'published'
@@ -86,7 +87,7 @@ export const BuilderHeader = () => {
         
         const downloadLink = document.createElement('a');
         downloadLink.href = pngUrl;
-        downloadLink.download = `${title || 'h5-page'}-qrcode.png`;
+        downloadLink.download = `${issue?.title || 'h5-page'}-qrcode.png`;
         document.body.appendChild(downloadLink);
         downloadLink.click();
         document.body.removeChild(downloadLink);
@@ -109,6 +110,59 @@ export const BuilderHeader = () => {
       console.error('下载二维码失败:', error);
     }
   };
+  
+  
+  // 处理标题双击事件
+  const handleTitleDoubleClick = () => {
+    if (locked) return; // 如果页面已锁定，不允许编辑
+    setIsEditingTitle(true);
+  }
+  
+  // 处理标题编辑完成
+  const handleTitleChange = async () => {
+    if (titleValue.trim() === '') {
+      setTitleValue(issue?.title ?? '未命名页面'); // 如果为空，恢复原标题
+    } else if (titleValue !== issue?.title) {
+      try {
+        const result = await updateIssueTitle(id, titleValue)
+        // actionData可能返回两种类型的结果，需要检查
+        if (result && 'data' in result && result.data) {
+          // 更新本地issue状态
+          setIssue({
+            ...issue!,
+            title: titleValue
+          })
+          toast({
+            title: '标题已更新',
+            description: '页面标题已成功保存',
+            variant: 'default',
+          })
+        } else {
+          throw new Error('更新失败')
+        }
+      } catch (error) {
+        toast({
+          title: '更新失败',
+          description: '保存标题时发生错误',
+          variant: 'destructive',
+        })
+        setTitleValue(issue?.title ?? '未命名页面'); // 恢复原标题
+      }
+    }
+    setIsEditingTitle(false);
+  }
+  
+  // 处理按键事件
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleTitleChange();
+    } else if (e.key === 'Escape') {
+      e.preventDefault();
+      setTitleValue(issue?.title ?? '未命名页面'); // 恢复原标题
+      setIsEditingTitle(false);
+    }
+  }
   
   // 监听自动保存事件
   useEffect(() => {
@@ -257,7 +311,26 @@ export const BuilderHeader = () => {
 
             <span className="mr-2 text-xs opacity-40">/</span>
 
-            <h1 className="font-medium">{title}</h1>
+            {isEditingTitle ? (
+              <input
+                type="text"
+                value={titleValue}
+                onChange={(e) => setTitleValue(e.target.value)}
+                onBlur={handleTitleChange}
+                onKeyDown={handleKeyDown}
+                autoFocus
+                className="font-medium px-1 py-0.5 border border-primary rounded focus:outline-none focus:ring-2 focus:ring-primary/50"
+                style={{ minWidth: '150px', width: `${titleValue.length + 2}ch` }}
+              />
+            ) : (
+              <h1 
+                className="font-medium cursor-pointer hover:text-primary transition-colors"
+                onDoubleClick={handleTitleDoubleClick}
+                title={locked ? "页面已锁定，无法编辑" : "双击编辑标题"}
+              >
+                {issue?.title ?? '未命名页面'}
+              </h1>
+            )}
 
             {locked && (
               <Tooltip>
@@ -355,7 +428,7 @@ export const BuilderHeader = () => {
                 size={200}
                 level={"H"}
                 includeMargin={true}
-                title={`${title}页面的二维码`}
+                title={`${issue?.title ?? '未命名页面'}页面的二维码`}
                 bgColor={"#FFFFFF"}
                 fgColor={"#000000"}
               />
