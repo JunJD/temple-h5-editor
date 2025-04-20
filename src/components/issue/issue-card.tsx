@@ -35,7 +35,10 @@ export default function IssueCard({ issue }: Props) {
 
   const handleDelete = async () => {
     if (confirm('确定要删除这个Issue吗？')) {
-      await deleteIssue(issue.id)
+      const result = await deleteIssue(issue.id)
+      if (result.status === 500) {
+        throw new Error('删除失败')
+      }
       router.refresh()
       toast({
         variant: 'destructive',

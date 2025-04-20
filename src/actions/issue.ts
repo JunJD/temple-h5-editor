@@ -48,34 +48,61 @@ export async function createIssue(issue: createIssueDto) {
 
 export async function deleteIssue(id: string) {
   try {
+    // 1. 找到与 Issue 关联的所有 Submission 的 ID
+    const submissionsToDelete = await prisma.submission.findMany({
+      where: { issueId: id },
+      select: { id: true },
+    });
+    const submissionIds = submissionsToDelete.map(sub => sub.id);
+
+    // 2. 如果有关联的 Submission，则删除关联的 PaymentLog
+    if (submissionIds.length > 0) {
+      console.log(`删除 ${submissionIds.length} 个 Submission 关联的 PaymentLog`);
+      
+      // 分批处理，避免一次性删除太多记录
+      const batchSize = 10;
+      for (let i = 0; i < submissionIds.length; i += batchSize) {
+        const batchIds = submissionIds.slice(i, i + batchSize);
+        await prisma.paymentLog.deleteMany({
+          where: {
+            submissionId: {
+              in: batchIds,
+            },
+          },
+        });
+        console.log(`已删除 ${Math.min(i + batchSize, submissionIds.length)} / ${submissionIds.length} 个 Submission 的 PaymentLog`);
+      }
+    }
+
+    // 3. 删除所有关联的 Submission
+    console.log(`删除 Issue ${id} 关联的所有 Submission`);
     await prisma.submission.deleteMany({
       where: {
-        issueId: id
-      }
+        issueId: id,
+      },
     });
 
-    // 然后删除Issue本身
+    // 4. 最后删除 Issue 本身
+    console.log(`删除 Issue ${id}`);
     const deletedIssue = await prisma.issue.delete({
       where: {
-        id: id
-      }
-    })
+        id,
+      },
+    });
 
-    revalidatePath('/client/issues')
+    revalidatePath('/client/issues');
 
-    /**
-     * actionResult formats a response so http-react can read data, status code and error
-     * The code below will be formated as { data: deletedPost, status: 200 }.
-     * You can ommit the status part like this `return actionResult(deletedPost)`
-     */
     return actionData(deletedIssue, {
-      status: 200
-    })
+      status: 200,
+    });
   } catch (error) {
-    console.error('Issue deletion failed:', error instanceof Error ? error.message : String(error))
+    console.error('Issue deletion failed:', error instanceof Error ? error.message : String(error));
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      console.error('Database constraint violation during deletion:', error.code, error.meta);
+    }
     return actionData(null, {
-      status: 500
-    })
+      status: 500,
+    });
   }
 }
 
