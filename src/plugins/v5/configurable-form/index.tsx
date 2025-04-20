@@ -235,7 +235,7 @@ class ConfigurableFormPlugin extends BasePluginV5 {
             const existingForm = wrapper?.find('form')[0];
             
             if (!existingForm) {
-                // 如果表单不存在，创建新表单
+                // If the form doesn't exist, create a new one
                 wrapper?.append([{
                     type: 'form',
                     components: this.generateFormComponents()
@@ -243,63 +243,167 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                 return;
             }
 
-            // 获取所有表单项
-            const existingFields = existingForm.components().filter(comp => 
-                comp.get('type') === 'form-item'
-            );
-
-            if (existingFields.length < 2) {
-                console.error('Form structure is invalid');
+            // Get all current form items
+            const allItems = existingForm.components();
+            if (allItems.length < 2) {
+                console.error('Form structure is invalid. Requires at least header and footer form-items.');
+                // Optionally attempt to rebuild if structure is broken
+                existingForm.components().reset(this.generateFormComponents());
                 return;
             }
 
-            // 保持头部和尾部不变
-            const headerComponent = existingFields[0];
-            const footerComponent = existingFields[existingFields.length - 1];
+            // Identify header, footer, and middle items
+            const headerComponent = allItems.models[0];
+            const footerComponent = allItems.models[allItems.length - 1];
+            const currentMiddleItems = allItems.slice(1, -1); // Get GrapesJS Collection view
 
-            // 更新头部商品选择器组件的配置
+            // --- Update Header (Cascade Selector Options) ---
             if (headerComponent) {
                 const cascadeSelector = headerComponent.findType(CASCADE_SELECTOR_TYPES['cascade-selector'])[0];
-                if (cascadeSelector) {
-                    // 直接设置新的选项数据，不再使用traits
-                    cascadeSelector.set('options', this.config.goodsOptions);
-                    // 触发重渲染
-                    cascadeSelector.trigger('rerender');
-                    // 触发change:options事件，这会自动调用updateComponents
-                    cascadeSelector.trigger('change:options', cascadeSelector, this.config.goodsOptions);
+                if (cascadeSelector && this.config.goodsOptions) {
+                    // Only update if options actually changed to potentially avoid unnecessary rerenders
+                    const currentOptions = cascadeSelector.get('options');
+                    // Simple deep comparison (could be improved for performance if needed)
+                    if (JSON.stringify(currentOptions) !== JSON.stringify(this.config.goodsOptions)) {
+                        cascadeSelector.set('options', this.config.goodsOptions);
+                        // The change:options event should ideally handle internal updates
+                        cascadeSelector.trigger('change:options', cascadeSelector, this.config.goodsOptions);
+                    }
                 }
             }
 
-            // 清除中间的字段（保留头尾）
-            const currentFieldComponents = existingFields.slice(1, -1);
-            currentFieldComponents.forEach(comp => comp.remove());
+            // --- Process Middle Fields (The configurable ones) ---
+            const existingFieldsMap = new Map<string, any>(); // Map field name to component instance
+            currentMiddleItems.forEach(item => {
+                const fieldName = item.getAttributes()['data-field-name'];
+                if (fieldName) {
+                    existingFieldsMap.set(fieldName, item);
+                } else {
+                     // If an item lacks the identifier, we might want to remove it or log a warning
+                     console.warn('Found form-item without data-field-name attribute, it might be removed or ignored.', item);
+                }
+            });
 
-            // 插入新的字段到头部和尾部之间
-            const newFieldComponents = this.config.fields.map(field => ({
-                type: 'form-item',
-                attributes: { 
-                    name: field.name, 
-                    label: '',
-                    'data-field-name': field.name 
-                },
-                components: [{
-                    type: LINKAGE_FORM_TYPES[field.type],
-                    label: `${field.label}：`,
-                    suffix: field.suffix || '',
-                    'input-type': field.type === 'input-group' ? 'number' : undefined,
-                    required: field.required,
-                    placeholder: field.placeholder,
-                    defaultValue: field.defaultValue,
-                    expression: field.expression,
-                }]
-            }));
+            const newFieldsConfig = this.config.fields;
+            const finalMiddleComponents: any[] = []; // Will hold updated/new component instances or definitions
+            const processedFieldNames = new Set<string>();
 
-            // 重新组织表单组件顺序
-            existingForm.components().reset([
-                headerComponent,
-                ...newFieldComponents.map(comp => comp as any),
-                footerComponent
-            ]);
+            // Iterate through the new config to determine the final order and update/create items
+            newFieldsConfig.forEach(field => {
+                const fieldName = field.name;
+                processedFieldNames.add(fieldName);
+                const existingItem = existingFieldsMap.get(fieldName);
+
+                if (existingItem) {
+                    // --- Update Existing Item ---
+                    // Ensure outer form-item attributes are consistent (though maybe not necessary if only data-field-name is used for matching)
+                     existingItem.addAttributes({
+                         name: field.name, // Keep form-item's name consistent if it matters elsewhere
+                         'data-field-name': field.name // Already used for matching, but ensure it's correct
+                     });
+
+                    // Find the *actual* input component inside form-item
+                    // This assumes a structure where the primary input is identifiable, e.g., by type.
+                    // Adjust filter logic if structure is different (e.g., input is nested deeper)
+                    let innerInputComponent = existingItem.components().filter(c => Object.values(LINKAGE_FORM_TYPES).includes(c.get('type')) )[0];
+                    
+                    const expectedInnerType = LINKAGE_FORM_TYPES[field.type] || 'input-group'; // Determine expected type
+
+                    // Check if the inner component type matches the new config
+                    if (innerInputComponent && innerInputComponent.get('type') === expectedInnerType) {
+                         // Type matches, update properties/attributes of the existing inner component
+                         innerInputComponent.set({ // Use set for GrapesJS model properties
+                             label: `${field.label}：`,
+                             suffix: field.suffix || '',
+                             required: field.required, // Component's own required property
+                             placeholder: field.placeholder,
+                             defaultValue: field.defaultValue, // May need specific handling in component's 'onRender' or similar
+                             expression: field.expression,
+                         });
+                         // Update DOM attributes if needed (like 'required' attribute for native validation)
+                          innerInputComponent.addAttributes({
+                             'input-type': field.type === 'input-group' ? 'number' : undefined, // HTML attribute for type=number
+                             required: field.required ? true : undefined, // Use undefined to remove attribute
+                             placeholder: field.placeholder || ''
+                          });
+
+                     } else {
+                         // Type mismatch, or inner component not found -> Replace inner component(s)
+                         console.log(`Replacing inner component for field "${fieldName}" due to type change or missing component.`);
+                         const newInnerComponentDefinition = {
+                             type: expectedInnerType,
+                             label: `${field.label}：`,
+                             suffix: field.suffix || '',
+                             required: field.required,
+                             placeholder: field.placeholder,
+                             defaultValue: field.defaultValue,
+                             expression: field.expression,
+                             // Add attributes directly here too if needed by the component on creation
+                             attributes: {
+                                'input-type': field.type === 'input-group' ? 'number' : undefined,
+                                required: field.required ? true : undefined,
+                                placeholder: field.placeholder || ''
+                             }
+                         };
+                          // Replace all components inside the form-item with the new definition
+                          // This is simpler but might remove decorative elements if they exist.
+                          // A more sophisticated approach could try to preserve other elements.
+                          existingItem.components().reset([newInnerComponentDefinition]);
+                     }
+                     finalMiddleComponents.push(existingItem); // Add the updated component instance to the final list
+                     existingFieldsMap.delete(fieldName); // Mark as processed
+
+                } else {
+                    // --- Create New Item ---
+                    console.log(`Creating new form item for field "${fieldName}"`);
+                    const newItemDefinition = { // Create definition for GrapesJS append/reset
+                        type: 'form-item',
+                        attributes: {
+                            name: field.name,
+                            label: '', // Usually label is on the inner component
+                            'data-field-name': field.name
+                        },
+                        components: [{
+                            type: LINKAGE_FORM_TYPES[field.type] || 'input-group',
+                            label: `${field.label}：`,
+                            suffix: field.suffix || '',
+                            required: field.required,
+                            placeholder: field.placeholder,
+                            defaultValue: field.defaultValue,
+                            expression: field.expression,
+                            attributes: {
+                                'input-type': field.type === 'input-group' ? 'number' : undefined,
+                                required: field.required ? true : undefined,
+                                placeholder: field.placeholder || ''
+                             }
+                        }]
+                    };
+                    finalMiddleComponents.push(newItemDefinition); // Add definition to the final list
+                }
+            });
+
+            // --- Identify Items to Remove ---
+            // Items remaining in existingFieldsMap were not in the new config.
+            // GrapesJS's reset below will handle the removal implicitly
+            // because we don't include them in `finalComponents`.
+            existingFieldsMap.forEach((itemToRemove, name) => {
+                 console.log(`Field "${name}" removed from config, will be removed from form.`);
+                 // No need to explicitly call itemToRemove.remove(), reset will handle it.
+            });
+
+
+            // --- Reconstruct Form Components ---
+            // Combine header, the processed middle components, and footer IN ORDER
+            const finalComponents = [
+                headerComponent, // Keep the existing header component instance
+                ...finalMiddleComponents, // Add the updated instances and new definitions
+                footerComponent  // Keep the existing footer component instance
+            ];
+
+             // Use reset to replace the form's components with the new structure
+             // This efficiently handles additions, removals, and reordering.
+             existingForm.components().reset(finalComponents);
+
         } catch (error) {
             console.error('Error updating form component:', error);
         }
