@@ -176,7 +176,6 @@ export const loadInputGroup = (editor: Editor) => {
                                 line-height: 24px;
                                 flex: 1;
                                 width: 100%;
-                                padding-left: 12px;
                                 text-align: left;
                                 background: transparent;
                             }
@@ -394,7 +393,6 @@ export const loadInputGroup = (editor: Editor) => {
                                 line-height: 24px;
                                 flex: 1;
                                 width: 100%;
-                                padding-left: 12px;
                                 text-align: left;
                                 background: transparent;
                             }
