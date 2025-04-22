@@ -54,7 +54,7 @@ export function SubmissionTable({ submissions }: SubmissionTableProps) {
                   {submission.amount.toFixed(2)} {submission.currency}
                 </TableCell>
                 <TableCell>
-                  <Badge variant={statusConfig.color}>{statusConfig.label}</Badge>
+                  <Badge variant={statusConfig.color}>{statusConfig.label}{submission.status}</Badge>
                 </TableCell>
                 <TableCell>{submission.paidAt ? formatDateTime(submission.paidAt) : '-'}</TableCell>
                 <TableCell>{submission.expiredAt ? formatDateTime(submission.expiredAt) : '-'}</TableCell>

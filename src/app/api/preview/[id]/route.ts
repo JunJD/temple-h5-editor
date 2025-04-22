@@ -39,7 +39,10 @@ export async function GET(
         console.log('Issue数据结果:', JSON.stringify(result));
 
         const submissions = await prisma.submission.findMany({
-            where: { issueId: params.id },
+            where: { 
+                issueId: params.id,
+                status: 'PAID'
+            },
             orderBy: { createdAt: 'desc' }
           })
           
