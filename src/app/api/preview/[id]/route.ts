@@ -111,11 +111,6 @@ export async function GET(
     ` : ''}
     <!-- Bootstrap JS -->
     <script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
-    
-    <script>
-    var vConsole = new window.VConsole();
-    </script>
     <script>
         // 获取 JSSDK 配置
         fetch('/api/wechat/jsconfig?url=' + encodeURIComponent(location.href.split('#')[0]))
