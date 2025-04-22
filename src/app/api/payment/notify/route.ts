@@ -6,9 +6,17 @@ export async function POST(req: Request) {
         const body = await req.text()
         const payService = getWechatPayService()
 
+        // TEMPORARY DEBUG LOGGING - REMOVE IMMEDIATELY AFTER TESTING
+        console.log("DEBUG: API Key used for verification:", process.env.WECHAT_PAY_API_KEY); // Or however you access the key
+
+        console.log("--- Raw Notification Body START ---");
+        console.log(body);
+        console.log("--- Raw Notification Body END ---");
+        
         // 验证回调通知签名
         const notification = payService.verifyNotification(body)
 
+        
         // 处理支付结果
         if (notification.return_code === 'SUCCESS' && notification.result_code === 'SUCCESS') {
             // 查找支付记录
