@@ -144,45 +144,85 @@ export class WechatPayV2Service {
     }
   }
 
-  // 统一下单
+  /**
+   * 统一下单接口 - 创建预支付订单
+   * @param params 支付参数
+   * @returns 预支付订单信息
+   */
   async createUnifiedOrder(params: PrepayOrderParamsV2): Promise<WechatPayResponse> {
     const url = 'https://api.mch.weixin.qq.com/pay/unifiedorder'
     const requestParams = {
       body: params.body,
       out_trade_no: params.outTradeNo,
-      total_fee: params.totalFee,
+      total_fee: params.totalFee.toString(),
       spbill_create_ip: params.spbill_create_ip || '127.0.0.1',
       notify_url: this.config.notifyUrl,
       trade_type: 'JSAPI',
       openid: params.openid,
+      appid: this.config.appId,
+      mch_id: this.config.mchId,
+      nonce_str: this.generateNonceStr(),
       attach: params.attach,
     }
 
-    console.log('统一下单请求参数:', requestParams)
+    // 生成签名
+    const sign = this.generateSign(requestParams)
     
-    const result = await this.request(url, requestParams)
-    console.log('统一下单返回结果:', result)
-    
-    // 生成支付参数
-    const timeStamp = Math.floor(Date.now() / 1000).toString()
-    const nonceStr = this.generateNonceStr()
-    const packageStr = `prepay_id=${result.prepay_id}`
-    const signType = 'MD5'
-
-    const payParams = {
-      appId: this.config.appId,
-      timeStamp,
-      nonceStr,
-      package: packageStr,
-      signType,
+    // 完整请求参数，包含签名
+    const fullRequestParams = {
+      ...requestParams,
+      sign
     }
 
-    const paySign = this.generateSign(payParams)
+    // 将参数转换为XML
+    const requestXml = await this.processRequestParams(fullRequestParams)
 
-    return {
-      ...payParams,
-      paySign,
-    } as WechatPayResponse
+    try {
+      // 发送请求到微信支付API
+      const response = await axios.post(url, requestXml, {
+        headers: { 'Content-Type': 'text/xml' },
+      })
+      const result = this.parser.parse(response.data)
+
+      // 检查返回结果
+      if (result.xml.return_code !== 'SUCCESS' || result.xml.result_code !== 'SUCCESS') {
+        throw new Error(
+          `统一下单失败: ${result.xml.return_msg || result.xml.err_code_des || '未知错误'}`
+        )
+      }
+
+      // 构造JSAPI支付参数
+      const timeStamp = Math.floor(Date.now() / 1000).toString()
+      const nonceStr = this.generateNonceStr()
+      const packageStr = `prepay_id=${result.xml.prepay_id}`
+      const signType = 'MD5'
+
+      const payParams = {
+        appId: this.config.appId,
+        timeStamp,
+        nonceStr,
+        package: packageStr,
+        signType,
+      }
+
+      const paySign = this.generateSign(payParams)
+
+      // 返回符合WechatPayResponse类型的响应
+      return {
+        return_code: 'SUCCESS',
+        return_msg: 'OK',
+        appId: this.config.appId,
+        timeStamp,
+        nonceStr,
+        package: packageStr,
+        signType,
+        paySign,
+        outTradeNo: params.outTradeNo,
+      } as WechatPayResponse
+    } catch (error) {
+      console.error('统一下单请求失败:', error)
+      throw error
+    }
   }
 
   // 查询订单
@@ -221,54 +261,49 @@ export class WechatPayV2Service {
     return await this.request(url, { out_refund_no: outRefundNo })
   }
 
-  // 验证回调通知签名
+  /**
+   * 验证微信支付通知
+   * @param xmlData 微信支付通知XML数据
+   * @returns 解析后的通知数据
+   */
   verifyNotification(xmlData: string): any {
-    console.log("XML Data for verification:", xmlData);
-    
     // 使用正则表达式直接解析 XML，避免数据类型转换问题
-    const data: Record<string, string> = {};
-    const tagPattern = /<([^><\/\s]+)>(?:<!\[CDATA\[([^><]*?)\]\]>|([^><]*?))<\/\1>/g;
-    let match;
+    const data: Record<string, string> = {}
+    const tagPattern = /<([^><\/\s]+)>(?:<!\[CDATA\[([^><]*?)\]\]>|([^><]*?))<\/\1>/g
+    let match
     
     while ((match = tagPattern.exec(xmlData)) !== null) {
-      const tagName = match[1];
+      const tagName = match[1]
       // 优先使用 CDATA 中的值，如果没有则使用普通标签值
-      const tagValue = match[2] !== undefined ? match[2] : match[3];
+      const tagValue = match[2] !== undefined ? match[2] : match[3]
       if (tagName && tagValue !== undefined) {
-        data[tagName] = tagValue;
+        data[tagName] = tagValue
       }
     }
     
-    console.log("Manually parsed data:", JSON.stringify(data));
-    
     // 保存原始签名以供验证
-    const originalSign = data.sign;
+    const originalSign = data.sign
     if (!originalSign) {
-      throw new Error('Missing sign in notification');
+      throw new Error('签名缺失')
     }
     
     // 创建用于签名计算的参数对象，排除 sign 字段
-    const params: Record<string, string> = {};
+    const params: Record<string, string> = {}
     Object.keys(data).forEach(key => {
       if (key !== 'sign' && data[key] !== undefined && data[key] !== '') {
-        params[key] = data[key];
+        params[key] = data[key]
       }
-    });
-    
-    console.log("Params for sign calculation:", JSON.stringify(params));
+    })
     
     // 计算签名
-    const calculatedSign = this.generateSign(params);
-    console.log("Original sign:", originalSign);
-    console.log("Calculated sign:", calculatedSign);
+    const calculatedSign = this.generateSign(params)
     
     // 验证签名
     if (originalSign !== calculatedSign) {
-      console.error(`Sign mismatch: original=${originalSign}, calculated=${calculatedSign}`);
-      throw new Error('Invalid notification signature');
+      console.error('签名不匹配')
+      throw new Error('无效的通知签名')
     }
     
-    // 返回解析后的数据
-    return data;
+    return data
   }
 } 
