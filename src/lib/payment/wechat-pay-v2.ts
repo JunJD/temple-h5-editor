@@ -225,11 +225,21 @@ export class WechatPayV2Service {
   verifyNotification(xmlData: string): any {
     console.log("XML Data for verification:", xmlData);
     
-    // 解析 XML 为对象，确保解析选项正确
-    const result = this.parser.parse(xmlData);
-    const data = result.xml || {};
+    // 使用正则表达式直接解析 XML，避免数据类型转换问题
+    const data: Record<string, string> = {};
+    const tagPattern = /<([^><\/\s]+)>(?:<!\[CDATA\[([^><]*?)\]\]>|([^><]*?))<\/\1>/g;
+    let match;
     
-    console.log("Parsed notification data:", JSON.stringify(data));
+    while ((match = tagPattern.exec(xmlData)) !== null) {
+      const tagName = match[1];
+      // 优先使用 CDATA 中的值，如果没有则使用普通标签值
+      const tagValue = match[2] !== undefined ? match[2] : match[3];
+      if (tagName && tagValue !== undefined) {
+        data[tagName] = tagValue;
+      }
+    }
+    
+    console.log("Manually parsed data:", JSON.stringify(data));
     
     // 保存原始签名以供验证
     const originalSign = data.sign;
@@ -237,12 +247,11 @@ export class WechatPayV2Service {
       throw new Error('Missing sign in notification');
     }
     
-    // 创建一个新对象，确保所有值都是字符串，并删除 sign 字段
+    // 创建用于签名计算的参数对象，排除 sign 字段
     const params: Record<string, string> = {};
     Object.keys(data).forEach(key => {
       if (key !== 'sign' && data[key] !== undefined && data[key] !== '') {
-        // 确保每个值都是字符串
-        params[key] = String(data[key]);
+        params[key] = data[key];
       }
     });
     
