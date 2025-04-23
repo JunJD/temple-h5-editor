@@ -82,7 +82,7 @@ export class WechatPayV2Service {
     // 2. 拼接字符串
     let stringA = sortedKeys
       .filter(key => params[key] !== undefined && params[key] !== '')
-      .map(key => `${key}=${params[key]}`)
+      .map(key => `${key}=${String(params[key])}`)
       .join('&')
     
     // 3. 拼接商户密钥
