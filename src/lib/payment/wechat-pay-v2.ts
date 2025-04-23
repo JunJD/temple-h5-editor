@@ -223,18 +223,43 @@ export class WechatPayV2Service {
 
   // 验证回调通知签名
   verifyNotification(xmlData: string): any {
-    const result = this.parser.parse(xmlData)
-    const data = result.xml
+    console.log("XML Data for verification:", xmlData);
     
-    // 验证签名
-    const sign = data.sign
-    delete data.sign
-    const calculatedSign = this.generateSign(data)
+    // 解析 XML 为对象，确保解析选项正确
+    const result = this.parser.parse(xmlData);
+    const data = result.xml || {};
     
-    if (sign !== calculatedSign) {
-      throw new Error('Invalid notification signature')
+    console.log("Parsed notification data:", JSON.stringify(data));
+    
+    // 保存原始签名以供验证
+    const originalSign = data.sign;
+    if (!originalSign) {
+      throw new Error('Missing sign in notification');
     }
     
-    return data
+    // 创建一个新对象，确保所有值都是字符串，并删除 sign 字段
+    const params: Record<string, string> = {};
+    Object.keys(data).forEach(key => {
+      if (key !== 'sign' && data[key] !== undefined && data[key] !== '') {
+        // 确保每个值都是字符串
+        params[key] = String(data[key]);
+      }
+    });
+    
+    console.log("Params for sign calculation:", JSON.stringify(params));
+    
+    // 计算签名
+    const calculatedSign = this.generateSign(params);
+    console.log("Original sign:", originalSign);
+    console.log("Calculated sign:", calculatedSign);
+    
+    // 验证签名
+    if (originalSign !== calculatedSign) {
+      console.error(`Sign mismatch: original=${originalSign}, calculated=${calculatedSign}`);
+      throw new Error('Invalid notification signature');
+    }
+    
+    // 返回解析后的数据
+    return data;
   }
 } 
