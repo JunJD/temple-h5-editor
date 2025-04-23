@@ -9,7 +9,7 @@ export function getWechatPayService(): WechatPayV2Service {
         wechatPayService = new WechatPayV2Service({
             appId: process.env.WECHAT_PAY_APP_ID!,
             mchId: process.env.WECHAT_PAY_MCH_ID!,
-            key: process.env.WECHAT_PAY_KEY!,
+            key: 'AqBZTrpNijb7wrpvs9c2TcGdAmoDWadZ',
             pfxPath: process.env.WECHAT_PAY_PFX_PATH,
             notifyUrl: process.env.WECHAT_PAY_NOTIFY_URL!,
         })
