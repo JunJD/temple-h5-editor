@@ -474,14 +474,19 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                     defaultImage: DEFAULT_OPTION_IMAGE,
                     'script-props': [
                         'label', 'image', 'object-fit', 'defaultImage',
-                        'button-variant', 'button-size', 'value', 'selected', 'editable'
+                        'button-variant', 'button-size', 'value', 'selected', 'editable',
+                        'button-color', 'button-width',
+                        'button-border-color'
                     ],
                     script: function (props) {
                         const el = this;
                         const parent = el.closest('.level-1-group, .level-2-group');
                         const mode = parent?.getAttribute('display-mode') || 'image';
 
-                        const selectedColor = getComputedStyle(parent).getPropertyValue('--selected-color').trim() || '#a67c37';
+                        const selectedColor = parent ? getComputedStyle(parent).getPropertyValue('--selected-color').trim() || '#a67c37' : '#a67c37';
+                        const buttonColor = props['button-color'];
+                        const buttonWidth = props['button-width'];
+                        const buttonBorderColor = props['button-border-color'];
 
                         function renderOption() {
                             if (mode === 'image') {
@@ -512,37 +517,46 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                         <span style="${Object.entries(spanStyle).map(([k, v]) => `${k}:${v}`).join(';')}">${props.label}</span>
                                     </div>
                                 `;
+                                // Ensure pointer-events is auto for image mode children
+                                const imgDiv = el.querySelector('div');
+                                if (imgDiv) {
+                                    imgDiv.style.pointerEvents = 'auto';
+                                    const img = imgDiv.querySelector('img');
+                                    const span = imgDiv.querySelector('span');
+                                     if (img) img.style.pointerEvents = 'auto';
+                                     if (span) span.style.pointerEvents = 'auto';
+                                }
                             } else {
-                                // 按钮基础样式
                                 const buttonStyle: Record<string, string> = {
-                                    'border-radius': '6px', // 0.15rem
+                                    'border-radius': '6px',
                                     'text-align': 'center',
                                     color: '#8c8d8d',
-                                    border: `1px solid ${selectedColor}`,
-                                    'background': 'transparent',
+                                    border: `1px solid ${buttonBorderColor || selectedColor}`,
+                                    background: buttonColor || 'transparent',
                                     'transition': 'all 0.3s ease',
-                                    cursor: 'pointer',
-                                    padding: '', // 将在下面根据大小设置
-                                    'font-size': '' // 将在下面根据大小设置
+                                    // cursor: 'pointer', // Remove cursor from button, parent 'el' has it
+                                    padding: '',
+                                    'font-size': '',
+                                    'box-sizing': 'border-box',
+                                    'pointer-events': 'none', // <-- Make button ignore clicks
                                 };
-                                
-                                // 根据按钮大小设置不同样式
+
+                                if (buttonWidth) {
+                                    buttonStyle.width = buttonWidth;
+                                }
+
                                 const buttonSize = props['button-size'] || '';
                                 if (buttonSize === 'btn-sm') {
-                                    // 小按钮
                                     buttonStyle.padding = '4px 8px';
                                     buttonStyle['font-size'] = '12px';
                                 } else if (buttonSize === 'btn-lg') {
-                                    // 大按钮
                                     buttonStyle.padding = '12px 24px';
                                     buttonStyle['font-size'] = '18px';
                                 } else {
-                                    // 中按钮（默认）
                                     buttonStyle.padding = '7.67px 15.33px';
                                     buttonStyle['font-size'] = '15px';
                                 }
 
-                                // 选中状态样式
                                 if (el.classList.contains('selected')) {
                                     buttonStyle.background = selectedColor;
                                     buttonStyle.color = '#fff';
@@ -552,12 +566,19 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                             }
                         }
 
-                        // 初始渲染
                         renderOption();
+
+                        const observer = new MutationObserver((mutationsList) => {
+                            for(const mutation of mutationsList) {
+                                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                                    renderOption();
+                                }
+                            }
+                        });
+                        observer.observe(el, { attributes: true });
 
                         el.onclick = () => {
                             const groupId = parent?.getAttribute('data-group-id');
-                            // 获取editable属性
                             const editable = props.editable || el.getAttribute('data-editable') === 'true';
 
                             el.dispatchEvent(new CustomEvent('option-click', {
@@ -572,6 +593,10 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 },
                                 bubbles: true
                             }));
+                        };
+
+                        this.removed = () => {
+                            observer.disconnect();
                         };
                     }
                 }

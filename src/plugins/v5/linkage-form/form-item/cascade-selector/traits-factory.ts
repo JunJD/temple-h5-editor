@@ -116,6 +116,26 @@ export class CascadeSelectorTraitsFactory extends BaseTraitsFactory {
                 name: 'value',
                 default: '',
                 changeProp: true
+            },
+            {
+                type: 'color',
+                label: '按钮背景色 (默认)',
+                name: 'button-color',
+                changeProp: true,
+            },
+            {
+                type: 'color',
+                label: '按钮边框色 (默认)',
+                name: 'button-border-color',
+                changeProp: true,
+            },
+            {
+                type: 'text',
+                label: '按钮宽度 (默认 100%)',
+                name: 'button-width',
+                placeholder: '例如: 100px, 80%',
+                changeProp: true,
+                default: '60%'
             }
         ];
     }
