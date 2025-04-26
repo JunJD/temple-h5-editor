@@ -95,7 +95,10 @@ export async function GET(
         var is_h5 = true
         var submissionData = ${JSON.stringify(submissions)}
     </script>
-    
+    <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
+    <script>
+    var vConsole = new window.VConsole();
+    </script>
     ${content.html || ''}
     ${isPreview ? `
     <div class="preview-banner" style="
