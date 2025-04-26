@@ -1,23 +1,8 @@
 :root {
   --bs-border-radius: 4px;
+  --bs-secondary-color: #757575
 }
 
 .form-control {
   padding: 0px;
-}
-
-.rich-text::placeholder {
-  color: #757575;
-}
-
-.rich-text::-webkit-input-placeholder { /* Chrome, Safari, Opera, Android WebView */
-   color: #757575;
-}
-
-.rich-text:-ms-input-placeholder { /* Internet Explorer 10-11 */
-   color: #757575;
-}
-
-.rich-text::-ms-input-placeholder { /* Microsoft Edge (Legacy) */
-  color: #757575;
 }
