@@ -399,7 +399,7 @@ export const BuilderHeader = () => {
               <TooltipContent>生成页面二维码</TooltipContent>
             </Tooltip>
             <Button variant="outline" onClick={onPublish} size="sm">
-              发布
+            {locked ? '解除发布': "发布" }
             </Button>
             <Button variant="outline" onClick={onPreview} size="sm">
               预览

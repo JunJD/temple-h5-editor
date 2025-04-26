@@ -16,7 +16,7 @@ export const LeftSidebar = () => {
 
   return (
     <TooltipProvider>
-      <div className="flex h-full">
+      <div className="flex h-[calc(100vh - 80px)]">
         {/* 左侧Tab切换 */}
         <div className="basis-12 flex flex-col items-center py-4 bg-secondary/30">
           <div className="flex flex-col gap-2">

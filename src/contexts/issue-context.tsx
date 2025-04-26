@@ -121,7 +121,6 @@ export function usePublishIssue() {
         title: '发布成功',
         description: '发布成功',
       })
-      window.open(`/h5/${issue.id}`, '_blank')
     } else {
       toast({
         variant: 'destructive',

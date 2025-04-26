@@ -167,7 +167,7 @@ export const ImageLibrary = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 h-full flex flex-col">
       {/* 上传按钮 */}
       <Dialog>
         <DialogTrigger asChild>
@@ -255,7 +255,7 @@ export const ImageLibrary = () => {
       </Dialog>
 
       {/* 图片列表 */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 ">
         {images.map((image) => (
           <div key={image.id} className="group relative">
             <div className="aspect-square w-full overflow-hidden rounded-lg border bg-muted">
