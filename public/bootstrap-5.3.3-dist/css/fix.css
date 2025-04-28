@@ -1,24 +1,48 @@
 :root {
   --bs-border-radius: 4px;
-  --bs-secondary-color: #999999
+  --bs-secondary-color: #A8A8A8
 }
 
 .form-control {
   padding: 0px;
 }
 
+.form-input::placeholder {
+  color: #A8A8A8;
+}
+
+.form-input::-webkit-input-placeholder {
+  color: #A8A8A8;
+}
+
+.form-input:-moz-placeholder { /* Mozilla Firefox 4 to 18 */ 
+  color: #A8A8A8;
+}
+
+.form-input::-moz-placeholder { /* Mozilla Firefox 19+ */ 
+  color: #A8A8A8;
+}
+
+.form-input:-ms-input-placeholder { /* Internet Explorer 10+ */ 
+  color: #A8A8A8;
+}
+
+.form-control.rich-text::placeholder {
+  color: #A8A8A8;
+}
+
 .form-control.rich-text::-webkit-input-placeholder {
-  color: #999999;
+  color: #A8A8A8;
 }
 
 .form-control.rich-text:-moz-placeholder { /* Mozilla Firefox 4 to 18 */ 
-  color: #999999; 
+  color: #A8A8A8; 
 } 
 
 .form-control.rich-text::-moz-placeholder { /* Mozilla Firefox 19+ */ 
-  color: #999999; 
+  color: #A8A8A8; 
 }
 
 .form-control.rich-text:-ms-input-placeholder { /* Internet Explorer 10+ */ 
-  color: #999999;
+  color: #A8A8A8;
 }
