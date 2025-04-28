@@ -1,6 +1,6 @@
 :root {
   --bs-border-radius: 4px;
-  --bs-secondary-color: red
+  --bs-secondary-color: #999999
 }
 
 .form-control {
@@ -8,17 +8,17 @@
 }
 
 .form-control.rich-text::-webkit-input-placeholder {
-  color: red;
+  color: #999999;
 }
 
 .form-control.rich-text:-moz-placeholder { /* Mozilla Firefox 4 to 18 */ 
-  color: red; 
+  color: #999999; 
 } 
 
 .form-control.rich-text::-moz-placeholder { /* Mozilla Firefox 19+ */ 
-  color: red; 
+  color: #999999; 
 }
 
 .form-control.rich-text:-ms-input-placeholder { /* Internet Explorer 10+ */ 
-  color: red;
+  color: #999999;
 }
