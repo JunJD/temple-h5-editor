@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui'
+import { Button, ScrollArea } from '@/components/ui'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog'
@@ -255,10 +255,11 @@ export const ImageLibrary = () => {
       </Dialog>
 
       {/* 图片列表 */}
-      <div className="grid grid-cols-2 gap-4 ">
-        {images.map((image) => (
-          <div key={image.id} className="group relative">
-            <div className="aspect-square w-full overflow-hidden rounded-lg border bg-muted">
+      <ScrollArea className="flex-1 overflow-y-auto">
+        <div className="grid grid-cols-2 gap-4">
+          {images.map((image) => (
+            <div key={image.id} className="group relative">
+              <div className="aspect-square w-full overflow-hidden rounded-lg border bg-muted">
               <img
                 src={image.url}
                 alt={image.name}
@@ -304,7 +305,8 @@ export const ImageLibrary = () => {
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      </ScrollArea>
     </div>
   )
 } 
