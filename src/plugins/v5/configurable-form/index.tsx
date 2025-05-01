@@ -417,7 +417,7 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                 attributes: { name: 'goods', label: '' },
                 components: [
                     {
-                        type: 'default',
+                        type: 'text',
                         style: {
                             'font-size': '16px',
                             'font-weight': 'bold',
