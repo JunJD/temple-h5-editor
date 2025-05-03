@@ -320,7 +320,7 @@ export class GridComponents extends BaseLoadComponents {
         editor.Components.addType(GRID_BLOCKS['bs-col'], {
             isComponent: (el) => {
                 if (!el.classList) return false;
-                return el.classList.contains('col') || !!el.className.match(/col-[0-9]+/);
+                return el.classList.contains('col') || !!el.className?.match?.(/col-[0-9]+/);
             },
             model: {
                 defaults: {
