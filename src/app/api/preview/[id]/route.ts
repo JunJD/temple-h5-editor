@@ -59,7 +59,7 @@ export async function GET(
         }
         console.log('firstImageUrl', firstImageUrl)
         const pageUrl = request.nextUrl.toString();
-        const shareDesc = data.title || '点击查看详情';
+        const shareDesc = data.description || '点击查看详情';
         const shareTitle = data.title || '分享标题';
 
         const html = `
@@ -150,7 +150,7 @@ export async function GET(
                         title: '${shareTitle}',
                         desc: '${shareDesc}',
                         link: '${pageUrl}',
-                        imgUrl: '${firstImageUrl || ''}',
+                        imgUrl: 'https://wuxicdn.oss-cn-beijing.aliyuncs.com/1745979730183-pgn1v6.jpg',
                         success: function () {
                             console.log('微信分享信息设置成功');
                         },
