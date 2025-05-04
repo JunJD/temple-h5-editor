@@ -140,6 +140,7 @@ export async function GET(
                         'updateTimelineShareData',
                         'onMenuShareAppMessage',
                         'onMenuShareTimeline',
+                        'checkJsApi'
                     ]
                 });
 
