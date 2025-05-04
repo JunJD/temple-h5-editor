@@ -41,13 +41,27 @@ export async function GET(
             return new NextResponse('Not Found', { status: 404 })
         }
         const htmlContent = content.html || '';
-        let firstImageUrl = null;
+        let firstImageUrl: string | null = null;
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin;
 
         const imageMatch = htmlContent.match(/<img[^>]+src=\"([^\"]+)\"/);
         if (imageMatch && imageMatch[1]) {
-            firstImageUrl = imageMatch[1];
+            let rawImageUrl = imageMatch[1];
+            if (rawImageUrl && !rawImageUrl.startsWith('http')) {
+                if (rawImageUrl.startsWith('/')) {
+                    firstImageUrl = siteUrl + rawImageUrl;
+                } else {
+                    firstImageUrl = siteUrl + '/' + rawImageUrl;
+                }
+                console.log('Converted relative image URL to absolute:', firstImageUrl);
+            } else {
+                firstImageUrl = rawImageUrl;
+            }
         }
         const pageUrl = request.nextUrl.toString();
+        const shareDesc = data.title || '点击查看详情';
+        const shareTitle = data.title || '分享标题';
+
         const html = `
 <!DOCTYPE html>
 <html>
@@ -127,6 +141,33 @@ export async function GET(
 
                 wx.ready(function() {
                     console.log('微信 JSSDK 初始化成功');
+                    const shareConfig = {
+                        title: '${shareTitle}',
+                        desc: '${shareDesc}',
+                        link: '${pageUrl}',
+                        imgUrl: '${firstImageUrl || ''}',
+                        success: function () {
+                            console.log('微信分享信息设置成功');
+                        },
+                        cancel: function () {
+                            console.log('用户取消分享');
+                        },
+                        fail: function (res) {
+                            console.error('微信分享信息设置失败:', JSON.stringify(res));
+                            alert('分享设置失败: ' + JSON.stringify(res));
+                        }
+                    };
+                    
+                    wx.updateAppMessageShareData(shareConfig);
+                    
+                    wx.updateTimelineShareData({
+                        title: shareConfig.title,
+                        link: shareConfig.link,
+                        imgUrl: shareConfig.imgUrl,
+                        success: shareConfig.success,
+                        cancel: shareConfig.cancel,
+                        fail: shareConfig.fail
+                    });
                 });
 
                 wx.error(function(res) {
