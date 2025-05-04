@@ -129,7 +129,7 @@ export async function GET(
             .then(response => response.json())
             .then(config => {
                 wx.config({
-                    debug: false,
+                    debug: true,
                     appId: config.appId,
                     timestamp: config.timestamp,
                     nonceStr: config.nonceStr,
@@ -139,13 +139,12 @@ export async function GET(
                         'updateAppMessageShareData',
                         'updateTimelineShareData',
                         'onMenuShareAppMessage',
-                        'onMenuShareTimeline'
-                        'checkJsApi',
+                        'onMenuShareTimeline',
                     ]
                 });
 
                 wx.ready(function() {
-                    console.log('微信 JSSDK 初始化成功');
+
                     const shareConfig = {
                         title: '${shareTitle}',
                         desc: '${shareDesc}',
