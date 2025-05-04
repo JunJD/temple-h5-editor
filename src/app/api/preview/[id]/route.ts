@@ -149,7 +149,7 @@ export async function GET(
                         title: '${shareTitle}',
                         desc: '${shareDesc}',
                         link: '${pageUrl}',
-                        imgUrl: 'https://wuxicdn.oss-cn-beijing.aliyuncs.com/1745979730183-pgn1v6.jpg',
+                        imgUrl: 'http://kls.wxsushang.com/attachment/images/131/2023/04/jqW5VZWRkOFTnfh44oRZqVTv2lV9I9.jpg',
                         success: function () {
                             console.log('微信分享信息设置成功');
                         },
