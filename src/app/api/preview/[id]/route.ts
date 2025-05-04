@@ -135,7 +135,9 @@ export async function GET(
                     nonceStr: config.nonceStr,
                     signature: config.signature,
                     jsApiList: [
-                        'chooseWXPay'
+                        'chooseWXPay',
+                        'updateAppMessageShareData',
+                        'updateTimelineShareData'
                     ]
                 });
 
