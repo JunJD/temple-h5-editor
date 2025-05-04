@@ -95,13 +95,11 @@ class PayButtonPlugin extends BasePluginV5 {
                                     const name = formData.name ||  '-'
                                     const name1 = (name.substring(0, 1).concat(name.length > 2 ? '**' : '*')) ||  '-'
 
-                                    console.log('form===>', form)
                                     const selectedNode = form?.querySelectorAll('.selected')
                                     if(!selectedNode || selectedNode.length < 2) {
                                         alert('请选择商品')
                                         return
                                     }
-                                    console.log('selectedNode===>', selectedNode)
                                     const [goods1, goods2] = Array.from(selectedNode).map(item => {
                                         const label = item.querySelector('span')
                                         const button = item.querySelector('button')
@@ -123,10 +121,8 @@ class PayButtonPlugin extends BasePluginV5 {
                                         const userInfoStr = new URLSearchParams(window.location.search).get('user_info');
                                         if (userInfoStr) {
                                             userInfo = JSON.parse(decodeURIComponent(userInfoStr));
-                                            console.log('从URL参数获取到用户信息:', userInfo);
                                         }
                                     } catch (error) {
-                                        console.error('解析用户信息失败:', error);
                                     }
 
                                     if (!amount || amount <= 0) {
@@ -164,8 +160,6 @@ class PayButtonPlugin extends BasePluginV5 {
                                             userInfo
                                         })
                                     })
-
-                                    console.log(createRes, '<==createRes')
 
                                     if (!createRes.ok) {
                                         const errorData = await createRes.json();

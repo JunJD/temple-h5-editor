@@ -137,7 +137,7 @@ export async function GET(
                         'updateAppMessageShareData',
                         'updateTimelineShareData',
                         'onMenuShareAppMessage',
-                        'onMenuShareTimeline'
+                        'onMenuShareTimeline',
                         'checkJsApi',
                     ]
                 });
@@ -147,7 +147,7 @@ export async function GET(
                     const shareConfig = {
                         title: '${shareTitle}',
                         link: '${pageUrl}',
-                        imgUrl: 'http://kls.wxsushang.com/attachment/images/131/2023/04/jqW5VZWRkOFTnfh44oRZqVTv2lV9I9.jpg',
+                        imgUrl: 'http://kls.wxsushang.com/attachment/images/131/2023/04/jqW5VZWRkOFTnfh44oRZqVTv2lV9I9.jpg'+"?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80",
                         success: function () {
                             console.log('微信分享信息设置成功');
                         },
