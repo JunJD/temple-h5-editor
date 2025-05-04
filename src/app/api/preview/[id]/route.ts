@@ -59,7 +59,6 @@ export async function GET(
         }
         console.log('firstImageUrl', firstImageUrl)
         const pageUrl = request.nextUrl.toString();
-        const shareDesc = data.description || '点击查看详情';
         const shareTitle = data.title || '分享标题';
 
         const html = `
@@ -70,7 +69,6 @@ export async function GET(
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>${data.title || '预览'}</title>
     <meta property="og:title" content="${data.title || '分享标题'}" />
-    <meta property="og:description" content="${data.title || '点击查看详情'}" /> 
     ${firstImageUrl ? `<meta property="og:image" content="${firstImageUrl}" />` : ''} 
     <meta property="og:url" content="${pageUrl}" />
     <meta property="og:type" content="article" /> 
@@ -148,7 +146,6 @@ export async function GET(
 
                     const shareConfig = {
                         title: '${shareTitle}',
-                        desc: '${shareDesc}',
                         link: '${pageUrl}',
                         imgUrl: 'http://kls.wxsushang.com/attachment/images/131/2023/04/jqW5VZWRkOFTnfh44oRZqVTv2lV9I9.jpg',
                         success: function () {
@@ -162,6 +159,8 @@ export async function GET(
                             alert('分享设置失败: ' + JSON.stringify(res));
                         }
                     };
+
+                    alert(JSON.stringify(shareConfig, null, 2))
                     
                     wx.updateAppMessageShareData(shareConfig);
                     
