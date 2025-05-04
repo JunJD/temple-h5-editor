@@ -68,8 +68,8 @@ export async function GET(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>${data.title || '预览'}</title>
-    <meta property="og:title" content="${data.title || '分享标题'}" />
-    ${firstImageUrl ? `<meta property="og:image" content="${firstImageUrl}" />` : ''} 
+    <meta property="og:title" content="${data.title || '分享标题'}og:title" />
+    ${firstImageUrl ? `<meta property="og:image" content="${firstImageUrl}?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80" />` : ''} 
     <meta property="og:url" content="${pageUrl}" />
     <meta property="og:type" content="article" /> 
     <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
@@ -147,7 +147,7 @@ export async function GET(
                     const shareConfig = {
                         title: '${shareTitle}',
                         link: '${pageUrl}',
-                        imgUrl: 'http://kls.wxsushang.com/attachment/images/131/2023/04/jqW5VZWRkOFTnfh44oRZqVTv2lV9I9.jpg'+"?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80",
+                        imgUrl: 'https://kls.wxkltx.cn/vercel.svg'+"?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80",
                         success: function () {
                             console.log('微信分享信息设置成功');
                         },
