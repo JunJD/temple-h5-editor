@@ -8,9 +8,6 @@ export async function GET(
     { params }: { params: { id: string } }
 ) {
     try {
-        console.log(request.url, '<==request.url')
-        console.log(request.nextUrl, '<==request.nextUrl')
-        // 获取预览参数
         const searchParams = request.nextUrl.searchParams
         const isPreview = searchParams.get('preview') === '1'
         const openid = searchParams.get('openid')
@@ -18,9 +15,6 @@ export async function GET(
         if (!openid && !isPreview) {
             return new NextResponse('openid not found' + request.url, { status: 404 })
         }
-        
-        // 数据库查询前
-        console.log('尝试获取Issue数据:', params.id);
 
         const result = await getIssue(params.id)
         if (!('data' in result) || !result.data) {
@@ -29,34 +23,31 @@ export async function GET(
 
         const data: Issue = result.data as Issue
         const content = data.content || {}
-        
+
         // 只在非预览模式下检查发布状态
         if (!isPreview && data.status !== 'published') {
             return new NextResponse('Not Found', { status: 404 })
         }
-    
-        // 获取Issue后
-        console.log('Issue数据结果:', JSON.stringify(result));
 
         const submissions = await prisma.submission.findMany({
-            where: { 
+            where: {
                 issueId: params.id,
                 status: 'PAID'
             },
             orderBy: { createdAt: 'desc' }
-          })
-          
-          if (!submissions) {
-            return new NextResponse('Not Found', { status: 404 })
-          }
-          
-        // 提交查询前
-        console.log('尝试查询提交数据');
+        })
 
-        // 提交查询后
-        console.log('提交数据结果:', JSON.stringify(submissions));
-    
-        // 生成完整的 HTML
+        if (!submissions) {
+            return new NextResponse('Not Found', { status: 404 })
+        }
+        const htmlContent = content.html || '';
+        let firstImageUrl = null;
+
+        const imageMatch = htmlContent.match(/<img[^>]+src=\"([^\"]+)\"/);
+        if (imageMatch && imageMatch[1]) {
+            firstImageUrl = imageMatch[1];
+        }
+        const pageUrl = request.nextUrl.toString();
         const html = `
 <!DOCTYPE html>
 <html>
@@ -64,7 +55,11 @@ export async function GET(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>${data.title || '预览'}</title>
-    <!-- 添加微信 JSSDK -->
+    <meta property="og:title" content="${data.title || '分享标题'}" />
+    <meta property="og:description" content="${data.title || '点击查看详情'}" /> 
+    ${firstImageUrl ? `<meta property="og:image" content="${firstImageUrl}" />` : ''} 
+    <meta property="og:url" content="${pageUrl}" />
+    <meta property="og:type" content="article" /> 
     <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="/bootstrap-5.3.3-dist/css/bootstrap.min.css">
@@ -165,7 +160,7 @@ export async function GET(
         </body>
         </html>
         `, {
-          headers: { 'Content-Type': 'text/html; charset=utf-8' }
+            headers: { 'Content-Type': 'text/html; charset=utf-8' }
         });
     }
 } 
