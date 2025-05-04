@@ -542,6 +542,8 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     'font-size': '',
                                     'box-sizing': 'border-box',
                                     'pointer-events': 'none', // <-- Make button ignore clicks
+                                    // Prevent text wrapping and show ellipsis if overflow
+                                    'white-space': 'nowrap',
                                 };
 
                                 if (buttonWidth) {
@@ -550,14 +552,20 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
 
                                 const buttonSize = props['button-size'] || '';
                                 if (buttonSize === 'btn-sm') {
-                                    buttonStyle.padding = '4px 8px';
-                                    buttonStyle['font-size'] = '12px';
+                                    // font-size: 12px @ 375px width -> 3.2vw
+                                    // padding: 4px 8px @ 375px width -> 1.07vw 2.13vw
+                                    buttonStyle.padding = '1.07vw 2.13vw'; 
+                                    buttonStyle['font-size'] = '3.2vw'; 
                                 } else if (buttonSize === 'btn-lg') {
-                                    buttonStyle.padding = '12px 24px';
-                                    buttonStyle['font-size'] = '18px';
-                                } else {
-                                    buttonStyle.padding = '7.67px 15.33px';
-                                    buttonStyle['font-size'] = '15px';
+                                    // font-size: 18px @ 375px width -> 4.8vw
+                                    // padding: 12px 24px @ 375px width -> 3.2vw 6.4vw
+                                    buttonStyle.padding = '3.2vw 6.4vw'; 
+                                    buttonStyle['font-size'] = '4.8vw';
+                                } else { // Default (btn-md)
+                                    // font-size: 15px @ 375px width -> 4vw
+                                    // padding: 7.5px 15px @ 375px width -> 2vw 4vw
+                                    buttonStyle.padding = '2vw 4vw'; 
+                                    buttonStyle['font-size'] = '4vw';
                                 }
 
                                 if (el.classList.contains('selected')) {
