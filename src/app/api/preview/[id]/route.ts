@@ -137,7 +137,10 @@ export async function GET(
                     jsApiList: [
                         'chooseWXPay',
                         'updateAppMessageShareData',
-                        'updateTimelineShareData'
+                        'updateTimelineShareData',
+                        'onMenuShareTimeline',
+                        'onMenuShareAppMessage',
+                        'checkJsApi'
                     ]
                 });
 
