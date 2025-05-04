@@ -44,7 +44,7 @@ export async function GET(
         let firstImageUrl: string | null = null;
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin;
 
-        const imageMatch = htmlContent.match(/<img[^>]+src=\"([^\"]+)\"/);
+        const imageMatch = htmlContent.match(/<img[^>]+src=\"((?!data:image)[^\"]+)\"/);
         if (imageMatch && imageMatch[1]) {
             let rawImageUrl = imageMatch[1];
             if (rawImageUrl && !rawImageUrl.startsWith('http')) {
@@ -53,11 +53,11 @@ export async function GET(
                 } else {
                     firstImageUrl = siteUrl + '/' + rawImageUrl;
                 }
-                console.log('Converted relative image URL to absolute:', firstImageUrl);
             } else {
                 firstImageUrl = rawImageUrl;
             }
         }
+        console.log('firstImageUrl', firstImageUrl)
         const pageUrl = request.nextUrl.toString();
         const shareDesc = data.title || '点击查看详情';
         const shareTitle = data.title || '分享标题';
@@ -137,10 +137,7 @@ export async function GET(
                     jsApiList: [
                         'chooseWXPay',
                         'updateAppMessageShareData',
-                        'updateTimelineShareData',
-                        'onMenuShareAppMessage',
-                        'onMenuShareTimeline'
-                        'checkJsApi',
+                        'updateTimelineShareData'
                     ]
                 });
 
