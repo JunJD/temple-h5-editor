@@ -229,6 +229,21 @@ export const loadInputGroup = (editor: Editor) => {
                     const required = props.required || false;
                     const defaultValue = props.defaultValue || '';
 
+                    function getExpressionDependencies(expression: string): string[] {
+                        if (!expression) {
+                            return [];
+                        }
+                        const regex = /form\.([a-zA-Z_][a-zA-Z0-9_]*)/g;
+                        const dependencies = new Set<string>();
+                        let match;
+                        while ((match = regex.exec(expression)) !== null) {
+                            dependencies.add(match[1]);
+                        }
+                        return Array.from(dependencies);
+                    }
+
+                    const dependencies = getExpressionDependencies(expression);
+
                     // 更新尺寸类名
                     const inputItem = el.querySelector('.input_item');
                     if (inputItem) {
@@ -303,10 +318,10 @@ export const loadInputGroup = (editor: Editor) => {
                         const formItem = el.closest('.form-item');
                         if (formItem && expression) {
                             formItem.addEventListener('form:field:change', (e: any) => {
-                                const { formData, source } = e.detail;
+                                const { formData, source, name: changedFieldName } = e.detail;
 
-                                // 避免自我更新导致的循环
-                                if (source === inputEl) {
+
+                                if (source === inputEl || (dependencies.length > 0 && !dependencies.includes(changedFieldName))) {
                                     return;
                                 }
 
@@ -445,6 +460,22 @@ export const loadInputGroup = (editor: Editor) => {
                     const required = props.required || false;
                     const defaultValue = props.defaultValue || '';
 
+
+                    function getExpressionDependencies(expression: string): string[] {
+                        if (!expression) {
+                            return [];
+                        }
+                        const regex = /form\.([a-zA-Z_][a-zA-Z0-9_]*)/g;
+                        const dependencies = new Set<string>();
+                        let match;
+                        while ((match = regex.exec(expression)) !== null) {
+                            dependencies.add(match[1]);
+                        }
+                        return Array.from(dependencies);
+                    }
+
+                    const dependencies = getExpressionDependencies(expression);
+
                     // 更新尺寸类名
                     const inputItem = el.querySelector('.input_item');
                     if (inputItem) {
@@ -495,10 +526,10 @@ export const loadInputGroup = (editor: Editor) => {
                         const formItem = el.closest('.form-item');
                         if (formItem && expression) {
                             formItem.addEventListener('form:field:change', (e: any) => {
-                                const { formData, source } = e.detail;
+                                const { formData, source, name: changedFieldName } = e.detail;
 
-                                // 避免自我更新导致的循环
-                                if (source === inputEl) {
+                                // 避免自我更新，并且只在依赖字段变化时或无特定依赖时重新计算
+                                if (source === inputEl || (dependencies.length > 0 && !dependencies.includes(changedFieldName))) {
                                     return;
                                 }
 
@@ -669,7 +700,21 @@ export const loadInputGroup = (editor: Editor) => {
                     const size = props.size || 'default';
                     const placeholder = props.placeholder || '';
                     const required = props.required || false;
+                    function getExpressionDependencies(expression: string): string[] {
+                        if (!expression) {
+                            return [];
+                        }
+                        const regex = /form\.([a-zA-Z_][a-zA-Z0-9_]*)/g;
+                        const dependencies = new Set<string>();
+                        let match;
+                        while ((match = regex.exec(expression)) !== null) {
+                            dependencies.add(match[1]);
+                        }
+                        return Array.from(dependencies);
+                    }
                     const defaultValue = props.defaultValue || '';
+
+                    const dependencies = getExpressionDependencies(props.expression || '');
 
                     // 更新布局和尺寸类名
                     const inputItem = el.querySelector('.input_item');
@@ -728,6 +773,25 @@ export const loadInputGroup = (editor: Editor) => {
                         // 设置占位符
                         textareaEl.placeholder = placeholder;
                         textareaEl.value = defaultValue;
+
+                        // 富文本通常没有联动表达式，但保留检查以防未来扩展
+                        const expression = props.expression || ''; // Get expression prop if it exists
+                        const dependencies = getExpressionDependencies(expression);
+
+                        // 监听表单字段变化，处理联动 (如果需要)
+                        const formItem = el.closest('.form-item');
+                        if (formItem && expression) {
+                            formItem.addEventListener('form:field:change', (e: any) => {
+                                const { formData, source, name: changedFieldName } = e.detail;
+
+                                if (source === textareaEl || (dependencies.length > 0 && !dependencies.includes(changedFieldName))) {
+                                    return;
+                                }
+
+                                // 通常富文本不执行计算，但如果需要可以在这里添加
+                                // try { ... } catch { ... }
+                            });
+                        }
                     }
                 }
             }
@@ -897,6 +961,21 @@ export const loadInputGroup = (editor: Editor) => {
                     const required = props.required || false;
                     const defaultValue = props.defaultValue || '';
 
+                    function getExpressionDependencies(expression: string): string[] {
+                        if (!expression) {
+                            return [];
+                        }
+                        const regex = /form\.([a-zA-Z_][a-zA-Z0-9_]*)/g;
+                        const dependencies = new Set<string>();
+                        let match;
+                        while ((match = regex.exec(expression)) !== null) {
+                            dependencies.add(match[1]);
+                        }
+                        return Array.from(dependencies);
+                    }
+
+                    const dependencies = getExpressionDependencies(expression);
+
                     // 更新尺寸类名
                     const inputItem = el.querySelector('.input_item');
                     if (inputItem) {
@@ -974,10 +1053,10 @@ export const loadInputGroup = (editor: Editor) => {
                         const formItem = el.closest('.form-item');
                         if (formItem && expression) {
                             formItem.addEventListener('form:field:change', (e: any) => {
-                                const { formData, source } = e.detail;
+                                const { formData, source, name: changedFieldName } = e.detail;
 
-                                // 避免自我更新导致的循环
-                                if (source === inputEl) {
+                                // 避免自我更新，并且只在依赖字段变化时或无特定依赖时重新计算
+                                if (source === inputEl || (dependencies.length > 0 && !dependencies.includes(changedFieldName))) {
                                     return;
                                 }
 
@@ -992,7 +1071,7 @@ export const loadInputGroup = (editor: Editor) => {
 
                                     // 触发字段变更事件
                                     triggerChange();
-                                    
+
                                     updateButtonState();
                                 } catch (error) {
                                     console.error('表达式计算错误:', error);

@@ -89,8 +89,9 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 }));
                                 
                                 // 根据选项的editable属性控制amount字段是否可编辑
-                                const parentFormItem = el.closest('.form-item');
-                                const amountField = parentFormItem ? parentFormItem.querySelector('[data-field-name="amount"] input') : null;
+                                const form = el.closest('form'); // 查找最近的 form 元素
+                                // 更通用的选择器，匹配 input 或 textarea
+                                const amountField = form ? (form.querySelector('[data-field-name="amount"] input') || form.querySelector('[data-field-name="amount"] textarea')) : null;
 
                                 if (amountField) {
                                     // 如果选项有editable属性且为true，则启用输入框

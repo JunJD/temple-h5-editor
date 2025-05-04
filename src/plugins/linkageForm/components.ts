@@ -228,8 +228,8 @@ export default function(editor: Editor) {
               // [联动] 触发字段值更新事件，用于表达式计算
               const event = new CustomEvent('form:field:change', {
                 detail: { 
-                  name,
-                  value: formData[name],
+                  name: changedField,
+                  value: formData[changedField],
                   formData,
                   source
                 }
