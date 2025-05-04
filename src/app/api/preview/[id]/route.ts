@@ -138,9 +138,9 @@ export async function GET(
                         'chooseWXPay',
                         'updateAppMessageShareData',
                         'updateTimelineShareData',
-                        'onMenuShareTimeline',
                         'onMenuShareAppMessage',
-                        'checkJsApi'
+                        'onMenuShareTimeline'
+                        'checkJsApi',
                     ]
                 });
 
