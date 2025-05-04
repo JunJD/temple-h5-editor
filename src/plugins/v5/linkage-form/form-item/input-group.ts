@@ -180,6 +180,16 @@ export const loadInputGroup = (editor: Editor) => {
                                 background: transparent;
                             }
     
+                            /* Hide number input arrows (spinners) for input-group */
+                            .form-input[type=number]::-webkit-outer-spin-button,
+                            .form-input[type=number]::-webkit-inner-spin-button {
+                                -webkit-appearance: none;
+                                margin: 0;
+                            }
+                            .form-input[type=number] {
+                                -moz-appearance: textfield; /* Firefox */
+                            }
+
                             /* 大尺寸 */
                             .input_item.large {
                                 padding: 16px 24px;
@@ -268,7 +278,10 @@ export const loadInputGroup = (editor: Editor) => {
                     const inputEl = el.querySelector('input') as HTMLInputElement;
                     if (inputEl) {
                         // 设置类型和必填状态
-                        inputEl.type = 'text';
+                        inputEl.type = inputType === 'number' ? 'number' : 'text';
+                        if (inputType === 'number') {
+                            inputEl.step = 'any';
+                        }
                         inputEl.value = defaultValue;
                         if (required) {
                             inputEl.classList.add('required');
@@ -412,6 +425,8 @@ export const loadInputGroup = (editor: Editor) => {
                                 background: transparent;
                             }
     
+                            /* Text input doesn't need spinner styles */
+
                             /* 大尺寸 */
                             .input_item.large {
                                 padding: 16px 24px;
@@ -655,6 +670,8 @@ export const loadInputGroup = (editor: Editor) => {
                     .rich-text:focus {
                         box-shadow: none;
                     }
+
+                    /* Richtext doesn't need spinner styles */
 
                     /* 大尺寸 */
                     .input_item.large {
@@ -904,6 +921,8 @@ export const loadInputGroup = (editor: Editor) => {
                                 pointer-events: none;
                             }
     
+                            /* input-number-group uses its own buttons, no spinner styles needed */
+
                             /* 大尺寸 */
                             .input_item.large {
                                 padding: 16px 24px;

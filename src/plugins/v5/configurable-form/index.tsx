@@ -319,16 +319,18 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                              placeholder: field.placeholder,
                              defaultValue: field.defaultValue, // May need specific handling in component's 'onRender' or similar
                              expression: field.expression,
+
+                             'input-type': field.type === 'input-group' ? 'number' : 'text' 
                          });
-                         // Update DOM attributes if needed (like 'required' attribute for native validation)
+
                           innerInputComponent.addAttributes({
-                             'input-type': field.type === 'input-group' ? 'number' : undefined, // HTML attribute for type=number
+
                              required: field.required ? true : undefined, // Use undefined to remove attribute
                              placeholder: field.placeholder || ''
                           });
 
                      } else {
-                         // Type mismatch, or inner component not found -> Replace inner component(s)
+
                          console.log(`Replacing inner component for field "${fieldName}" due to type change or missing component.`);
                          const newInnerComponentDefinition = {
                              type: expectedInnerType,
@@ -339,8 +341,8 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                              defaultValue: field.defaultValue,
                              expression: field.expression,
                              // Add attributes directly here too if needed by the component on creation
+                             'input-type': field.type === 'input-group' ? 'number' : 'text',
                              attributes: {
-                                'input-type': field.type === 'input-group' ? 'number' : undefined,
                                 required: field.required ? true : undefined,
                                 placeholder: field.placeholder || ''
                              }
@@ -367,15 +369,17 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                             type: LINKAGE_FORM_TYPES[field.type] || 'input-group',
                             label: `${field.label}：`,
                             suffix: field.suffix || '',
+                            // Set the 'input-type' property based on field.type
+                            'input-type': field.type === 'input-group' ? 'number' : 'text', 
                             required: field.required,
                             placeholder: field.placeholder,
                             defaultValue: field.defaultValue,
                             expression: field.expression,
+                            // Attributes are for HTML, keep minimal or based on other logic
                             attributes: {
-                                'input-type': field.type === 'input-group' ? 'number' : undefined,
                                 required: field.required ? true : undefined,
                                 placeholder: field.placeholder || ''
-                             }
+                            }
                         }]
                     };
                     finalMiddleComponents.push(newItemDefinition); // Add definition to the final list
@@ -445,11 +449,17 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                     type: LINKAGE_FORM_TYPES[field.type] || 'input-group',
                     label: `${field.label}：`,
                     suffix: field.suffix || '',
-                    'input-type': field.type === 'input-group' ? 'number' : undefined,
+                    // Set the 'input-type' property based on field.type
+                    'input-type': field.type === 'input-group' ? 'number' : 'text', 
                     required: field.required,
                     placeholder: field.placeholder,
                     defaultValue: field.defaultValue,
                     expression: field.expression,
+                    // Attributes are for HTML, keep minimal or based on other logic
+                    attributes: {
+                        required: field.required ? true : undefined,
+                        placeholder: field.placeholder || ''
+                    }
                 }]
             })),
             // 尾部 - 提交按钮
