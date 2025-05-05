@@ -61,10 +61,7 @@ export async function GET(
         }
         console.log('firstImageUrl', firstImageUrl)
 
-        // 如果提取到了图片，加上 OSS 参数，否则使用备用 URL
-        const shareImageUrl = firstImageUrl
-            ? `${firstImageUrl}?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80`
-            : 'https://kls.wxkltx.cn/default-share-image.png'; // <-- 重要：请替换为你的备用图片URL
+        const shareImageUrl = 'https://kls.wxkltx.cn/jqW5VZWRkOFTnfh44oRZqVTv2lV9I9.jpg';
 
         const html = `
 <!DOCTYPE html>
@@ -76,8 +73,8 @@ export async function GET(
     <meta property="og:title" content="${data.title || '分享标题'}og:title" />
     ${firstImageUrl ? `<meta property="og:image" content="${firstImageUrl}?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80" />` : ''} 
     <meta property="og:url" content="${pageUrl}" />
-    <meta property="og:type" content="article" />
-    <script src="https://res.wx.qq.com/open/js/jweixin-1.3.2.js"></script>
+    <meta property="og:type" content="article" /> 
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="/bootstrap-5.3.3-dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/bootstrap-5.3.3-dist/css/fix.css">
@@ -124,86 +121,60 @@ export async function GET(
         预览模式 - 该内容尚未发布
     </div>
     ` : ''}
+    <!-- Bootstrap JS -->
     <script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
     <!-- VConsole -->
     <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
     <script>
+        // 初始化 VConsole
         var vConsole = new VConsole();
         window.vConsole = vConsole;
     </script>
     <script>
         const frontendUrlForConfig = location.href.split('#')[0];
-        console.log('>>>>> Frontend URL for config:', frontendUrlForConfig);
         fetch('/api/wechat/jsconfig?url=' + encodeURIComponent(frontendUrlForConfig))
             .then(response => response.json())
             .then(config => {
                 wx.config({
-                    debug: true, // 保持 debug 模式方便观察
+                    debug: true,
                     appId: config.appId,
                     timestamp: config.timestamp,
                     nonceStr: config.nonceStr,
                     signature: config.signature,
                     jsApiList: [
-                        'checkJsApi',
-                        'onMenuShareTimeline',
-                        'onMenuShareAppMessage',
-                        'onMenuShareQQ',
-                        'onMenuShareWeibo',
-                        'hideMenuItems',
-                        'showMenuItems',
-                        'hideAllNonBaseMenuItem',
-                        'showAllNonBaseMenuItem',
-                        'translateVoice',
-                        'startRecord',
-                        'stopRecord',
-                        'onRecordEnd',
-                        'playVoice',
-                        'pauseVoice',
-                        'stopVoice',
-                        'uploadVoice',
-                        'downloadVoice',
-                        'chooseImage',
-                        'previewImage',
-                        'uploadImage',
-                        'downloadImage',
-                        'getNetworkType',
-                        'openLocation',
-                        'getLocation',
-                        'hideOptionMenu',
-                        'showOptionMenu',
-                        'closeWindow',
-                        'scanQRCode',
                         'chooseWXPay',
-                        'openProductSpecificView',
-                        'addCard',
-                        'chooseCard',
-                        'openCard'
+                        'updateAppMessageShareData',
+                        'updateTimelineShareData',
+                        'onMenuShareAppMessage',
+                        'onMenuShareTimeline',
+                        'checkJsApi',
                     ]
                 });
 
-                    wx.ready(function(){
-                    var shareData = {
-                        title: shareTitle,
-                        desc: "",
-                        link: "",
-                        imgUrl: "https://kls.wxkltx.cn/jqW5VZWRkOFTnfh44oRZqVTv2lV9I9.jpg",
-                        trigger: function (res) {},
-                        complete: function (res) {},
-                        success: function (res) {
-                        },
-                        cancel: function (res) {},
+                wx.ready(function() {
+                    const shareConfig = {
+                        title: '${shareTitle}',
+                        link: '${pageUrl}',
+                        imgUrl: '${shareImageUrl}',
+                        success: function () {},
+                        cancel: function () {},
                         fail: function (res) {}
                     };
-                    wx.onMenuShareTimeline(shareData);
-                    wx.onMenuShareAppMessage(shareData);
-                    wx.onMenuShareQQ(shareData);
-                    wx.onMenuShareWeibo(shareData);
-                    wx.onMenuShareQZone(shareData);
-                    
+                    wx.updateAppMessageShareData(shareConfig);
+	                wx.onMenuShareTimeline(shareConfig);
+	                wx.onMenuShareAppMessage(shareConfig);
+	                wx.onMenuShareQQ(shareConfig);
+	                wx.onMenuShareWeibo(shareConfig);
+	                wx.onMenuShareQZone(shareConfig);
                 });
-                wx.error(function(res){ 
-                    console.log('error', res)
+
+                wx.error(function(res) {
+                    console.error('微信 JSSDK 初始化失败 (wx.error):', JSON.stringify(res));
                 });
+            })
+            .catch(error => {
+                console.error('获取微信 JSSDK 配置失败 (fetch error):', error);
+            });
     </script>
 </body>
 </html>`
