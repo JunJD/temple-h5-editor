@@ -62,7 +62,11 @@ export async function GET(
         console.log('firstImageUrl', firstImageUrl)
 
         // 如果提取到了图片，加上 OSS 参数，否则使用备用 URL
-        const shareImageUrl = 'https://promptport.ai/_next/image?url=%2Fimages%2Flogo%2Fh5-logo.png&w=48&q=75'
+        // const shareImageUrl = firstImageUrl
+        //     ? `${firstImageUrl}?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80`
+        //     : 'https://kls.wxkltx.cn/default-share-image.png'; // <-- 重要：请替换为你的备用图片URL
+        const shareImageUrl = 'https://kls.wxkltx.cn/h5-logo.webp'; // <-- 重要：请替换为你的备用图片URL
+
         const html = `
 <!DOCTYPE html>
 <html>
@@ -159,8 +163,7 @@ export async function GET(
                     const shareConfig = {
                         title: '${shareTitle}', // 使用动态标题
                         link: '${pageUrl}',    // 使用动态链接
-                        // imgUrl: '${shareImageUrl}',
-                        imgUrl: "",
+                        imgUrl: '${shareImageUrl}', // <-- 使用处理后的 firstImageUrl 或备用 URL
                         success: function () {
                             // 使用 console.log 记录成功
                             console.log('分享设置成功 (updateAppMessageShareData/updateTimelineShareData)');
@@ -185,7 +188,7 @@ export async function GET(
                     wx.updateTimelineShareData({
                         title: shareConfig.title, // 朋友圈通常只显示标题
                         link: shareConfig.link,
-                        imgUrl: "",
+                        imgUrl: shareConfig.imgUrl,
                         success: shareConfig.success,
                         cancel: shareConfig.cancel,
                         fail: shareConfig.fail
