@@ -159,7 +159,8 @@ export async function GET(
                     const shareConfig = {
                         title: '${shareTitle}', // 使用动态标题
                         link: '${pageUrl}',    // 使用动态链接
-                        imgUrl: '${shareImageUrl}', // <-- 使用处理后的 firstImageUrl 或备用 URL
+                        // imgUrl: '${shareImageUrl}',
+                        imgUrl: "",
                         success: function () {
                             // 使用 console.log 记录成功
                             console.log('分享设置成功 (updateAppMessageShareData/updateTimelineShareData)');
@@ -184,7 +185,7 @@ export async function GET(
                     wx.updateTimelineShareData({
                         title: shareConfig.title, // 朋友圈通常只显示标题
                         link: shareConfig.link,
-                        imgUrl: shareConfig.imgUrl,
+                        imgUrl: "",
                         success: shareConfig.success,
                         cancel: shareConfig.cancel,
                         fail: shareConfig.fail
