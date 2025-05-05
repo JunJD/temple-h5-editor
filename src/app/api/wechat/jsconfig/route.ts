@@ -10,20 +10,17 @@ export async function GET(request: Request) {
             return NextResponse.json({ error: 'URL is required' }, { status: 400 });
         }
 
-        const decodedUrl = decodeURIComponent(encodedUrlFromQuery); // 解码 URL
-        console.log('>>>>> Backend received URL (decoded):', decodedUrl); // <--- 添加日志
+        // const decodedUrl = decodeURIComponent(encodedUrlFromQuery); // 不再解码 URL
+        console.log('>>>>> Backend received URL (encoded):', encodedUrlFromQuery); // 记录编码后的 URL
 
-        // 获取微信配置所需的票据
         const jsapiTicket = await getJsapiTicket();
-        
-        // 生成随机字符串和时间戳
         const nonceStr = Math.random().toString(36).substr(2, 15);
         const timestamp = Math.floor(Date.now() / 1000);
-        
-        // 生成签名
-        const signature = generateSignature(jsapiTicket, nonceStr, timestamp, decodedUrl);
-        
-        // 返回JS-SDK配置
+
+        // 使用从前端接收到的、未解码的 URL 生成签名
+        const signature = generateSignature(jsapiTicket, nonceStr, timestamp, encodedUrlFromQuery);
+        console.log('>>>>> Backend URL used for signature (should be encoded):', encodedUrlFromQuery); // 确认使用未解码的 URL
+
         return NextResponse.json({
             appId: process.env.WECHAT_PAY_APP_ID,
             timestamp,
