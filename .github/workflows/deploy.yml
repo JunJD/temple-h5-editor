@@ -135,9 +135,15 @@ jobs:
                   - ALIYUN_OSS_ACCESS_KEY_SECRET=${{ secrets.ALIYUN_OSS_ACCESS_KEY_SECRET }}
                   - ALIYUN_OSS_BUCKET=${{ secrets.ALIYUN_OSS_BUCKET }}
                   - ALIYUN_OSS_REGION=${{ secrets.ALIYUN_OSS_REGION }}
+                  - REDIS_URL=redis://localhost:6379
+                restart: always
+
+              redis:
+                image: redis:6-alpine
+                network_mode: "host"
                 restart: always
             EOL
             
             echo "IMAGE_TAG=${{ github.sha }}" > .env
             docker-compose pull
-            docker-compose up -d
+            docker-compose up -d --remove-orphans

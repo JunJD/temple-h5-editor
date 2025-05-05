@@ -110,6 +110,7 @@
     "grapesjs-user-blocks": "^1.0.6",
     "immer": "^10.1.1",
     "input-otp": "^1.4.1",
+    "ioredis": "^5.6.1",
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.469.0",
     "nanoid": "^5.0.9",
