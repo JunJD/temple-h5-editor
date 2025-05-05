@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { string, z } from 'zod'
 
 // ConditionOperator 条件操作符
 enum ConditionOperator {
@@ -86,6 +86,9 @@ export const submissionSchema = z.object({
   currency: z.string().optional(),
   status: z.enum(['PENDING', 'PAID', 'FAILED', 'REFUNDED']),
   issueId: z.string(),
+
+  goods1: z.string(),
+  goods2: z.string(),
 
   formData: z.record(z.any()), // 动态表单数据
   amount: z.number().min(0),

@@ -40,6 +40,7 @@ export function SubmissionTable({ submissions }: SubmissionTableProps) {
             <TableRow>
               <TableHead>支付金额</TableHead>
               <TableHead>姓名</TableHead>
+              <TableHead>商品</TableHead>
               <TableHead>电话</TableHead>
               <TableHead>状态</TableHead>
               <TableHead>支付时间</TableHead>
@@ -64,6 +65,9 @@ export function SubmissionTable({ submissions }: SubmissionTableProps) {
                   </TableCell>
                   <TableCell className="font-medium">
                     {submission.formData.name} 
+                  </TableCell>
+                  <TableCell className="font-medium">
+                    {submission.goods1}/{submission.goods2} 
                   </TableCell>
                   <TableCell className="font-medium">
                     {submission.formData.tel ? submission.formData.tel : submission.formData.phone} 
