@@ -134,15 +134,25 @@ export async function getUserInfo(openid: string) {
 }
 
 /**
- * 生成JS-SDK配置签名 (此函数保持不变)
+ * 生成JS-SDK配置签名
  */
 export function generateSignature(jsapiTicket: string, nonceStr: string, timestamp: number, url: string) {
     const crypto = require('crypto');
-    const str = `jsapi_ticket=${jsapiTicket}&noncestr=${nonceStr}&timestamp=${timestamp}&url=${url}`;
+    const params = {
+        jsapi_ticket: jsapiTicket,
+        noncestr: nonceStr,
+        timestamp: timestamp,
+        url: url // 使用从前端传来的、未解码的 URL
+    };
+    const keys = Object.keys(params).sort(); // 获取参数名并按 ASCII 排序
+    const str = keys.map(key => `${key}=${params[key as keyof typeof params]}`).join('&'); // 拼接 key=value&key=value
+
+    console.log('>>>>> String to sign:', str); // 添加日志，检查排序和拼接后的字符串
+
     try {
-      return crypto.createHash('sha1').update(str).digest('hex');
-    } catch(e) {
-      console.error('签名生成失败', e)
-      throw e
+        return crypto.createHash('sha1').update(str).digest('hex');
+    } catch (e) {
+        console.error('签名生成失败', e);
+        throw e;
     }
 }
