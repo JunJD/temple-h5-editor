@@ -46,12 +46,29 @@ export async function POST(req: NextRequest) {
             }
 
             if (submission.status !== 'PAID') {
+                let paidAtDate = new Date();
+                if (notification.time_end) {
+                    const timeEndStr = notification.time_end;
+                    try {
+                        const year = parseInt(timeEndStr.substring(0, 4), 10);
+                        const month = parseInt(timeEndStr.substring(4, 6), 10) - 1;
+                        const day = parseInt(timeEndStr.substring(6, 8), 10);
+                        const hour = parseInt(timeEndStr.substring(8, 10), 10);
+                        const minute = parseInt(timeEndStr.substring(10, 12), 10);
+                        const second = parseInt(timeEndStr.substring(12, 14), 10);
+
+                        paidAtDate = new Date(year, month, day, hour, minute, second);
+                    } catch (parseError) {
+                         console.error(`Failed to parse time_end "${timeEndStr}":`, parseError);
+                    }
+                }
+
                 await prisma.submission.update({
                     where: { id: submission.id },
                     data: {
                         status: 'PAID',
                         tradeNo: notification.transaction_id,
-                        paidAt: new Date(),
+                        paidAt: paidAtDate,
                         wxPayInfo: notification,
                     },
                 });

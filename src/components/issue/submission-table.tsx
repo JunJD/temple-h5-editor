@@ -44,7 +44,6 @@ export function SubmissionTable({ submissions }: SubmissionTableProps) {
               <TableHead>电话</TableHead>
               <TableHead>状态</TableHead>
               <TableHead>支付时间</TableHead>
-              <TableHead>过期时间</TableHead>
               <TableHead>创建时间</TableHead>
               <TableHead>更新时间</TableHead>
               <TableHead className="w-[300px]">表单数据</TableHead>
@@ -76,7 +75,6 @@ export function SubmissionTable({ submissions }: SubmissionTableProps) {
                     <Badge variant={statusConfig.color}>{statusConfig.label}{submission.status}</Badge>
                   </TableCell>
                   <TableCell>{submission.paidAt ? formatDateTime(submission.paidAt) : '-'}</TableCell>
-                  <TableCell>{submission.expiredAt ? formatDateTime(submission.expiredAt) : '-'}</TableCell>
                   <TableCell>{formatDateTime(submission.createdAt)}</TableCell>
                   <TableCell>{formatDateTime(submission.updatedAt)}</TableCell>
                   <TableCell className="max-w-[300px] truncate">
