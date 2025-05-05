@@ -74,7 +74,7 @@ export async function GET(
     ${firstImageUrl ? `<meta property="og:image" content="${firstImageUrl}?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80" />` : ''} 
     <meta property="og:url" content="${pageUrl}" />
     <meta property="og:type" content="article" /> 
-    <script src="https://res.wx.qq.com/open/js/jweixin-1.4.0.js"></script>
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="/bootstrap-5.3.3-dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/bootstrap-5.3.3-dist/css/fix.css">
@@ -161,11 +161,7 @@ export async function GET(
                         fail: function (res) {}
                     };
                     wx.updateAppMessageShareData(shareConfig);
-	                wx.onMenuShareTimeline(shareConfig);
-	                wx.onMenuShareAppMessage(shareConfig);
-	                wx.onMenuShareQQ(shareConfig);
-	                wx.onMenuShareWeibo(shareConfig);
-	                wx.onMenuShareQZone(shareConfig);
+                    wx.updateTimelineShareData(shareConfig);
                 });
 
                 wx.error(function(res) {
