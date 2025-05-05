@@ -138,9 +138,7 @@ export async function getUserInfo(openid: string) {
  */
 export function generateSignature(jsapiTicket: string, nonceStr: string, timestamp: number, url: string) {
     const crypto = require('crypto');
-    // 确保 URL 是解码后的
-    const decodedUrl = decodeURIComponent(url);
-    const str = `jsapi_ticket=${jsapiTicket}&noncestr=${nonceStr}&timestamp=${timestamp}&url=${decodedUrl}`;
+    const str = `jsapi_ticket=${jsapiTicket}&noncestr=${nonceStr}&timestamp=${timestamp}&url=${url}`;
     try {
       return crypto.createHash('sha1').update(str).digest('hex');
     } catch(e) {
