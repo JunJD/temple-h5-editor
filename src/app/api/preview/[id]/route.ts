@@ -62,10 +62,9 @@ export async function GET(
         console.log('firstImageUrl', firstImageUrl)
 
         // 如果提取到了图片，加上 OSS 参数，否则使用备用 URL
-        // const shareImageUrl = firstImageUrl
-        //     ? `${firstImageUrl}?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80`
-        //     : 'https://kls.wxkltx.cn/default-share-image.png'; // <-- 重要：请替换为你的备用图片URL
-        const shareImageUrl = 'https://kls.wxkltx.cn/h5-logo.webp'; // <-- 重要：请替换为你的备用图片URL
+        const shareImageUrl = firstImageUrl
+            ? `${firstImageUrl}?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80`
+            : 'https://kls.wxkltx.cn/default-share-image.png'; // <-- 重要：请替换为你的备用图片URL
 
         const html = `
 <!DOCTYPE html>
@@ -77,8 +76,8 @@ export async function GET(
     <meta property="og:title" content="${data.title || '分享标题'}og:title" />
     ${firstImageUrl ? `<meta property="og:image" content="${firstImageUrl}?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80" />` : ''} 
     <meta property="og:url" content="${pageUrl}" />
-    <meta property="og:type" content="article" /> 
-    <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+    <meta property="og:type" content="article" />
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.3.2.js"></script>
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="/bootstrap-5.3.3-dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="/bootstrap-5.3.3-dist/css/fix.css">
@@ -125,17 +124,14 @@ export async function GET(
         预览模式 - 该内容尚未发布
     </div>
     ` : ''}
-    <!-- Bootstrap JS -->
     <script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
     <!-- VConsole -->
     <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
     <script>
-        // 初始化 VConsole
         var vConsole = new VConsole();
         window.vConsole = vConsole;
     </script>
     <script>
-         // 获取 JSSDK 配置
         const frontendUrlForConfig = location.href.split('#')[0];
         console.log('>>>>> Frontend URL for config:', frontendUrlForConfig);
         fetch('/api/wechat/jsconfig?url=' + encodeURIComponent(frontendUrlForConfig))
@@ -148,73 +144,66 @@ export async function GET(
                     nonceStr: config.nonceStr,
                     signature: config.signature,
                     jsApiList: [
-                        'chooseWXPay',
-                        'updateAppMessageShareData',
-                        'updateTimelineShareData',
-                        'onMenuShareAppMessage', // 保留旧接口声明（如果需要兼容）
-                        'onMenuShareTimeline',  // 保留旧接口声明
                         'checkJsApi',
+                        'onMenuShareTimeline',
+                        'onMenuShareAppMessage',
+                        'onMenuShareQQ',
+                        'onMenuShareWeibo',
+                        'hideMenuItems',
+                        'showMenuItems',
+                        'hideAllNonBaseMenuItem',
+                        'showAllNonBaseMenuItem',
+                        'translateVoice',
+                        'startRecord',
+                        'stopRecord',
+                        'onRecordEnd',
+                        'playVoice',
+                        'pauseVoice',
+                        'stopVoice',
+                        'uploadVoice',
+                        'downloadVoice',
+                        'chooseImage',
+                        'previewImage',
+                        'uploadImage',
+                        'downloadImage',
+                        'getNetworkType',
+                        'openLocation',
+                        'getLocation',
+                        'hideOptionMenu',
+                        'showOptionMenu',
+                        'closeWindow',
+                        'scanQRCode',
+                        'chooseWXPay',
+                        'openProductSpecificView',
+                        'addCard',
+                        'chooseCard',
+                        'openCard'
                     ]
                 });
 
-                wx.ready(function() {
-                    console.log('wx.ready triggered'); // 确认 ready 执行
-
-                    const shareConfig = {
-                        title: '${shareTitle}', // 使用动态标题
-                        link: '${pageUrl}',    // 使用动态链接
-                        imgUrl: '${shareImageUrl}', // <-- 使用处理后的 firstImageUrl 或备用 URL
-                        success: function () {
-                            // 使用 console.log 记录成功
-                            console.log('分享设置成功 (updateAppMessageShareData/updateTimelineShareData)');
+                    wx.ready(function(){
+                    var shareData = {
+                        title: shareTitle,
+                        desc: "",
+                        link: "",
+                        imgUrl: "https://kls.wxkltx.cn/jqW5VZWRkOFTnfh44oRZqVTv2lV9I9.jpg",
+                        trigger: function (res) {},
+                        complete: function (res) {},
+                        success: function (res) {
                         },
-                        cancel: function () {
-                            console.log('用户取消分享');
-                        },
-                        fail: function (res) {
-                            // 使用 console.error 记录失败详情，移除 alert
-                            console.error('分享接口调用失败:', JSON.stringify(res));
-                            // alert('分享设置失败: ' + JSON.stringify(res)); // 移除 alert
-                        }
+                        cancel: function (res) {},
+                        fail: function (res) {}
                     };
-
-                    console.log('Share config prepared:', JSON.stringify(shareConfig, null, 2));
-                    // alert(JSON.stringify(shareConfig, null, 2)) // <-- 移除 alert
-
-                    wx.updateAppMessageShareData(shareConfig);
-                    console.log('Called updateAppMessageShareData');
-
-                    // updateTimelineShareData 需要单独设置，参数可能略有不同（例如朋友圈不显示 desc）
-                    wx.updateTimelineShareData({
-                        title: shareConfig.title, // 朋友圈通常只显示标题
-                        link: shareConfig.link,
-                        imgUrl: shareConfig.imgUrl,
-                        success: shareConfig.success,
-                        cancel: shareConfig.cancel,
-                        fail: shareConfig.fail
-                    });
-                    console.log('Called updateTimelineShareData');
-
-                     // 可选：检查接口是否可用
-                     wx.checkJsApi({
-                        jsApiList: ['updateAppMessageShareData', 'updateTimelineShareData'],
-                        success: function(res) {
-                            console.log('checkJsApi result:', JSON.stringify(res));
-                        }
-                     });
+                    wx.onMenuShareTimeline(shareData);
+                    wx.onMenuShareAppMessage(shareData);
+                    wx.onMenuShareQQ(shareData);
+                    wx.onMenuShareWeibo(shareData);
+                    wx.onMenuShareQZone(shareData);
+                    
                 });
-
-                wx.error(function(res) {
-                    // 移除 alert，保留 console.error
-                    console.error('微信 JSSDK 初始化失败 (wx.error):', JSON.stringify(res));
-                    // alert('JSSDK 初始化失败: ' + JSON.stringify(res)); // 移除 alert
+                wx.error(function(res){ 
+                    console.log('error', res)
                 });
-            })
-            .catch(error => {
-                // 移除 alert，保留 console.error
-                console.error('获取微信 JSSDK 配置失败 (fetch error):', error);
-                // alert('获取微信配置失败:' + error); // 移除 alert
-            });
     </script>
 </body>
 </html>`
