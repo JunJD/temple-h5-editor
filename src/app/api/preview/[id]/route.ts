@@ -61,6 +61,11 @@ export async function GET(
         }
         console.log('firstImageUrl', firstImageUrl)
 
+        // 如果提取到了图片，加上 OSS 参数，否则使用备用 URL
+        const shareImageUrl = firstImageUrl
+            ? `${firstImageUrl}?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80`
+            : 'https://kls.wxkltx.cn/default-share-image.png'; // <-- 重要：请替换为你的备用图片URL
+
         const html = `
 <!DOCTYPE html>
 <html>
@@ -121,15 +126,22 @@ export async function GET(
     ` : ''}
     <!-- Bootstrap JS -->
     <script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+    <!-- VConsole -->
+    <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
+    <script>
+        // 初始化 VConsole
+        var vConsole = new VConsole();
+        window.vConsole = vConsole;
+    </script>
     <script>
          // 获取 JSSDK 配置
-        const frontendUrlForConfig = location.href.split('#')[0]; // <--- 添加这行
-        console.log('>>>>> Frontend URL for config:', frontendUrlForConfig); // <--- 添加这行
-        fetch('/api/wechat/jsconfig?url=' + encodeURIComponent(location.href.split('#')[0]))
+        const frontendUrlForConfig = location.href.split('#')[0];
+        console.log('>>>>> Frontend URL for config:', frontendUrlForConfig);
+        fetch('/api/wechat/jsconfig?url=' + encodeURIComponent(frontendUrlForConfig))
             .then(response => response.json())
             .then(config => {
                 wx.config({
-                    debug: true,
+                    debug: true, // 保持 debug 模式方便观察
                     appId: config.appId,
                     timestamp: config.timestamp,
                     nonceStr: config.nonceStr,
@@ -138,51 +150,69 @@ export async function GET(
                         'chooseWXPay',
                         'updateAppMessageShareData',
                         'updateTimelineShareData',
-                        'onMenuShareAppMessage',
-                        'onMenuShareTimeline',
+                        'onMenuShareAppMessage', // 保留旧接口声明（如果需要兼容）
+                        'onMenuShareTimeline',  // 保留旧接口声明
                         'checkJsApi',
                     ]
                 });
 
                 wx.ready(function() {
+                    console.log('wx.ready triggered'); // 确认 ready 执行
 
                     const shareConfig = {
-                        title: '${shareTitle}',
-                        link: '${pageUrl}',
-                        imgUrl: 'https://kls.wxkltx.cn/vercel.svg'+"?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80",
+                        title: '${shareTitle}', // 使用动态标题
+                        link: '${pageUrl}',    // 使用动态链接
+                        imgUrl: '${shareImageUrl}', // <-- 使用处理后的 firstImageUrl 或备用 URL
                         success: function () {
-                            console.log('微信分享信息设置成功');
+                            // 使用 console.log 记录成功
+                            console.log('分享设置成功 (updateAppMessageShareData/updateTimelineShareData)');
                         },
                         cancel: function () {
                             console.log('用户取消分享');
                         },
                         fail: function (res) {
-                            console.error('微信分享信息设置失败:', JSON.stringify(res));
-                            alert('分享设置失败: ' + JSON.stringify(res));
+                            // 使用 console.error 记录失败详情，移除 alert
+                            console.error('分享接口调用失败:', JSON.stringify(res));
+                            // alert('分享设置失败: ' + JSON.stringify(res)); // 移除 alert
                         }
                     };
 
-                    alert(JSON.stringify(shareConfig, null, 2))
-                    
+                    console.log('Share config prepared:', JSON.stringify(shareConfig, null, 2));
+                    // alert(JSON.stringify(shareConfig, null, 2)) // <-- 移除 alert
+
                     wx.updateAppMessageShareData(shareConfig);
-                    
+                    console.log('Called updateAppMessageShareData');
+
+                    // updateTimelineShareData 需要单独设置，参数可能略有不同（例如朋友圈不显示 desc）
                     wx.updateTimelineShareData({
-                        title: shareConfig.title,
+                        title: shareConfig.title, // 朋友圈通常只显示标题
                         link: shareConfig.link,
                         imgUrl: shareConfig.imgUrl,
                         success: shareConfig.success,
                         cancel: shareConfig.cancel,
                         fail: shareConfig.fail
                     });
+                    console.log('Called updateTimelineShareData');
+
+                     // 可选：检查接口是否可用
+                     wx.checkJsApi({
+                        jsApiList: ['updateAppMessageShareData', 'updateTimelineShareData'],
+                        success: function(res) {
+                            console.log('checkJsApi result:', JSON.stringify(res));
+                        }
+                     });
                 });
 
                 wx.error(function(res) {
-                    console.error('微信 JSSDK 初始化失败:', res);
+                    // 移除 alert，保留 console.error
+                    console.error('微信 JSSDK 初始化失败 (wx.error):', JSON.stringify(res));
+                    // alert('JSSDK 初始化失败: ' + JSON.stringify(res)); // 移除 alert
                 });
             })
             .catch(error => {
-                alert('获取微信配置失败:' + error)
-                console.error('获取微信配置失败:', error);
+                // 移除 alert，保留 console.error
+                console.error('获取微信 JSSDK 配置失败 (fetch error):', error);
+                // alert('获取微信配置失败:' + error); // 移除 alert
             });
     </script>
 </body>
