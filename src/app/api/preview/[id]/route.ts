@@ -43,6 +43,8 @@ export async function GET(
         const htmlContent = content.html || '';
         let firstImageUrl: string | null = null;
         const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin;
+        const pageUrl = `${siteUrl}${request.nextUrl.pathname}${request.nextUrl.search}`;
+        const shareTitle = data.title || '分享标题';
 
         const imageMatch = htmlContent.match(/<img[^>]+src=\"((?!data:image)[^\"]+)\"/);
         if (imageMatch && imageMatch[1]) {
@@ -58,8 +60,6 @@ export async function GET(
             }
         }
         console.log('firstImageUrl', firstImageUrl)
-        const pageUrl = request.nextUrl.toString();
-        const shareTitle = data.title || '分享标题';
 
         const html = `
 <!DOCTYPE html>
