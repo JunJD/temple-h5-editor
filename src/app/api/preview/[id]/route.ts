@@ -42,7 +42,7 @@ export async function GET(
         }
         const htmlContent = content.html || '';
         let firstImageUrl: string | null = null;
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin;
+        const siteUrl = 'https://kls.wxkltx.cn';
         const pageUrl = `${siteUrl}${request.nextUrl.pathname}${request.nextUrl.search}`;
         const shareTitle = data.title || '分享标题';
 
