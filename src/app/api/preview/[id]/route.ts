@@ -127,7 +127,7 @@ export async function GET(
             .then(response => response.json())
             .then(config => {
                 wx.config({
-                    debug: false,
+                    debug: true,
                     appId: config.appId,
                     timestamp: config.timestamp,
                     nonceStr: config.nonceStr,
