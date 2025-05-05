@@ -4,11 +4,14 @@ import { getAccessToken, getJsapiTicket, generateSignature } from '@/lib/wechat-
 export async function GET(request: Request) {
     try {
         const { searchParams } = new URL(request.url);
-        const url = searchParams.get('url');
-        
-        if (!url) {
+        const encodedUrlFromQuery = searchParams.get('url'); // 获取编码后的 URL
+
+        if (!encodedUrlFromQuery) {
             return NextResponse.json({ error: 'URL is required' }, { status: 400 });
         }
+
+        const decodedUrl = decodeURIComponent(encodedUrlFromQuery); // 解码 URL
+        console.log('>>>>> Backend received URL (decoded):', decodedUrl); // <--- 添加日志
 
         // 获取微信配置所需的票据
         const jsapiTicket = await getJsapiTicket();
@@ -18,7 +21,7 @@ export async function GET(request: Request) {
         const timestamp = Math.floor(Date.now() / 1000);
         
         // 生成签名
-        const signature = generateSignature(jsapiTicket, nonceStr, timestamp, decodeURIComponent(url));
+        const signature = generateSignature(jsapiTicket, nonceStr, timestamp, decodedUrl);
         
         // 返回JS-SDK配置
         return NextResponse.json({

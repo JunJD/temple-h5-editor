@@ -122,7 +122,9 @@ export async function GET(
     <!-- Bootstrap JS -->
     <script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // 获取 JSSDK 配置
+         // 获取 JSSDK 配置
+        const frontendUrlForConfig = location.href.split('#')[0]; // <--- 添加这行
+        console.log('>>>>> Frontend URL for config:', frontendUrlForConfig); // <--- 添加这行
         fetch('/api/wechat/jsconfig?url=' + encodeURIComponent(location.href.split('#')[0]))
             .then(response => response.json())
             .then(config => {
