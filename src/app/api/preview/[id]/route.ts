@@ -62,10 +62,7 @@ export async function GET(
         console.log('firstImageUrl', firstImageUrl)
 
         // 如果提取到了图片，加上 OSS 参数，否则使用备用 URL
-        const shareImageUrl = firstImageUrl
-            ? `${firstImageUrl}?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80`
-            : 'https://kls.wxkltx.cn/default-share-image.png'; // <-- 重要：请替换为你的备用图片URL
-
+        const shareImageUrl = 'https://promptport.ai/_next/image?url=%2Fimages%2Flogo%2Fh5-logo.png&w=48&q=75'
         const html = `
 <!DOCTYPE html>
 <html>
@@ -160,9 +157,9 @@ export async function GET(
                     console.log('wx.ready triggered'); // 确认 ready 执行
 
                     const shareConfig = {
-                        title: '${shareTitle}',
-                        link: '${pageUrl}',
-                        // imgUrl: '${shareImageUrl}', // <-- 注释掉或移除这行来测试
+                        title: '${shareTitle}', // 使用动态标题
+                        link: '${pageUrl}',    // 使用动态链接
+                        imgUrl: '${shareImageUrl}', // <-- 使用处理后的 firstImageUrl 或备用 URL
                         success: function () {
                             // 使用 console.log 记录成功
                             console.log('分享设置成功 (updateAppMessageShareData/updateTimelineShareData)');
@@ -185,9 +182,9 @@ export async function GET(
 
                     // updateTimelineShareData 需要单独设置，参数可能略有不同（例如朋友圈不显示 desc）
                     wx.updateTimelineShareData({
-                        title: shareConfig.title,
+                        title: shareConfig.title, // 朋友圈通常只显示标题
                         link: shareConfig.link,
-                        // imgUrl: shareConfig.imgUrl, // <-- 同时注释掉或移除这行
+                        imgUrl: shareConfig.imgUrl,
                         success: shareConfig.success,
                         cancel: shareConfig.cancel,
                         fail: shareConfig.fail
