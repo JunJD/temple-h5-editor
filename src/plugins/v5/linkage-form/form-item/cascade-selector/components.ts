@@ -468,10 +468,11 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         'border-radius': '4px',
                         cursor: 'pointer',
                         width: '100%',
-                        height: '100%',
+                        height: 'fit-content',
                         display: 'flex',
                         'align-items': 'center',
                         'justify-content': 'center',
+                        'align-content': 'flex-start',
                         'box-sizing': 'border-box',
                     },
                     defaultImage: DEFAULT_OPTION_IMAGE,
@@ -537,13 +538,8 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     border: `1px solid ${buttonBorderColor || selectedColor}`,
                                     background: buttonColor || 'transparent',
                                     'transition': 'all 0.3s ease',
-                                    // cursor: 'pointer', // Remove cursor from button, parent 'el' has it
-                                    padding: '',
-                                    'font-size': '',
                                     'box-sizing': 'border-box',
-                                    'pointer-events': 'none', // <-- Make button ignore clicks
-                                    // Prevent text wrapping and show ellipsis if overflow
-                                    'white-space': 'nowrap',
+                                    'pointer-events': 'none',
                                 };
 
                                 if (buttonWidth) {
@@ -552,19 +548,13 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
 
                                 const buttonSize = props['button-size'] || '';
                                 if (buttonSize === 'btn-sm') {
-                                    // font-size: 12px @ 375px width -> 3.2vw
-                                    // padding: 4px 8px @ 375px width -> 1.07vw 2.13vw
-                                    buttonStyle.padding = '1.07vw 2.13vw'; 
+                                    buttonStyle.padding = '1.07vw 0'; 
                                     buttonStyle['font-size'] = '3.2vw'; 
                                 } else if (buttonSize === 'btn-lg') {
-                                    // font-size: 18px @ 375px width -> 4.8vw
-                                    // padding: 12px 24px @ 375px width -> 3.2vw 6.4vw
-                                    buttonStyle.padding = '3.2vw 6.4vw'; 
+                                    buttonStyle.padding = '3.2vw 0'; 
                                     buttonStyle['font-size'] = '4.8vw';
                                 } else { // Default (btn-md)
-                                    // font-size: 15px @ 375px width -> 4vw
-                                    // padding: 7.5px 15px @ 375px width -> 2vw 4vw
-                                    buttonStyle.padding = '2vw 4vw'; 
+                                    buttonStyle.padding = '2vw 0'; 
                                     buttonStyle['font-size'] = '4vw';
                                 }
 
