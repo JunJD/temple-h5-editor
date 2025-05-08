@@ -292,23 +292,46 @@ export const loadInputGroup = (editor: Editor) => {
                         // 数字类型的输入限制
                         if (inputType === 'number') {
                             inputEl.addEventListener('input', (e) => {
-                                const target = e.target as HTMLInputElement;
-                                // 允许数字和小数点，但确保只有一个小数点
-                                const value = target.value;
-                                // 移除所有非数字和非小数点字符
-                                let newValue = value.replace(/[^\d.]/g, '');
-                                // 确保只有一个小数点
-                                const dotCount = (newValue.match(/\./g) || []).length;
-                                if (dotCount > 1) {
-                                    // 保留第一个小数点
-                                    const parts = newValue.split('.');
-                                    newValue = parts[0] + '.' + parts.slice(1).join('');
+                                const input = e.target as HTMLInputElement;
+                                const originalValue = input.value;
+                                const originalSelectionStart = input.selectionStart || 0;
+
+                                let processedValue = originalValue;
+
+                                processedValue = processedValue.replace(/[^\d.]/g, '');
+
+                                const firstDotIndex = processedValue.indexOf('.');
+                                if (firstDotIndex !== -1) {
+                                    processedValue = processedValue.substring(0, firstDotIndex + 1) +
+                                                     processedValue.substring(firstDotIndex + 1).replace(/\./g, '');
                                 }
-                                // 确保小数点不在开头
-                                if (newValue.startsWith('.')) {
-                                    newValue = '0' + newValue;
+
+                                let leadZeroWasAdded = false;
+                                if (processedValue.startsWith('.')) {
+                                    processedValue = '0' + processedValue;
+                                    leadZeroWasAdded = true;
                                 }
-                                target.value = newValue;
+
+                                if (input.value !== processedValue) {
+                                    input.value = processedValue;
+
+                                    let newCursorPosition = originalSelectionStart;
+
+                                    if (leadZeroWasAdded) {
+                                        if (originalValue.startsWith('.') && originalSelectionStart > 0) {
+                                           newCursorPosition = originalSelectionStart + 1;
+                                        }
+                                    } else {
+                                        const lengthDifference = originalValue.length - processedValue.length;
+                                        if (lengthDifference > 0) {
+                                            newCursorPosition = Math.max(0, originalSelectionStart - lengthDifference);
+                                        }
+                                    }
+                                    
+                                    newCursorPosition = Math.max(0, Math.min(newCursorPosition, processedValue.length));
+                                    
+                                    input.setSelectionRange(newCursorPosition, newCursorPosition);
+                                }
                             });
                         }
 
