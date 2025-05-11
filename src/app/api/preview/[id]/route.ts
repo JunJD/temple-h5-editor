@@ -61,7 +61,12 @@ export async function GET(
         }
         console.log('firstImageUrl', firstImageUrl)
 
-        const shareImageUrl = 'https://kls.wxkltx.cn/jqW5VZWRkOFTnfh44oRZqVTv2lV9I9.jpg';
+        // 如果提取到了图片，加上 OSS 参数，否则使用备用 URL
+        const shareImageUrl = firstImageUrl
+        ? `${firstImageUrl}?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80`
+        : 'https://kls.wxkltx.cn/jqW5VZWRkOFTnfh44oRZqVTv2lV9I9.jpg'; // <-- 重要：请替换为你的备用图片URL
+    
+    
 
         const html = `
 <!DOCTYPE html>
