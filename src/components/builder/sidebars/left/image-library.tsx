@@ -14,6 +14,7 @@ interface ImageAsset {
   name: string
   url: string
   createdAt: string
+  previewUrl: string
 }
 
 export const ImageLibrary = () => {
@@ -49,7 +50,7 @@ export const ImageLibrary = () => {
   // 复制URL
   const handleCopyUrl = async (url: string, id: string) => {
     try {
-      await navigator.clipboard.writeText(url)
+      await navigator.clipboard.writeText(`https://kls.wxkltx.cn${url}`)
       setCopiedId(id)
       toast({
         title: '复制成功',
@@ -261,7 +262,7 @@ export const ImageLibrary = () => {
             <div key={image.id} className="group relative">
               <div className="aspect-square w-full overflow-hidden rounded-lg border bg-muted">
               <img
-                src={image.url}
+                src={image.previewUrl}
                 alt={image.name}
                 className="h-full w-full object-cover transition-transform group-hover:scale-105"
               />
@@ -269,7 +270,7 @@ export const ImageLibrary = () => {
                 <Button
                   variant="secondary"
                   size="icon"
-                  onClick={() => handleCopyUrl(image.url, image.id)}
+                  onClick={() => handleCopyUrl(image.previewUrl, image.id)}
                   className="h-8 w-8 rounded-full"
                 >
                   {copiedId === image.id ? (
@@ -294,7 +295,7 @@ export const ImageLibrary = () => {
                 variant="ghost"
                 size="icon"
                 className="h-6 w-6"
-                onClick={() => handleCopyUrl(image.url, image.id)}
+                onClick={() => handleCopyUrl(image.previewUrl, image.id)}
               >
                 {copiedId === image.id ? (
                   <Check className="h-3 w-3" />

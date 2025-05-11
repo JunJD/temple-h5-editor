@@ -5,14 +5,38 @@ import { uploadToOSS, deleteFromOSS } from '@/lib/oss'
 // 获取图片列表
 export async function GET() {
   try {
-    const images = await prisma.imageAsset.findMany({
+    // Fetch image metadata, selecting only necessary fields for the list
+    const imageMetadatas = await prisma.imageAsset.findMany({
       orderBy: {
         createdAt: 'desc'
+      },
+      select: {
+        id: true,
+        name: true,
+        createdAt: true,
+        url: true,
       }
-    })
-    return NextResponse.json(images)
+    });
+
+    // Transform the data to include a preview URL instead of the direct OSS URL
+    const imagesForClient = imageMetadatas.map(meta => {
+      // Extract filename from the full URL
+      // Assumes URL is like 'https://domain.com/path/to/filename.jpg'
+      const filename = meta.url ? meta.url.substring(meta.url.lastIndexOf('/') + 1) : '';
+      return {
+        id: meta.id, // Keep the original database ID for other potential uses
+        name: meta.name,
+        createdAt: meta.createdAt,
+        url: meta.url, // Keep the original OSS URL as well
+        // If you have other fields selected above, map them here too:
+        // fileType: meta.fileType,
+        previewUrl: filename ? `/api/image-assets/preview/${filename}` : '' // Use filename for preview
+      };
+    });
+
+    return NextResponse.json(imagesForClient);
   } catch (error) {
-    console.error('获取图片列表失败:', error)
+    console.error('获取图片列表失败:', error);
     return NextResponse.json(
       { error: '获取图片列表失败' },
       { status: 500 }
