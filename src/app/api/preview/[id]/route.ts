@@ -61,7 +61,7 @@ export async function GET(
         }
         console.log('firstImageUrl', firstImageUrl)
 
-        const shareImageUrl =  firstImageUrl || 'https://kls.wxkltx.cn/jqW5VZWRkOFTnfh44oRZqVTv2lV9I9.jpg';
+        const shareImageUrl = 'https://kls.wxkltx.cn/jqW5VZWRkOFTnfh44oRZqVTv2lV9I9.jpg';
 
         const html = `
 <!DOCTYPE html>
