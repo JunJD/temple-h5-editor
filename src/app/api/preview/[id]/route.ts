@@ -61,7 +61,7 @@ export async function GET(
         }
         console.log('firstImageUrl', firstImageUrl)
 
-        const shareImageUrl = 'https://kls.wxkltx.cn/jqW5VZWRkOFTnfh44oRZqVTv2lV9I9.jpg';
+        const shareImageUrl =  firstImageUrl || 'https://kls.wxkltx.cn/jqW5VZWRkOFTnfh44oRZqVTv2lV9I9.jpg';
 
         const html = `
 <!DOCTYPE html>
@@ -123,13 +123,7 @@ export async function GET(
     ` : ''}
     <!-- Bootstrap JS -->
     <script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
-    <!-- VConsole -->
-    <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
-    <script>
-        // 初始化 VConsole
-        var vConsole = new VConsole();
-        window.vConsole = vConsole;
-    </script>
+
     <script>
         const frontendUrlForConfig = location.href.split('#')[0];
         fetch('/api/wechat/jsconfig?url=' + encodeURIComponent(frontendUrlForConfig))
