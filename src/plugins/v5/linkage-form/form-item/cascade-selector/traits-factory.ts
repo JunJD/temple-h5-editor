@@ -104,11 +104,12 @@ export class CascadeSelectorTraitsFactory extends BaseTraitsFactory {
     static getOptionSettingTraits() {
         return [
             {
-                type: 'text',
-                label: '选项标签',
+                type: 'rich-input',
+                label: '选项标签 (HTML)',
                 name: 'label',
                 default: '新选项',
-                changeProp: true
+                changeProp: true,
+                attributes: { language: 'html' }
             },
             {
                 type: 'text',

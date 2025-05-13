@@ -492,6 +492,13 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                         const buttonWidth = props['button-width'];
                         const buttonBorderColor = props['button-border-color'];
 
+                        // Helper function to strip HTML tags and get plain text
+                        function getPlainText(htmlString) {
+                            const tempDiv = document.createElement('div');
+                            tempDiv.innerHTML = htmlString || '';
+                            return tempDiv.textContent || tempDiv.innerText || '';
+                        }
+
                         function renderOption() {
                             if (mode === 'image') {
                                 const imageOptionStyle = {
@@ -511,16 +518,24 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                 const spanStyle = {
                                     'font-size': '14px'
                                 };
+                                
+                                const plainTextLabel = getPlainText(props.label);
 
                                 el.innerHTML = `
                                     <div style="${Object.entries(imageOptionStyle).map(([k, v]) => `${k}:${v}`).join(';')}">
                                         <img src="${props.image || props.defaultImage}" 
-                                             alt="${props.label}"
+                                             alt="${plainTextLabel}"
                                              style="${Object.entries(imgStyle).map(([k, v]) => `${k}:${v}`).join(';')}"
                                              onerror="this.src='${props.defaultImage}'" />
-                                        <span style="${Object.entries(spanStyle).map(([k, v]) => `${k}:${v}`).join(';')}">${props.label}</span>
+                                        <span style="${Object.entries(spanStyle).map(([k, v]) => `${k}:${v}`).join(';')}"></span>
                                     </div>
                                 `;
+                                // Set label using innerHTML
+                                const spanElement = el.querySelector('span');
+                                if (spanElement) {
+                                    spanElement.innerHTML = props.label || '';
+                                }
+
                                 // Ensure pointer-events is auto for image mode children
                                 const imgDiv = el.querySelector('div');
                                 if (imgDiv) {
@@ -539,7 +554,7 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     background: buttonColor || 'transparent',
                                     'transition': 'all 0.3s ease',
                                     'box-sizing': 'border-box',
-                                    'pointer-events': 'none',
+                                    'pointer-events': 'none'
                                 };
 
                                 if (buttonWidth) {
@@ -563,7 +578,18 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                     buttonStyle.color = '#fff';
                                 }
 
-                                el.innerHTML = `<button type="button" style="${Object.entries(buttonStyle).map(([k, v]) => `${k}:${v}`).join(';')}">${props.label}</button>`;
+                                el.innerHTML = `<button type="button" style="${Object.entries(buttonStyle).map(([k, v]) => `${k}:${v}`).join(';')}"></button>`;
+                                const buttonElement = el.querySelector('button');
+                                if (buttonElement) {
+                                    buttonElement.innerHTML = props.label || '';
+                                }
+                                const pElements = buttonElement.querySelectorAll('p');
+                                if (pElements) {
+                                    pElements.forEach(p => {
+                                        p.style.padding = '0';
+                                        p.style.margin = '0';
+                                    });
+                                }
                             }
                         }
 

@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label'
 import { Slider } from '@/components/ui/slider'
 import { PopoverPicker } from './PopoverPicker'
 import { RichInput } from '@/components/ui/rich-input'
+import { Textarea } from '@/components/ui'
 // import { OptionsManager } from './OptionsManager'
 
 interface TraitFieldProps {
@@ -63,6 +64,20 @@ export function TraitField({ trait }: TraitFieldProps) {
         </div>
       )
 
+    case 'textarea':
+      return (
+        <div className="space-y-2">
+          <Label>{trait.getLabel()}</Label>
+          <Textarea
+            value={value}
+            onChange={(e) => {
+              const target = e.target as HTMLTextAreaElement;
+              handleChange(target.value);
+            }}
+          />
+        </div>
+      )
+      
     case 'select':
       return (
         <div className="space-y-2">
@@ -185,7 +200,7 @@ export function TraitField({ trait }: TraitFieldProps) {
           />
         </div>
       )
-
+      
     case 'rich-input':
       return (
         <div className="space-y-2">
