@@ -530,10 +530,14 @@ export class CascadeSelectorComponents extends BaseLoadComponents {
                                         <span style="${Object.entries(spanStyle).map(([k, v]) => `${k}:${v}`).join(';')}"></span>
                                     </div>
                                 `;
-                                // Set label using innerHTML
                                 const spanElement = el.querySelector('span');
                                 if (spanElement) {
                                     spanElement.innerHTML = props.label || '';
+                                    const pElementsInSpan = spanElement.querySelectorAll('p');
+                                    pElementsInSpan.forEach(p => {
+                                        p.style.padding = '0';
+                                        p.style.margin = '0';
+                                    });
                                 }
 
                                 // Ensure pointer-events is auto for image mode children
