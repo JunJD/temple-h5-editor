@@ -43,7 +43,7 @@ export async function GET(
         const htmlContent = content.html || '';
         let firstImageUrl: string | null = null;
         const siteUrl = 'https://kls.wxkltx.cn';
-        const pageUrl = `${siteUrl}${request.nextUrl.pathname}${request.nextUrl.search}`;
+        const pageUrl = `${siteUrl}${request.nextUrl.pathname}`;
         const shareTitle = data.title || '分享标题';
 
         const imageMatch = htmlContent.match(/<img[^>]+src=\"((?!data:image)[^\"]+)\"/);
