@@ -43,7 +43,7 @@ export async function GET(
         const htmlContent = content.html || '';
         let firstImageUrl: string | null = null;
         const siteUrl = 'https://kls.wxkltx.cn';
-        const pageUrl = `${siteUrl}${request.nextUrl.pathname}`;
+        const pageUrl = `${siteUrl}${request.nextUrl.pathname}${request.nextUrl.search}`;
         const shareTitle = data.title || '分享标题';
 
         const imageMatch = htmlContent.match(/<img[^>]+src=\"((?!data:image)[^\"]+)\"/);
@@ -75,7 +75,7 @@ export async function GET(
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>${data.title || '预览'}</title>
-    <meta property="og:title" content="${data.title || '分享标题'}og:title" />
+    <meta property="og:title" content="${data.title || '分享标题'}" />
     ${firstImageUrl ? `<meta property="og:image" content="${firstImageUrl}?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80" />` : ''} 
     <meta property="og:url" content="${pageUrl}" />
     <meta property="og:type" content="article" /> 
