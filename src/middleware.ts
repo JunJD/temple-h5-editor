@@ -129,6 +129,5 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   // 只匹配 /h5/* 路径
-  matcher: '/h5/:id*',
-  matcher: '/h6/:id*'
+  matcher: '/(h5|h6)/:id*'
 } 
