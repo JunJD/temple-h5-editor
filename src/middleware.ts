@@ -92,6 +92,34 @@ export async function middleware(request: NextRequest) {
     return response
   }
 
+  // 测试
+  if (request.nextUrl.pathname.startsWith('/h6/')) {
+    const nextUrl = request.nextUrl
+    const response = NextResponse.redirect("https://baidu.com")
+      
+      // 保留关键请求头
+      const headersToKeep = [
+        'x-real-ip',
+        'x-forwarded-for',
+        'x-forwarded-proto',
+        'x-forwarded-host',
+        'x-forwarded-port',
+        'x-original-uri',
+        'x-original-host',
+        'origin',
+        'referer',
+        'user-agent'
+      ]
+
+      headersToKeep.forEach(header => {
+        const value = request.headers.get(header)
+        if (value) {
+          response.headers.set(header, value)
+        }
+      })
+    return response
+  }
+
   const res = NextResponse.next();
   res.headers.set('Access-Control-Allow-Origin', '*');
   res.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
@@ -101,5 +129,6 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   // 只匹配 /h5/* 路径
-  matcher: '/h5/:id*'
+  matcher: '/h5/:id*',
+  matcher: '/h6/:id*'
 } 
