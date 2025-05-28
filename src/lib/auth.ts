@@ -25,8 +25,10 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
+        console.log("[Auth] Authorize function called with credentials:", credentials);
         // 在这里实现简单的身份验证逻辑
-        if (credentials?.username === 'test' && credentials?.password === 'test') {
+        if (credentials?.username === 'test' && credentials?.password === 'qpua5db1f99h1nf') {
+          console.log("[Auth] Credentials matched for test user.");
           return {
             id: '1',
             name: 'Test User',
@@ -34,6 +36,7 @@ export const authOptions: NextAuthOptions = {
             image: 'https://avatar.vercel.sh/test'
           }
         }
+        console.log("[Auth] Credentials did not match or were not provided correctly.");
         return null
       }
     })

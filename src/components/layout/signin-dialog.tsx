@@ -17,23 +17,31 @@ import { signIn } from 'next-auth/react'
 export default function SigninDialog({
   children
 }: {
-  children?: React.ReactNode
+  children: React.ReactNode
 }) {
   const attemptGoogleSignin = () => {
     signIn('credentials', {
+      username: 'test',
+      password: 'qpua5db1f99h1nf',
+      redirect: true,
       callbackUrl: location.href
     })
-      .then(() => {
-        // Try to get the new session from API
-        revalidate('GET /auth/session')
+      .then((result) => {
+        if (result?.error) {
+          console.error("Sign-in error:", result.error);
+        } else if (result?.ok) {
+          // revalidate('GET /auth/session')
+        }
       })
-      .catch(err => {})
+      .catch(err => {
+        console.error("signIn promise rejected:", err);
+      })
   }
 
   return (
     <Dialog>
-      <DialogTrigger asChild={children ? true : false}>
-        {children || <Button>Sign in</Button>}
+      <DialogTrigger asChild>
+        {children}
       </DialogTrigger>
       <DialogContent className='max-w-[90%] md:max-w-lg rounded-xl'>
         <DialogTitle>Sign in to your account</DialogTitle>
