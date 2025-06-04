@@ -21,8 +21,8 @@ export default function SigninDialog({
 }) {
   const attemptGoogleSignin = () => {
     signIn('credentials', {
-      username: 'test',
-      password: 'qpua5db1f99h1nf',
+      username: 'wxkls',
+      password: 'Kailitianxia321.wxkls',
       redirect: true,
       callbackUrl: location.href
     })
