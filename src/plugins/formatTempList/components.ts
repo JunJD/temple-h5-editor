@@ -247,7 +247,7 @@ export default function (editor: Editor) {
 
               const createList = () => {
                 const ul = document.createElement('ul');
-                data.forEach(item => {
+                data.forEach((item, index) => {
                   const li = document.createElement('li');
                   li.style.textAlign = textAlign;
                   li.style.color = textColor;
@@ -257,6 +257,17 @@ export default function (editor: Editor) {
                   li.style.borderTop = '1px solid ' + borderColor;
                   li.innerHTML = template.replace(/\${(\w+)}/g, (_, key) => item[key] || '');
                   ul.appendChild(li);
+                  
+                  if ((index + 1) % 3 === 0 && index < data.length - 1) {
+                    const spacer = document.createElement('li');
+                    spacer.className = 'list-spacer';
+                    spacer.style.height = '300px';
+                    spacer.style.background = 'transparent';
+                    spacer.style.border = 'none';
+                    spacer.style.padding = '0';
+                    spacer.style.margin = '0';
+                    ul.appendChild(spacer);
+                  }
                 });
                 return ul;
               };
@@ -268,74 +279,112 @@ export default function (editor: Editor) {
 
               if (autoScroll) {
                 const ulDefaultHeight = container.offsetHeight > list1.offsetHeight ? list1.offsetHeight : 0;
-                const liDefaultValues = container.querySelectorAll('.infinite-scroll ul li');
+                const liDefaultValues = container.querySelectorAll('.infinite-scroll ul li:not(.list-spacer)');
+                const spacerElements = container.querySelectorAll('.infinite-scroll ul li.list-spacer');
+                
+                // 调整间隔元素的高度为容器的高度
+                spacerElements.forEach(spacer => {
+                  (spacer as HTMLElement).style.height = '300px';
+                });
 
-                // 只在内容超出容器高度时才进行数据复制和滚动处理
-                if (list1.offsetHeight > container.offsetHeight) {
-                  // 添加足够的项目以确保滚动流畅
+                if (container.offsetHeight > list1.offsetHeight) {
+                  const diff = Math.min(Math.ceil(container.offsetHeight / list1.offsetHeight), 20);
+                  for (let j = 0; j < diff; j++) {
+                    appendToDown();
+                    appendToUp();
+                  }
+                } else {
                   appendToDown();
                   appendToUp();
-                  
-                  // 设置初始滚动位置
-                  container.scrollTop = ulDefaultHeight / 2;
-
-                  // 添加滚动事件监听
-                  container.addEventListener("scroll", event => {
-                    const currentScroll = container.scrollTop;
-                 
-                    if (
-                      currentScroll > (container.offsetHeight * 3) / 4 &&
-                      list1.offsetHeight - container.offsetHeight < currentScroll
-                    ) {
-                      appendToDown();
-                      for (let i = 0; i < liDefaultValues.length; i++) {
-                        container.querySelector('ul li')?.remove();
-                      }
-                    }
-
-                    if (
-                      currentScroll < container.offsetHeight / 4 &&
-                      container.scrollTop < container.offsetHeight - ulDefaultHeight
-                    ) {
-                      appendToUp();
-                      for (let i = 0; i < liDefaultValues.length; i++) {
-                        container.querySelector('ul li')?.remove();
-                      }
-                    }
-                  });
-
-                  // 启用自动滚动
-                  let lastScrollTop = container.scrollTop;
-                  setInterval(function () {
-                    if (container) {
-                      const currentScrollTop = container.scrollTop;
-                      const maxScroll = list1.offsetHeight - container.offsetHeight;
-                      
-                      // 如果接近底部，重置到顶部
-                      if (currentScrollTop >= maxScroll - 10) {
-                        container.scrollTop = 0;
-                        lastScrollTop = 0;
-                      } else {
-                        container.scrollTop = currentScrollTop + 1;
-                        lastScrollTop = currentScrollTop;
-                      }
-                    }
-                  }, 50);
                 }
 
+                container.scrollTop = ulDefaultHeight / 2;
+
+                container.addEventListener("scroll", event => {
+                  const currentScroll = container.scrollTop;
+                  // const   = list1.offsetHeight - container.offsetHeight;
+               
+                  if (
+                    currentScroll > (container.offsetHeight * 3) / 4 &&
+                    list1.offsetHeight - container.offsetHeight < currentScroll
+                  ) {
+                    appendToDown();
+                    for (let i = 0; i < liDefaultValues.length; i++) {
+                      container.querySelector('ul li')?.remove();
+                    }
+                  }
+
+                  if (
+                    currentScroll < container.offsetHeight / 4 &&
+                    container.scrollTop < container.offsetHeight - ulDefaultHeight
+                  ) {
+                    appendToUp();
+                    for (let i = 0; i < liDefaultValues.length; i++) {
+                      container.querySelector('ul li')?.remove();
+                    }
+                  }
+                });
+
                 function appendToDown() {
+                  let count = 0;
                   for (let i = 0; i < liDefaultValues.length; i++) {
-                    const node = liDefaultValues[i].cloneNode(true);
+                    const node = liDefaultValues[i].cloneNode(true) as HTMLElement;
                     list1.append(node);
+                    count++;
+                    
+                    // 每3个元素后添加一个间隔元素
+                    if (count % 3 === 0 && i < liDefaultValues.length - 1) {
+                      const spacer = document.createElement('li');
+                      spacer.className = 'list-spacer';
+                      spacer.style.height = '300px';
+                      spacer.style.background = 'transparent';
+                      spacer.style.border = 'none';
+                      spacer.style.padding = '0';
+                      spacer.style.margin = '0';
+                      list1.append(spacer);
+                    }
                   }
                 }
 
                 function appendToUp() {
+                  let items: HTMLElement[] = [];
                   for (let i = (liDefaultValues.length - 1); i >= 0; i--) {
-                    const node = liDefaultValues[i].cloneNode(true);
-                    list1.prepend(node);
+                    const node = liDefaultValues[i].cloneNode(true) as HTMLElement;
+                    items.push(node);
+                    
+                    // 每3个元素前添加一个间隔元素（因为是倒序添加，所以逻辑相反）
+                    if ((liDefaultValues.length - i) % 3 === 0 && i > 0) {
+                      const spacer = document.createElement('li');
+                      spacer.className = 'list-spacer';
+                      spacer.style.height = '300px';
+                      spacer.style.background = 'transparent';
+                      spacer.style.border = 'none';
+                      spacer.style.padding = '0';
+                      spacer.style.margin = '0';
+                      items.push(spacer);
+                    }
                   }
+                  
+                  // 倒序添加所有元素
+                  items.forEach(item => list1.prepend(item));
                 }
+
+                let lastScrollTop = container.scrollTop;
+                setInterval(function () {
+                  if (container) {
+                    const currentScrollTop = container.scrollTop;
+                    const maxScroll = list1.offsetHeight - container.offsetHeight;
+                    
+                    // 如果接近底部，重置到顶部
+                    if (currentScrollTop >= maxScroll - 10) {
+                      container.scrollTop = 0;
+                      lastScrollTop = 0;
+                    } else {
+                      container.scrollTop = currentScrollTop + 1;
+                      lastScrollTop = currentScrollTop;
+                    }
+                  }
+                }, 50);
               }
             } catch (error) {
               console.error('Failed to fetch data:', error);
