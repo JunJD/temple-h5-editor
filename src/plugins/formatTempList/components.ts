@@ -258,7 +258,9 @@ export default function (editor: Editor) {
                   li.innerHTML = template.replace(/\${(\w+)}/g, (_, key) => item[key] || '');
                   ul.appendChild(li);
                   
-                  if ((index + 1) % 3 === 0 && index < data.length - 1) {
+                  // 如果数据小于3，则在最后一个元素后添加间隔
+                  if ((data.length < 3 && index === data.length - 1) || 
+                      ((index + 1) % 3 === 0 && index < data.length - 1)) {
                     const spacer = document.createElement('li');
                     spacer.className = 'list-spacer';
                     spacer.style.height = '300px';
@@ -332,8 +334,9 @@ export default function (editor: Editor) {
                     list1.append(node);
                     count++;
                     
-                    // 每3个元素后添加一个间隔元素
-                    if (count % 3 === 0 && i < liDefaultValues.length - 1) {
+                    // 如果列表项总数小于3，则在最后一个元素后添加间隔
+                    if ((liDefaultValues.length < 3 && i === liDefaultValues.length - 1) || 
+                        (count % 3 === 0 && i < liDefaultValues.length - 1)) {
                       const spacer = document.createElement('li');
                       spacer.className = 'list-spacer';
                       spacer.style.height = '300px';
@@ -348,6 +351,19 @@ export default function (editor: Editor) {
 
                 function appendToUp() {
                   let items: HTMLElement[] = [];
+                  
+                  // 如果列表项总数小于3，则添加一个间隔元素
+                  if (liDefaultValues.length < 3) {
+                    const spacer = document.createElement('li');
+                    spacer.className = 'list-spacer';
+                    spacer.style.height = '300px';
+                    spacer.style.background = 'transparent';
+                    spacer.style.border = 'none';
+                    spacer.style.padding = '0';
+                    spacer.style.margin = '0';
+                    items.push(spacer);
+                  }
+                  
                   for (let i = (liDefaultValues.length - 1); i >= 0; i--) {
                     const node = liDefaultValues[i].cloneNode(true) as HTMLElement;
                     items.push(node);
