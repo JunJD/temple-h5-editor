@@ -207,10 +207,10 @@ export default function (editor: Editor) {
             try {
               let data = [
                 { name: '张三', amount: '¥1,234.00', name1: '张某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
-                // { name: '李四', amount: '¥2,345.00', name1: '李某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
-                // { name: '王五', amount: '¥3,456.00', name1: '王某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
-                // { name: '赵六', amount: '¥4,567.00', name1: '赵某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
-                // { name: '孙七', amount: '¥5,678.00', name1: '孙某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
+                { name: '李四', amount: '¥2,345.00', name1: '李某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
+                { name: '王五', amount: '¥3,456.00', name1: '王某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
+                { name: '赵六', amount: '¥4,567.00', name1: '赵某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
+                { name: '孙七', amount: '¥5,678.00', name1: '孙某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
               ];
               
               // @ts-ignore
