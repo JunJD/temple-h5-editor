@@ -131,6 +131,11 @@ export async function GET(
     ` : ''}
     <!-- Bootstrap JS -->
     <script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/vconsole@latest/dist/vconsole.min.js"></script>
+
+    <script>
+    var vConsole = new window.VConsole();
+    </script>
 
     <script>
         const frontendUrlForConfig = location.href.split('#')[0];
