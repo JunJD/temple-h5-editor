@@ -63,7 +63,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // 如果已经有openid或不是微信浏览器，继续处理
-    const url = new URL(`/api/preview/${id}`, request.nextUrl.origin)
+    const url = new URL(`/api/preview/${id}?now=${Date.now()}`, request.nextUrl.origin)
     if (preview) {
       url.searchParams.set('preview', preview)
     }
