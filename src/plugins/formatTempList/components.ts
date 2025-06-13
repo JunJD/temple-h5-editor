@@ -207,10 +207,10 @@ export default function (editor: Editor) {
             try {
               let data = [
                 { name: '张三', amount: '¥1,234.00', name1: '张某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
-                { name: '李四', amount: '¥2,345.00', name1: '李某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
-                { name: '王五', amount: '¥3,456.00', name1: '王某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
-                { name: '赵六', amount: '¥4,567.00', name1: '赵某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
-                { name: '孙七', amount: '¥5,678.00', name1: '孙某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
+                // { name: '李四', amount: '¥2,345.00', name1: '李某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
+                // { name: '王五', amount: '¥3,456.00', name1: '王某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
+                // { name: '赵六', amount: '¥4,567.00', name1: '赵某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
+                // { name: '孙七', amount: '¥5,678.00', name1: '孙某', date1: '2024-01-01', date2: '01-01', goods1: '供灯', goods2: '一盏' },
               ];
               
               // @ts-ignore
@@ -257,20 +257,19 @@ export default function (editor: Editor) {
                   li.style.borderTop = '1px solid ' + borderColor;
                   li.innerHTML = template.replace(/\${(\w+)}/g, (_, key) => item[key] || '');
                   ul.appendChild(li);
-                  
-                  // 如果数据小于3，则在最后一个元素后添加间隔
-                  if ((data.length < 3 && index === data.length - 1) || 
-                      ((index + 1) % 3 === 0 && index < data.length - 1)) {
-                    const spacer = document.createElement('li');
-                    spacer.className = 'list-spacer';
-                    spacer.style.height = '300px';
-                    spacer.style.background = 'transparent';
-                    spacer.style.border = 'none';
-                    spacer.style.padding = '0';
-                    spacer.style.margin = '0';
-                    ul.appendChild(spacer);
-                  }
                 });
+                
+                // 在一轮数据的最后添加300px间隔
+                const spacer = document.createElement('li');
+                spacer.className = 'data-cycle-spacer';
+                spacer.style.height = '300px';
+                spacer.style.background = 'transparent';
+                spacer.style.border = 'none';
+                spacer.style.padding = '0';
+                spacer.style.margin = '0';
+                spacer.style.listStyleType = 'none';
+                ul.appendChild(spacer);
+                
                 return ul;
               };
 
@@ -280,124 +279,133 @@ export default function (editor: Editor) {
               el.appendChild(container);
 
               if (autoScroll) {
-                const ulDefaultHeight = container.offsetHeight > list1.offsetHeight ? list1.offsetHeight : 0;
-                const liDefaultValues = container.querySelectorAll('.infinite-scroll ul li:not(.list-spacer)');
-                const spacerElements = container.querySelectorAll('.infinite-scroll ul li.list-spacer');
+                // 获取一轮完整数据的高度（包括间隔）
+                const oneCycleHeight = list1.offsetHeight;
                 
-                // 调整间隔元素的高度为容器的高度
-                spacerElements.forEach(spacer => {
-                  (spacer as HTMLElement).style.height = '300px';
-                });
-
-                if (container.offsetHeight > list1.offsetHeight) {
-                  const diff = Math.min(Math.ceil(container.offsetHeight / list1.offsetHeight), 20);
-                  for (let j = 0; j < diff; j++) {
-                    appendToDown();
-                    appendToUp();
-                  }
-                } else {
-                  appendToDown();
-                  appendToUp();
+                // 复制足够多轮以填满容器并确保无缝滚动
+                const cyclesNeeded = Math.max(Math.ceil(container.offsetHeight / oneCycleHeight) + 2, 3);
+                
+                for (let i = 0; i < cyclesNeeded; i++) {
+                  data.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    li.style.textAlign = textAlign;
+                    li.style.color = textColor;
+                    li.style.fontSize = fontSize + 'px';
+                    li.style.fontWeight = fontWeight;
+                    li.style.backgroundColor = backgroundColor;
+                    li.style.borderTop = '1px solid ' + borderColor;
+                    li.innerHTML = template.replace(/\${(\w+)}/g, (_, key) => item[key] || '');
+                    list1.appendChild(li);
+                  });
+                  
+                  // 每轮数据后添加300px间隔
+                  const spacer = document.createElement('li');
+                  spacer.className = 'data-cycle-spacer';
+                  spacer.style.height = '300px';
+                  spacer.style.background = 'transparent';
+                  spacer.style.border = 'none';
+                  spacer.style.padding = '0';
+                  spacer.style.margin = '0';
+                  spacer.style.listStyleType = 'none';
+                  list1.appendChild(spacer);
                 }
 
-                container.scrollTop = ulDefaultHeight / 2;
+                // 设置初始滚动位置
+                container.scrollTop = oneCycleHeight;
 
                 container.addEventListener("scroll", event => {
                   const currentScroll = container.scrollTop;
-                  // const   = list1.offsetHeight - container.offsetHeight;
+                  const maxScroll = list1.offsetHeight - container.offsetHeight;
                
-                  if (
-                    currentScroll > (container.offsetHeight * 3) / 4 &&
-                    list1.offsetHeight - container.offsetHeight < currentScroll
-                  ) {
-                    appendToDown();
-                    for (let i = 0; i < liDefaultValues.length; i++) {
-                      container.querySelector('ul li')?.remove();
-                    }
-                  }
-
-                  if (
-                    currentScroll < container.offsetHeight / 4 &&
-                    container.scrollTop < container.offsetHeight - ulDefaultHeight
-                  ) {
-                    appendToUp();
-                    for (let i = 0; i < liDefaultValues.length; i++) {
-                      container.querySelector('ul li')?.remove();
-                    }
-                  }
-                });
-
-                function appendToDown() {
-                  let count = 0;
-                  for (let i = 0; i < liDefaultValues.length; i++) {
-                    const node = liDefaultValues[i].cloneNode(true) as HTMLElement;
-                    list1.append(node);
-                    count++;
+                  // 当滚动到底部区域时，添加新的数据轮次
+                  if (currentScroll > maxScroll - oneCycleHeight) {
+                    data.forEach((item, index) => {
+                      const li = document.createElement('li');
+                      li.style.textAlign = textAlign;
+                      li.style.color = textColor;
+                      li.style.fontSize = fontSize + 'px';
+                      li.style.fontWeight = fontWeight;
+                      li.style.backgroundColor = backgroundColor;
+                      li.style.borderTop = '1px solid ' + borderColor;
+                      li.innerHTML = template.replace(/\${(\w+)}/g, (_, key) => item[key] || '');
+                      list1.appendChild(li);
+                    });
                     
-                    // 如果列表项总数小于3，则在最后一个元素后添加间隔
-                    if ((liDefaultValues.length < 3 && i === liDefaultValues.length - 1) || 
-                        (count % 3 === 0 && i < liDefaultValues.length - 1)) {
-                      const spacer = document.createElement('li');
-                      spacer.className = 'list-spacer';
-                      spacer.style.height = '300px';
-                      spacer.style.background = 'transparent';
-                      spacer.style.border = 'none';
-                      spacer.style.padding = '0';
-                      spacer.style.margin = '0';
-                      list1.append(spacer);
-                    }
-                  }
-                }
-
-                function appendToUp() {
-                  let items: HTMLElement[] = [];
-                  
-                  // 如果列表项总数小于3，则添加一个间隔元素
-                  if (liDefaultValues.length < 3) {
+                    // 添加间隔
                     const spacer = document.createElement('li');
-                    spacer.className = 'list-spacer';
+                    spacer.className = 'data-cycle-spacer';
                     spacer.style.height = '300px';
                     spacer.style.background = 'transparent';
                     spacer.style.border = 'none';
                     spacer.style.padding = '0';
                     spacer.style.margin = '0';
-                    items.push(spacer);
-                  }
-                  
-                  for (let i = (liDefaultValues.length - 1); i >= 0; i--) {
-                    const node = liDefaultValues[i].cloneNode(true) as HTMLElement;
-                    items.push(node);
+                    spacer.style.listStyleType = 'none';
+                    list1.appendChild(spacer);
                     
-                    // 每3个元素前添加一个间隔元素（因为是倒序添加，所以逻辑相反）
-                    if ((liDefaultValues.length - i) % 3 === 0 && i > 0) {
-                      const spacer = document.createElement('li');
-                      spacer.className = 'list-spacer';
-                      spacer.style.height = '300px';
-                      spacer.style.background = 'transparent';
-                      spacer.style.border = 'none';
-                      spacer.style.padding = '0';
-                      spacer.style.margin = '0';
-                      items.push(spacer);
+                    // 移除顶部的一轮数据
+                    for (let i = 0; i < data.length + 1; i++) { // +1 for spacer
+                      if (list1.firstChild) {
+                        list1.removeChild(list1.firstChild);
+                      }
                     }
+                    container.scrollTop = currentScroll - oneCycleHeight;
                   }
-                  
-                  // 倒序添加所有元素
-                  items.forEach(item => list1.prepend(item));
-                }
 
-                let lastScrollTop = container.scrollTop;
+                  // 当滚动到顶部区域时，向上添加数据轮次
+                  if (currentScroll < oneCycleHeight) {
+                    const tempItems: HTMLElement[] = [];
+                    
+                    // 先添加间隔
+                    const spacer = document.createElement('li');
+                    spacer.className = 'data-cycle-spacer';
+                    spacer.style.height = '300px';
+                    spacer.style.background = 'transparent';
+                    spacer.style.border = 'none';
+                    spacer.style.padding = '0';
+                    spacer.style.margin = '0';
+                    spacer.style.listStyleType = 'none';
+                    tempItems.push(spacer);
+                    
+                    // 倒序添加数据项
+                    for (let i = data.length - 1; i >= 0; i--) {
+                      const item = data[i];
+                      const li = document.createElement('li');
+                      li.style.textAlign = textAlign;
+                      li.style.color = textColor;
+                      li.style.fontSize = fontSize + 'px';
+                      li.style.fontWeight = fontWeight;
+                      li.style.backgroundColor = backgroundColor;
+                      li.style.borderTop = '1px solid ' + borderColor;
+                      li.innerHTML = template.replace(/\${(\w+)}/g, (_, key) => item[key] || '');
+                      tempItems.push(li);
+                    }
+                    
+                    // 将所有项目插入到顶部
+                    tempItems.forEach(item => {
+                      list1.insertBefore(item, list1.firstChild);
+                    });
+                    
+                    // 移除底部的一轮数据
+                    for (let i = 0; i < data.length + 1; i++) { // +1 for spacer
+                      if (list1.lastChild) {
+                        list1.removeChild(list1.lastChild);
+                      }
+                    }
+                    container.scrollTop = currentScroll + oneCycleHeight;
+                  }
+                });
+
+                // 自动滚动
                 setInterval(function () {
                   if (container) {
                     const currentScrollTop = container.scrollTop;
                     const maxScroll = list1.offsetHeight - container.offsetHeight;
                     
-                    // 如果接近底部，重置到顶部
+                    // 如果接近底部，重置到合适位置
                     if (currentScrollTop >= maxScroll - 10) {
-                      container.scrollTop = 0;
-                      lastScrollTop = 0;
+                      container.scrollTop = oneCycleHeight;
                     } else {
                       container.scrollTop = currentScrollTop + 1;
-                      lastScrollTop = currentScrollTop;
                     }
                   }
                 }, 50);
