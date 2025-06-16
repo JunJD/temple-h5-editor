@@ -34,7 +34,7 @@ export async function GET(
                 issueId: params.id,
                 status: 'PAID'
             },
-            orderBy: { createdAt: 'asc' }
+            orderBy: { createdAt: 'desc' }
         })
 
         if (!submissions) {
