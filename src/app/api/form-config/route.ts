@@ -209,7 +209,7 @@ function generateColumns(formConfig: any) {
             columns.push({
                 label: field.label,
                 value: field.name,
-                required: true
+                required: field.required ?? true
             });
         });
     }
