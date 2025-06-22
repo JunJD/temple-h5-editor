@@ -66,7 +66,7 @@ export function LayerItem({
 
   useEffect(() => {
     const up = (cmp: Component) => {
-      cmp === component && setLayerData(Layers.getLayerData(cmp))
+      cmp === component && setLayerData({ ...Layers.getLayerData(cmp) })
     }
     const ev = Layers.events.component
     editor.on(ev, up)
@@ -82,7 +82,8 @@ export function LayerItem({
 
   const toggleVisibility = (e: React.MouseEvent) => {
     e.stopPropagation()
-    Layers.setLayerData(component, { visible: !visible })
+    const { visible: currentVisible } = Layers.getLayerData(component)
+    Layers.setLayerData(component, { visible: !currentVisible })
   }
 
   const select = (e: React.MouseEvent) => {
