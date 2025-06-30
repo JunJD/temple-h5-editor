@@ -110,3 +110,11 @@ model ImageAsset {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }
+
+model AudioAsset {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String   // 音频名称
+  url         String   // 阿里云 OSS URL
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
