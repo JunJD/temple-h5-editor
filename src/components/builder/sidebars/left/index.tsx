@@ -23,7 +23,7 @@ export const LeftSidebar = () => {
 
   return (
     <TooltipProvider>
-      <div className="flex h-full">
+      <div className="flex overflow-hidden" style={{ height: 'calc(100vh - 4rem)' }}>
         <div className="flex flex-col items-center justify-between border-r bg-background p-2">
           <div className="space-y-2 flex flex-col items-center justify-between">
             <Tooltip>
