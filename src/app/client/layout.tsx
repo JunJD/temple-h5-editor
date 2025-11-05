@@ -13,9 +13,9 @@ import { authOptions } from "@/lib/auth"
 export default async function MainLayout({ children }) {
   const session = await getServerSession(authOptions)
 
-  // if (!session) {
-  //   redirect('/api/auth/signin')
-  // }
+  if (!session) {
+    redirect('/api/auth/signin')
+  }
 
   const preferences = await getUserPreferences()
 
@@ -25,7 +25,7 @@ export default async function MainLayout({ children }) {
 
   return (
     <main className='min-h-screen'>
-      {/* <AuthProvider> */}
+      <AuthProvider>
         <AtomicState
           value={{
             'server-theme': serverTheme
@@ -44,7 +44,7 @@ export default async function MainLayout({ children }) {
             </div>
           </FetchConfig>
         </AtomicState>
-      {/* </AuthProvider> */}
+      </AuthProvider>
     </main>
   )
 }
