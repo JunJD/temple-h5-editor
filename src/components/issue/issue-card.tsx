@@ -125,6 +125,9 @@ export default function IssueCard({ issue }: Props) {
                 <Link href={`/client/issues/${issue.id}/edit`}>编辑</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
+                <Link href={`/client/issues/${issue.id}/goods`}>商品管理</Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
                 <Link href={`/client/issues/${issue.id}/submissions`}>提交记录</Link>
               </DropdownMenuItem>
               <DropdownMenuItem

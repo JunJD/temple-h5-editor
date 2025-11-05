@@ -1,0 +1,251 @@
+<body container-type="container-fluid" background-type="color" background-color="#ffffff" min-height="800" display="block" id="iawg" class="container-fluid">
+<section id="goods-cmp" class="goods-cmp" style="padding:12px;">
+  <div class="g-header">
+    <h2 class="g-title">选择商品</h2>
+    <button type="button" class="g-refresh" aria-label="刷新商品">刷新</button>
+  </div>
+
+  <div id="g-msg" class="g-message">加载中...</div>
+  <div id="g-grid" class="g-grid" hidden></div>
+
+  <div id="g-cart" class="g-cart" hidden>
+    <div class="g-cart-title">已选商品</div>
+    <div id="g-cart-list" class="g-cart-list"></div>
+    <div class="g-cart-total">
+      <span>合计</span>
+      <span id="g-total">¥0.00</span>
+    </div>
+    <div class="g-cart-actions">
+      <button type="button" id="g-clear" class="g-btn secondary">清空</button>
+      <button type="button" id="g-submit" class="g-btn">确认选择</button>
+    </div>
+  </div>
+
+  <!-- 提供给外部表单/支付读取的隐藏字段 -->
+  <input type="hidden" id="goods" name="goods" value="">
+  <input type="hidden" id="amount" name="amount" value="">
+</section>
+
+<script>
+(function(){
+  const root = document.getElementById('goods-cmp');
+  const msgEl = document.getElementById('g-msg');
+  const gridEl = document.getElementById('g-grid');
+  const cartEl = document.getElementById('g-cart');
+  const cartListEl = document.getElementById('g-cart-list');
+  const totalEl = document.getElementById('g-total');
+  const clearBtn = document.getElementById('g-clear');
+  const submitBtn = document.getElementById('g-submit');
+  const refreshBtn = root.querySelector('.g-refresh');
+
+  const hiddenGoods = document.getElementById('goods');
+  const hiddenAmount = document.getElementById('amount');
+
+  const state = { goods: [], cart: new Map() }; // id -> {id,title,price,currency,quantity}
+
+  function $(sel, el){ return (el||document).querySelector(sel); }
+  function el(tag, cls, text){ const n=document.createElement(tag); if(cls) n.className=cls; if(text!=null) n.textContent=String(text); return n; }
+  function safeNum(n){ const v=Number(n); return Number.isFinite(v) ? v : 0; }
+  function fmt(price, currency){
+    try { return new Intl.NumberFormat('zh-CN', {style:'currency', currency:currency||'CNY', currencyDisplay:'narrowSymbol'}).format(safeNum(price)); }
+    catch { return (currency||'¥') + safeNum(price).toFixed(2); }
+  }
+  function resolveIssueId(){
+    const sp = new URLSearchParams(location.search);
+    if (sp.get('issueId')) return sp.get('issueId');
+    const p = location.pathname;
+    const patterns = [
+      /\/artboard\/preview\/([^\/?#]+)/,
+      /\/api\/preview\/([^\/?#]+)/,
+      /\/client\/issues\/([^\/?#]+)\/goods/,
+      /\/client\/issues\/([^\/?#]+)/,
+      /\/client\/issues\/([^\/?#]+)\/edit/,
+    ];
+    for (const re of patterns){ const m=p.match(re); if(m && m[1]) return decodeURIComponent(m[1]); }
+    return null;
+  }
+
+  function updateCartSummary(){
+    cartListEl.innerHTML = '';
+    const items = Array.from(state.cart.values());
+    let total = 0;
+    items.forEach(it => { total += safeNum(it.price) * safeNum(it.quantity); });
+
+    if (items.length === 0){
+      cartEl.hidden = true;
+      hiddenGoods.value = '';
+      hiddenAmount.value = '';
+      totalEl.textContent = fmt(0, 'CNY');
+    } else {
+      cartEl.hidden = false;
+      items.forEach(it => {
+        const row = el('div','g-cart-item');
+        const left = el('div');
+        left.appendChild(el('div','g-cart-name', it.title || ''));
+        left.appendChild(el('div','g-cart-sub', `×${it.quantity} · ${fmt(it.price, it.currency)}`));
+        const right = el('div','');
+        right.appendChild(el('div','', fmt(safeNum(it.price)*safeNum(it.quantity), it.currency)));
+        row.appendChild(left);
+        row.appendChild(right);
+        cartListEl.appendChild(row);
+      });
+      totalEl.textContent = fmt(total, items[0]?.currency || 'CNY');
+      hiddenGoods.value = JSON.stringify({ items, total, currency: items[0]?.currency || 'CNY' });
+      hiddenAmount.value = String(total);
+    }
+
+    window.dispatchEvent(new CustomEvent('goods:changed', { detail: {
+      items,
+      total,
+      json: hiddenGoods.value
+    }}));
+  }
+
+  function setQty(cardEl, good, qty){
+    const max = Number.isFinite(good.quantity) ? Math.max(0, good.quantity) : Infinity;
+    const val = Math.max(0, Math.min(max, safeNum(qty)));
+    const qtyEl = $('.g-qty', cardEl);
+    qtyEl.textContent = String(val);
+
+    if (val > 0){
+      cardEl.classList.add('selected');
+      state.cart.set(good.id, {
+        id: good.id,
+        title: good.title,
+        price: safeNum(good.price),
+        currency: good.currency || 'CNY',
+        quantity: val
+      });
+    } else {
+      cardEl.classList.remove('selected');
+      state.cart.delete(good.id);
+    }
+    updateCartSummary();
+
+    const minusBtn = $('.g-minus', cardEl);
+    const plusBtn = $('.g-plus', cardEl);
+    if (minusBtn) minusBtn.disabled = (val <= 0);
+    if (plusBtn) plusBtn.disabled = (Number.isFinite(max) ? (val >= max) : false);
+  }
+
+  function buildCard(good){
+    const card = el('div','g-card');
+    const thumb = el('div','g-thumb');
+    if (good.imageUrl){
+      const img = el('img');
+      img.src = good.imageUrl; img.alt = good.title || '';
+      thumb.appendChild(img);
+    } else {
+      thumb.appendChild(el('div','g-thumb-fallback','无图'));
+    }
+    card.appendChild(thumb);
+
+    const info = el('div','g-info');
+    info.appendChild(el('div','g-name', good.title || ''));
+    info.appendChild(el('div','g-desc', good.description || ''));
+    const meta = el('div','g-meta');
+    meta.appendChild(el('span','g-price', fmt(good.price, good.currency)));
+    const stockText = (typeof good.quantity === 'number')
+      ? (good.quantity > 0 ? ('库存 ' + good.quantity) : '售罄')
+      : '';
+    meta.appendChild(el('span','g-stock' + ((typeof good.quantity==='number' && good.quantity<=0) ? ' g-stock-out':''), stockText));
+    info.appendChild(meta);
+    card.appendChild(info);
+
+    const actions = el('div','g-actions');
+    const stepper = el('div','g-stepper');
+    const minus = el('button','g-minus','-');
+    const qty = el('span','g-qty','0');
+    const plus = el('button','g-plus','+');
+
+    const soldOut = (typeof good.quantity === 'number' && good.quantity <= 0);
+    minus.disabled = true;
+    plus.disabled = soldOut;
+
+    minus.addEventListener('click', () => {
+      const cur = Number(qty.textContent||'0') || 0;
+      setQty(card, good, cur - 1);
+    });
+    plus.addEventListener('click', () => {
+      const cur = Number(qty.textContent||'0') || 0;
+      setQty(card, good, cur + 1);
+    });
+    stepper.appendChild(minus);
+    stepper.appendChild(qty);
+    stepper.appendChild(plus);
+
+    const addBtn = el('button','g-add', soldOut ? '售罄' : '加入');
+    addBtn.disabled = soldOut;
+    addBtn.addEventListener('click', () => {
+      const cur = Number(qty.textContent||'0') || 0;
+      setQty(card, good, Math.max(1, cur || 0));
+    });
+
+    actions.appendChild(stepper);
+    actions.appendChild(addBtn);
+    card.appendChild(actions);
+
+    return card;
+  }
+
+  function renderGoods(list){
+    gridEl.innerHTML = '';
+    if (!Array.isArray(list) || list.length === 0){
+      msgEl.textContent = '暂无商品';
+      msgEl.hidden = false;
+      gridEl.hidden = true;
+      return;
+    }
+    msgEl.hidden = true;
+    gridEl.hidden = false;
+    list.forEach(g => gridEl.appendChild(buildCard(g)));
+  }
+
+  async function refresh(){
+    const id = resolveIssueId();
+    if (!id){
+      msgEl.textContent = '无法识别页面 ID';
+      msgEl.hidden = false;
+      gridEl.hidden = true;
+      return;
+    }
+    msgEl.textContent = '加载中...';
+    msgEl.hidden = false;
+    gridEl.hidden = true;
+    state.cart.clear(); updateCartSummary();
+
+    try {
+      const res = await fetch(`/api/issues/${encodeURIComponent(id)}/goods`, { cache: 'no-store' });
+      if (!res.ok) throw new Error('请求失败: ' + res.status);
+      const data = await res.json();
+      state.goods = Array.isArray(data) ? data : [];
+      renderGoods(state.goods);
+    } catch (e){
+      console.error(e);
+      msgEl.textContent = '加载商品失败，请稍后再试';
+      msgEl.hidden = false;
+      gridEl.hidden = true;
+    }
+  }
+
+  clearBtn && clearBtn.addEventListener('click', () => {
+    state.cart.clear();
+    Array.from(gridEl.children).forEach(card => {
+      const qty = card.querySelector('.g-qty'); if (qty) qty.textContent = '0';
+      const minusBtn = card.querySelector('.g-minus'); if (minusBtn) minusBtn.disabled = true;
+      card.classList.remove('selected');
+    });
+    updateCartSummary();
+  });
+
+  submitBtn && submitBtn.addEventListener('click', () => {
+    const payload = hiddenGoods.value ? JSON.parse(hiddenGoods.value) : { items:[], total:0 };
+    window.dispatchEvent(new CustomEvent('goods:submit', { detail: payload }));
+  });
+
+  refreshBtn && refreshBtn.addEventListener('click', refresh);
+  refresh();
+})();
+</script>
+
+</body>

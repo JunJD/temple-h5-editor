@@ -21,6 +21,7 @@ model Issue {
   updatedAt   DateTime @updatedAt
 
   submissions Submission[]
+  goods       Good[]
 }
 
 model Submission {
@@ -115,6 +116,23 @@ model AudioAsset {
   id          String   @id @default(auto()) @map("_id") @db.ObjectId
   name        String   // 音频名称
   url         String   // 阿里云 OSS URL
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// 商品表：与 Issue 关联，支持库存数量、价格等
+model Good {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  issueId     String   @db.ObjectId
+  issue       Issue    @relation(fields: [issueId], references: [id])
+
+  title       String
+  description String?
+  imageUrl    String?
+  price       Float
+  currency    String   @default("CNY")
+  quantity    Int
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

@@ -1,18 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-
 export default function PreviewPage({ params }: { params: { id: string } }) {
-  const [content, setContent] = useState<{html: string, css: string}>()
-  
-  useEffect(() => {
-    // 加载保存的内容
-  }, [])
-
+  const src = `/api/preview/${params.id}?preview=1`
   return (
-    <div>
-      <style>{content?.css || ''}</style>
-      <div dangerouslySetInnerHTML={{ __html: content?.html || '' }} />
-    </div>
+    <iframe
+      src={src}
+      style={{ border: 'none', width: '100%', height: '100vh' }}
+      title="页面预览"
+    />
   )
-} 
+}
