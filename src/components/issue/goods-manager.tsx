@@ -11,6 +11,7 @@ type Good = {
   price: number
   currency: string
   quantity: number
+  sold?: number
   createdAt?: string
 }
 
@@ -146,6 +147,7 @@ export default function GoodsManager({ issueId, initial }: { issueId: string; in
             <TableHead>标题</TableHead>
             <TableHead>价格</TableHead>
             <TableHead>库存</TableHead>
+            <TableHead>已支付</TableHead>
             <TableHead>操作</TableHead>
           </TableRow>
         </TableHeader>
@@ -163,6 +165,7 @@ export default function GoodsManager({ issueId, initial }: { issueId: string; in
               <TableCell>{g.title}</TableCell>
               <TableCell>{g.price} {g.currency}</TableCell>
               <TableCell>{g.quantity}</TableCell>
+              <TableCell>{g.sold ?? 0}</TableCell>
               <TableCell className='space-x-2'>
                 <Button size='sm' variant='outline' onClick={() => handleEdit(g)}>编辑</Button>
                 <Button size='sm' variant='destructive' onClick={() => handleDelete(g.id)}>删除</Button>
@@ -181,4 +184,3 @@ export default function GoodsManager({ issueId, initial }: { issueId: string; in
     </div>
   )
 }
-

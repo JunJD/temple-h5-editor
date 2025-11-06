@@ -66,6 +66,55 @@ export async function POST(req: NextRequest) {
                         content: notification,
                     },
                 });
+
+                // 如果订单包含商品明细（create-customer 流程），则更新库存与已支付数量
+                try {
+                    const formData: any = submission.formData as any
+                    const goodsPayload = formData?.goods
+                    const items = Array.isArray(goodsPayload?.items) ? goodsPayload.items : []
+                    if (items.length > 0) {
+                        await prisma.$transaction(async (tx) => {
+                            for (const it of items) {
+                                const gid = String(it.id || '')
+                                const qty = Math.max(0, Number(it.quantity || 0))
+                                if (!gid || qty <= 0) continue
+                                const res = await tx.good.updateMany({
+                                    where: {
+                                        id: gid,
+                                        issueId: submission.issueId,
+                                        quantity: { gte: qty },
+                                    },
+                                    data: {
+                                        quantity: { decrement: qty },
+                                        sold: { increment: qty },
+                                    },
+                                })
+                                if (res.count === 0) {
+                                    // 库存不足或商品不存在，记录日志但不影响通知成功返回
+                                    await tx.paymentLog.create({
+                                        data: {
+                                            submissionId: submission.id,
+                                            type: 'STOCK_SHORTAGE',
+                                            content: { goodId: gid, quantity: qty, message: 'Insufficient stock or good not found' },
+                                        },
+                                    })
+                                }
+                            }
+                        })
+                    }
+                } catch (stockErr) {
+                    console.error('更新库存/已支付数量失败:', stockErr)
+                    // 不中断流程，仅记录错误，避免影响微信回调应答
+                    try {
+                        await prisma.paymentLog.create({
+                            data: {
+                                submissionId: submission.id,
+                                type: 'STOCK_UPDATE_ERROR',
+                                content: { error: (stockErr as any)?.message || String(stockErr) },
+                            },
+                        })
+                    } catch {}
+                }
             } else {
                 console.log(`Submission ${submission.id} status already PAID. Ignoring duplicate notification.`); // 保留重复通知日志
             }

@@ -131,7 +131,8 @@ model Good {
   imageUrl    String?
   price       Float
   currency    String   @default("CNY")
-  quantity    Int
+  quantity    Int      // 当前可售库存
+  sold        Int      @default(0) // 已支付数量累计
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
