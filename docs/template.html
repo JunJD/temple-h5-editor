@@ -55,6 +55,7 @@
     if (sp.get('issueId')) return sp.get('issueId');
     const p = location.pathname;
     const patterns = [
+      /\/h5\/([^\/?#]+)/,
       /\/artboard\/preview\/([^\/?#]+)/,
       /\/api\/preview\/([^\/?#]+)/,
       /\/client\/issues\/([^\/?#]+)\/goods/,
