@@ -2,7 +2,8 @@ import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { prisma } from '@/lib/prisma'
 import GoodsManager from '@/components/issue/goods-manager'
-import ContentUploader from '@/components/issue/content-uploader'
+// import ContentUploader from '@/components/issue/content-uploader'
+import HtmlCssEditor from '@/components/issue/html-css-editor'
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui'
 import QrcodeButton from '@/components/issue/qrcode-button'
 import PublishToggle from '@/components/issue/publish-toggle'
@@ -54,10 +55,10 @@ export default async function GoodsPage({ params }: Props) {
         <Card>
           <CardHeader>
             <CardTitle>页面内容</CardTitle>
-            <CardDescription>上传 HTML / CSS，用于渲染前端页面。</CardDescription>
+            <CardDescription>在下方编辑 HTML/CSS，右侧实时预览。</CardDescription>
           </CardHeader>
           <CardContent>
-            <ContentUploader issueId={params.id} initial={{ html: (issue?.content as any)?.html, css: (issue?.content as any)?.css }} />
+            <HtmlCssEditor issueId={params.id} initialHtml={(issue?.content as any)?.html} initialCss={(issue?.content as any)?.css} />
           </CardContent>
         </Card>
       </div>

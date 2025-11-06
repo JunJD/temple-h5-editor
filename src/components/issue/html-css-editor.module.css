@@ -1,0 +1,24 @@
+.editorLight :global(.cm-editor) {
+  background: #ffffff;
+  color: #111827; /* slate-900 */
+}
+
+.editorLight :global(.cm-content) {
+  caret-color: #111827;
+}
+
+.editorLight :global(.cm-gutters) {
+  background: #ffffff;
+  color: #64748b; /* slate-500 */
+  border-right: 1px solid #e5e7eb;
+}
+
+.editorLight :global(.cm-activeLine),
+.editorLight :global(.cm-activeLineGutter) {
+  background: #f8fafc; /* slate-50 */
+}
+
+.editorLight :global(.cm-selectionBackground) {
+  background: rgba(37, 99, 235, 0.18);
+}
+

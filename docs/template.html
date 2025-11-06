@@ -1,48 +1,102 @@
-<body container-type="container-fluid" background-type="color" background-color="#ffffff" min-height="800" display="block" id="iawg" class="container-fluid">
-<section id="goods-cmp" class="goods-cmp" style="padding:12px;">
-  <div class="g-header">
-    <h2 class="g-title">选择商品</h2>
-    <button type="button" class="g-refresh" aria-label="刷新商品">刷新</button>
-  </div>
-
-  <div id="g-msg" class="g-message">加载中...</div>
-  <div id="g-grid" class="g-grid" hidden></div>
-
-  <div id="g-cart" class="g-cart" hidden>
-    <div class="g-cart-title">已选商品</div>
-    <div id="g-cart-list" class="g-cart-list"></div>
-    <div class="g-cart-total">
-      <span>合计</span>
-      <span id="g-total">¥0.00</span>
+<body class="h5-page" style="padding:12px;">
+  <!-- 顶部：点灯时间（商品） -->
+  <section id="slots" aria-label="点灯时间">
+    <div class="h5-header">
+      <h2 class="h5-title">点灯时间</h2>
+      <button type="button" id="btn-refresh" class="h5-refresh" aria-label="刷新">刷新</button>
     </div>
-    <div class="g-cart-actions">
-      <button type="button" id="g-clear" class="g-btn secondary">清空</button>
-      <button type="button" id="g-submit" class="g-btn">确认选择</button>
+    <div id="msg" class="h5-message">加载中...</div>
+    <div id="slots-grid" class="slots-grid hidden"></div>
+    <div id="summary" class="summary hidden">
+      <span>合计 <strong id="total">¥0.00</strong></span>
+      <span>
+        <button id="btn-clear" class="h5-refresh" type="button">清空</button>
+        <button id="btn-pay" class="h5-refresh" type="button" style="margin-left:8px;background:#111827;color:#fff;border-color:#111827">去支付</button>
+      </span>
+    </div>
+
+    <!-- 提供给外部表单/支付读取的隐藏字段 -->
+    <input type="hidden" id="goods" name="goods" value="">
+    <input type="hidden" id="amount" name="amount" value="">
+  </section>
+
+  <!-- 榜单：支付记录 -->
+  <section id="board" class="board">
+    <div class="board-title">名单登记榜单</div>
+    <table class="board-table" aria-label="支付记录">
+      <thead>
+        <tr>
+          <th class="board-col-date">日期</th>
+          <th class="board-col-name">姓名</th>
+          <th class="board-col-item">点灯时间</th>
+          <th class="board-col-amt">金额</th>
+        </tr>
+      </thead>
+      <tbody id="board-body"></tbody>
+    </table>
+  </section>
+
+  <!-- 支付弹窗 -->
+  <div id="pay-mask" class="mask" aria-hidden="true">
+    <div class="mask_content">
+      <div class="input_panel1" style="display:block;">
+        <div class="input_panel2">
+          <div class="title2"></div>
+          <div class="input_item">
+            <span>金额：</span>
+            <input type="text" class="juan_money" id="money" disabled="disabled" placeholder="">
+            <span class="yuan">元</span>
+          </div>
+          <div class="input_item">
+            <span>姓名：</span>
+            <input type="text" id="username" placeholder="自愿填写">
+          </div>
+          <div class="input_item">
+            <span>电话：</span>
+            <input type="text" id="phone" placeholder="自愿填写">
+          </div>
+          <div class="input_item" style="height:auto;align-items:flex-start;position:relative;display:block;">
+            <span>留言：</span>
+            <textarea id="qifu" placeholder="自愿填写"></textarea>
+          </div>
+          <div class="operate">
+            <div class="cancel" id="btn-cancel">取消</div>
+            <div class="confirm"><button type="button" class="mui-btn mui-btn-block gopay" id="btn-confirm">确定</button></div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
-
-  <!-- 提供给外部表单/支付读取的隐藏字段 -->
-  <input type="hidden" id="goods" name="goods" value="">
-  <input type="hidden" id="amount" name="amount" value="">
-</section>
 
 <script>
 (function(){
-  const root = document.getElementById('goods-cmp');
-  const msgEl = document.getElementById('g-msg');
-  const gridEl = document.getElementById('g-grid');
-  const cartEl = document.getElementById('g-cart');
-  const cartListEl = document.getElementById('g-cart-list');
-  const totalEl = document.getElementById('g-total');
-  const clearBtn = document.getElementById('g-clear');
-  const submitBtn = document.getElementById('g-submit');
-  const refreshBtn = root.querySelector('.g-refresh');
+  const msgEl = document.getElementById('msg');
+  const gridEl = document.getElementById('slots-grid');
+  const totalEl = document.getElementById('total');
+  const summaryEl = document.getElementById('summary');
+  const clearBtn = document.getElementById('btn-clear');
+  const refreshBtn = document.getElementById('btn-refresh');
+  const boardBody = document.getElementById('board-body');
+  const payBtn = document.getElementById('btn-pay');
+  const maskEl = document.getElementById('pay-mask');
+  const cancelBtn = document.getElementById('btn-cancel');
+  const confirmBtn = document.getElementById('btn-confirm');
+  const moneyInput = document.getElementById('money');
+  const usernameInput = document.getElementById('username');
+  const phoneInput = document.getElementById('phone');
+  const qifuInput = document.getElementById('qifu');
 
   const hiddenGoods = document.getElementById('goods');
   const hiddenAmount = document.getElementById('amount');
 
-  const state = { goods: [], cart: new Map() }; // id -> {id,title,price,currency,quantity}
+  const state = {
+    goods: [],      // 原始商品
+    soldMap: new Map(), // id -> sold count (fallback by normalized title)
+    selected: new Map(), // id -> {id,title,price,currency,quantity}
+    currency: 'CNY'
+  };
 
+  // ------- utils -------
   function $(sel, el){ return (el||document).querySelector(sel); }
   function el(tag, cls, text){ const n=document.createElement(tag); if(cls) n.className=cls; if(text!=null) n.textContent=String(text); return n; }
   function safeNum(n){ const v=Number(n); return Number.isFinite(v) ? v : 0; }
@@ -50,6 +104,11 @@
     try { return new Intl.NumberFormat('zh-CN', {style:'currency', currency:currency||'CNY', currencyDisplay:'narrowSymbol'}).format(safeNum(price)); }
     catch { return (currency||'¥') + safeNum(price).toFixed(2); }
   }
+  function fmtYuan(n){ return safeNum(n).toFixed(2) + '元'; }
+  function dateMD(d){ const dt=new Date(d); const m=String(dt.getMonth()+1).padStart(2,'0'); const da=String(dt.getDate()).padStart(2,'0'); return m+'-'+da; }
+  function maskName(name){ if(!name) return '匿名'; const s=String(name).trim(); if(s.length<=1) return s+'**'; if(s.length===2) return s[0]+'*'; return s[0]+'**'; }
+  function normalizeTitle(t){ return String(t||'').replace(/[~～至到\-]/g,'-').replace(/\s+/g,'').toLowerCase(); }
+  function defaultQtyForTitle(t){ const s=normalizeTitle(t); if(/18.*20/.test(s)) return 1; return 1; }
   function resolveIssueId(){
     const sp = new URLSearchParams(location.search);
     if (sp.get('issueId')) return sp.get('issueId');
@@ -66,185 +125,226 @@
     return null;
   }
 
-  function updateCartSummary(){
-    cartListEl.innerHTML = '';
-    const items = Array.from(state.cart.values());
-    let total = 0;
-    items.forEach(it => { total += safeNum(it.price) * safeNum(it.quantity); });
-
-    if (items.length === 0){
-      cartEl.hidden = true;
+  function updateSummary(){
+    const items = Array.from(state.selected.values());
+    const total = items.reduce((s,it)=>s + safeNum(it.price)*safeNum(it.quantity), 0);
+    if(items.length===0){
+      summaryEl.classList.add('hidden');
       hiddenGoods.value = '';
       hiddenAmount.value = '';
-      totalEl.textContent = fmt(0, 'CNY');
-    } else {
-      cartEl.hidden = false;
-      items.forEach(it => {
-        const row = el('div','g-cart-item');
-        const left = el('div');
-        left.appendChild(el('div','g-cart-name', it.title || ''));
-        left.appendChild(el('div','g-cart-sub', `×${it.quantity} · ${fmt(it.price, it.currency)}`));
-        const right = el('div','');
-        right.appendChild(el('div','', fmt(safeNum(it.price)*safeNum(it.quantity), it.currency)));
-        row.appendChild(left);
-        row.appendChild(right);
-        cartListEl.appendChild(row);
-      });
-      totalEl.textContent = fmt(total, items[0]?.currency || 'CNY');
-      hiddenGoods.value = JSON.stringify({ items, total, currency: items[0]?.currency || 'CNY' });
+      totalEl.textContent = '¥0.00';
+    }else{
+      summaryEl.classList.remove('hidden');
+      totalEl.textContent = fmt(total, items[0]?.currency || state.currency || 'CNY');
+      hiddenGoods.value = JSON.stringify({ items, total, currency: items[0]?.currency || state.currency || 'CNY' });
       hiddenAmount.value = String(total);
     }
-
-    window.dispatchEvent(new CustomEvent('goods:changed', { detail: {
-      items,
-      total,
-      json: hiddenGoods.value
-    }}));
+    window.dispatchEvent(new CustomEvent('goods:changed', { detail: { items, total, json: hiddenGoods.value }}));
   }
 
-  function setQty(cardEl, good, qty){
-    const max = Number.isFinite(good.quantity) ? Math.max(0, good.quantity) : Infinity;
-    const val = Math.max(0, Math.min(max, safeNum(qty)));
-    const qtyEl = $('.g-qty', cardEl);
-    qtyEl.textContent = String(val);
+  function buildSlot(g){
+    const sold = state.soldMap.get(g.id) ?? state.soldMap.get(normalizeTitle(g.title)) ?? 0;
+    const stock = typeof g.quantity==='number' ? g.quantity : Infinity;
+    const soldOut = Number.isFinite(stock) && sold >= stock;
 
-    if (val > 0){
-      cardEl.classList.add('selected');
-      state.cart.set(good.id, {
-        id: good.id,
-        title: good.title,
-        price: safeNum(good.price),
-        currency: good.currency || 'CNY',
-        quantity: val
-      });
-    } else {
-      cardEl.classList.remove('selected');
-      state.cart.delete(good.id);
-    }
-    updateCartSummary();
+    const node = el('div','slot-item'+(soldOut?' slot-disabled':''));
+    const title = el('div','slot-title', g.title || '');
+    const badge = el('div','slot-badge'+(soldOut?'':' ok'), soldOut ? '已满' : '可选');
+    node.appendChild(title);
+    node.appendChild(badge);
 
-    const minusBtn = $('.g-minus', cardEl);
-    const plusBtn = $('.g-plus', cardEl);
-    if (minusBtn) minusBtn.disabled = (val <= 0);
-    if (plusBtn) plusBtn.disabled = (Number.isFinite(max) ? (val >= max) : false);
+    const syncSelectedUI = () => {
+      if(state.selected.has(g.id)) node.classList.add('selected'); else node.classList.remove('selected');
+    };
+    syncSelectedUI();
+
+    node.addEventListener('click', () => {
+      if(soldOut) return;
+      if(state.selected.has(g.id)){
+        state.selected.delete(g.id);
+      }else{
+        const qty = defaultQtyForTitle(g.title);
+        state.selected.set(g.id, { id:g.id, title:g.title, price:safeNum(g.price), currency:g.currency||'CNY', quantity:qty });
+      }
+      syncSelectedUI();
+      updateSummary();
+    });
+    return node;
   }
 
-  function buildCard(good){
-    const card = el('div','g-card');
-    const thumb = el('div','g-thumb');
-    if (good.imageUrl){
-      const img = el('img');
-      img.src = good.imageUrl; img.alt = good.title || '';
-      thumb.appendChild(img);
-    } else {
-      thumb.appendChild(el('div','g-thumb-fallback','无图'));
-    }
-    card.appendChild(thumb);
-
-    const info = el('div','g-info');
-    info.appendChild(el('div','g-name', good.title || ''));
-    info.appendChild(el('div','g-desc', good.description || ''));
-    const meta = el('div','g-meta');
-    meta.appendChild(el('span','g-price', fmt(good.price, good.currency)));
-    const stockText = (typeof good.quantity === 'number')
-      ? (good.quantity > 0 ? ('库存 ' + good.quantity) : '售罄')
-      : '';
-    meta.appendChild(el('span','g-stock' + ((typeof good.quantity==='number' && good.quantity<=0) ? ' g-stock-out':''), stockText));
-    info.appendChild(meta);
-    card.appendChild(info);
-
-    const actions = el('div','g-actions');
-    const stepper = el('div','g-stepper');
-    const minus = el('button','g-minus','-');
-    const qty = el('span','g-qty','0');
-    const plus = el('button','g-plus','+');
-
-    const soldOut = (typeof good.quantity === 'number' && good.quantity <= 0);
-    minus.disabled = true;
-    plus.disabled = soldOut;
-
-    minus.addEventListener('click', () => {
-      const cur = Number(qty.textContent||'0') || 0;
-      setQty(card, good, cur - 1);
-    });
-    plus.addEventListener('click', () => {
-      const cur = Number(qty.textContent||'0') || 0;
-      setQty(card, good, cur + 1);
-    });
-    stepper.appendChild(minus);
-    stepper.appendChild(qty);
-    stepper.appendChild(plus);
-
-    const addBtn = el('button','g-add', soldOut ? '售罄' : '加入');
-    addBtn.disabled = soldOut;
-    addBtn.addEventListener('click', () => {
-      const cur = Number(qty.textContent||'0') || 0;
-      setQty(card, good, Math.max(1, cur || 0));
-    });
-
-    actions.appendChild(stepper);
-    actions.appendChild(addBtn);
-    card.appendChild(actions);
-
-    return card;
-  }
-
-  function renderGoods(list){
-    gridEl.innerHTML = '';
-    if (!Array.isArray(list) || list.length === 0){
-      msgEl.textContent = '暂无商品';
-      msgEl.hidden = false;
-      gridEl.hidden = true;
+  function renderSlots(list){
+    gridEl.innerHTML='';
+    if(!Array.isArray(list)||list.length===0){
+      msgEl.textContent='暂无商品';
+      msgEl.classList.remove('hidden');
+      gridEl.classList.add('hidden');
       return;
     }
-    msgEl.hidden = true;
-    gridEl.hidden = false;
-    list.forEach(g => gridEl.appendChild(buildCard(g)));
+    msgEl.classList.add('hidden');
+    gridEl.classList.remove('hidden');
+
+    // 简单排序：优先含“点”的时段，其次其它（如整夜）
+    const sorted = [...list].sort((a,b)=>{
+      const an=/点/.test(a.title||'')?0:1; const bn=/点/.test(b.title||'')?0:1; if(an!==bn) return an-bn; return (a.title||'').localeCompare(b.title||'','zh');
+    });
+    sorted.forEach(g=> gridEl.appendChild(buildSlot(g)));
+
+    // 默认选择：18点-20点
+    const target = sorted.find(g=>/18.*(点)?\D+20/.test(normalizeTitle(g.title)));
+    if(target && !state.selected.has(target.id)){
+      state.selected.set(target.id, { id:target.id, title:target.title, price:safeNum(target.price), currency:target.currency||'CNY', quantity: defaultQtyForTitle(target.title) });
+      updateSummary();
+      // 标记UI
+      const idx = sorted.indexOf(target); const node = gridEl.children[idx]; if(node) node.classList.add('selected');
+    }
+  }
+
+  // Parse goods from a submission to count sold and fill leaderboard
+  function parseSubmissionGoods(sub){
+    const items = [];
+    const tryParse = (v)=>{ try{ return JSON.parse(v); }catch{ return null; } };
+    const fd = sub.formData || {};
+    // New design hidden field 'goods'
+    if (fd && (fd.goods || fd.GOODS || fd.Goods)){
+      const obj = tryParse(fd.goods || fd.GOODS || fd.Goods);
+      if (obj && Array.isArray(obj.items)) return obj.items.map(it=>({ id:it.id, title:it.title, quantity:safeNum(it.quantity) || 1 }));
+    }
+    if (typeof sub.goods1 === 'string'){
+      const p = tryParse(sub.goods1);
+      if (p && Array.isArray(p.items)) return p.items.map(it=>({ id:it.id, title:it.title, quantity:safeNum(it.quantity)||1 }));
+      items.push({ id:null, title:String(sub.goods1), quantity:1 });
+    }
+    if (typeof sub.goods2 === 'string') items.push({ id:null, title:String(sub.goods2), quantity:1 });
+    // fallback: specific fields
+    const possible = ['time','timeSlot','时段','点灯时间','商品'];
+    for(const k of possible){ if(fd[k]) items.push({ id:null, title:String(fd[k]), quantity:1 }); }
+    return items;
+  }
+
+  function computeSoldMap(submissions){
+    const map = new Map();
+    submissions.forEach(s=>{
+      if((s.status||'').toUpperCase()!=='PAID') return;
+      const goods = parseSubmissionGoods(s);
+      goods.forEach(it=>{
+        const key = it.id || normalizeTitle(it.title);
+        map.set(key, (map.get(key)||0) + (safeNum(it.quantity)||1));
+      });
+    });
+    state.soldMap = map;
+  }
+
+  function renderBoard(submissions){
+    boardBody.innerHTML='';
+    const list = submissions.filter(s => (s.status||'').toUpperCase()==='PAID');
+    list.forEach(s=>{
+      const tr=document.createElement('tr');
+      const goods = parseSubmissionGoods(s);
+      const firstItem = goods[0];
+      const amt = (typeof s.amount==='number')? s.amount : (0);
+      tr.appendChild(el('td','board-col-date', dateMD(s.paidAt || s.createdAt)));
+      const name = s.name || s.name1 || (s.formData && (s.formData.name || s.formData['姓名'] || s.formData['称呼'])) || '';
+      tr.appendChild(el('td','board-col-name', maskName(name)));
+      tr.appendChild(el('td','board-col-item', firstItem ? String(firstItem.title) : '—'));
+      tr.appendChild(el('td','board-col-amt', fmtYuan(amt)));
+      boardBody.appendChild(tr);
+    });
   }
 
   async function refresh(){
     const id = resolveIssueId();
-    if (!id){
-      msgEl.textContent = '无法识别页面 ID';
-      msgEl.hidden = false;
-      gridEl.hidden = true;
-      return;
-    }
-    msgEl.textContent = '加载中...';
-    msgEl.hidden = false;
-    gridEl.hidden = true;
-    state.cart.clear(); updateCartSummary();
+    if (!id){ msgEl.textContent='无法识别页面 ID'; msgEl.classList.remove('hidden'); return; }
+    msgEl.textContent='加载中...'; msgEl.classList.remove('hidden'); gridEl.classList.add('hidden');
+    state.selected.clear(); updateSummary();
 
     try {
-      const res = await fetch(`/api/issues/${encodeURIComponent(id)}/goods`, { cache: 'no-store' });
-      if (!res.ok) throw new Error('请求失败: ' + res.status);
-      const data = await res.json();
-      state.goods = Array.isArray(data) ? data : [];
-      renderGoods(state.goods);
+      const [goodsRes, subsRes] = await Promise.all([
+        fetch(`/api/issues/${encodeURIComponent(id)}/goods`, { cache: 'no-store' }),
+        fetch(`/api/submissions?issueId=${encodeURIComponent(id)}`, { cache: 'no-store' })
+      ]);
+      const goods = goodsRes.ok ? await goodsRes.json() : [];
+      const subsJson = subsRes.ok ? await subsRes.json() : { data: [] };
+      state.goods = Array.isArray(goods) ? goods : [];
+      state.currency = state.goods[0]?.currency || 'CNY';
+      const submissions = Array.isArray(subsJson?.data) ? subsJson.data : [];
+      computeSoldMap(submissions);
+      renderSlots(state.goods);
+      renderBoard(submissions);
     } catch (e){
       console.error(e);
-      msgEl.textContent = '加载商品失败，请稍后再试';
-      msgEl.hidden = false;
-      gridEl.hidden = true;
+      msgEl.textContent='加载失败，请稍后再试';
+      msgEl.classList.remove('hidden');
     }
   }
 
-  clearBtn && clearBtn.addEventListener('click', () => {
-    state.cart.clear();
-    Array.from(gridEl.children).forEach(card => {
-      const qty = card.querySelector('.g-qty'); if (qty) qty.textContent = '0';
-      const minusBtn = card.querySelector('.g-minus'); if (minusBtn) minusBtn.disabled = true;
-      card.classList.remove('selected');
-    });
-    updateCartSummary();
-  });
-
-  submitBtn && submitBtn.addEventListener('click', () => {
-    const payload = hiddenGoods.value ? JSON.parse(hiddenGoods.value) : { items:[], total:0 };
-    window.dispatchEvent(new CustomEvent('goods:submit', { detail: payload }));
-  });
-
+  clearBtn && clearBtn.addEventListener('click', () => { state.selected.clear(); document.querySelectorAll('.slot-item.selected').forEach(n=>n.classList.remove('selected')); updateSummary(); });
   refreshBtn && refreshBtn.addEventListener('click', refresh);
+  payBtn && payBtn.addEventListener('click', () => {
+    const total = Number(hiddenAmount.value || '0');
+    if (!total || total <= 0){ alert('请选择时间段'); return; }
+    moneyInput.value = String(total.toFixed(2));
+    maskEl.classList.add('show');
+    maskEl.setAttribute('aria-hidden','false');
+  });
+  cancelBtn && cancelBtn.addEventListener('click', () => { maskEl.classList.remove('show'); maskEl.setAttribute('aria-hidden','true'); });
+  maskEl && maskEl.addEventListener('click', (e) => { if (e.target === maskEl) { maskEl.classList.remove('show'); maskEl.setAttribute('aria-hidden','true'); } });
+
+  confirmBtn && confirmBtn.addEventListener('click', async () => {
+    try {
+      confirmBtn.disabled = true;
+      const total = Number(hiddenAmount.value || '0');
+      if (!total || total <= 0){ alert('请选择时间段'); confirmBtn.disabled=false; return; }
+
+      const openid = new URLSearchParams(location.search).get('openid');
+      const issueId = resolveIssueId();
+      if (!openid){ alert('无法获取openid，需在微信内打开'); confirmBtn.disabled=false; return; }
+      if (!issueId){ alert('无法识别页面ID'); confirmBtn.disabled=false; return; }
+
+      const goodsJson = hiddenGoods.value ? JSON.parse(hiddenGoods.value) : { items:[] };
+      const goodsTitles = goodsJson.items.map(it=>it.title);
+      const formData = {
+        name: usernameInput.value || '',
+        phone: phoneInput.value || '',
+        qifu: qifuInput.value || '',
+        goods: hiddenGoods.value,
+        amount: total
+      };
+      const name = formData.name || '-';
+      const name1 = name ? (name.substring(0,1) + (name.length>2?'**':'*')) : '-';
+
+      const createRes = await fetch('/api/payment/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          issueId,
+          formData,
+          amount: total,
+          openid,
+          goods1: goodsTitles[0] || undefined,
+          goods2: goodsTitles[1] || undefined,
+          name,
+          name1
+        })
+      });
+      if (!createRes.ok){ const er = await createRes.json().catch(()=>({error:'创建订单失败'})); throw new Error(er.error || '创建订单失败'); }
+      const payConfig = await createRes.json();
+      const wx = window.wx;
+      if (!wx){ alert('未检测到微信JS SDK'); confirmBtn.disabled=false; return; }
+      wx.chooseWXPay({
+        timestamp: payConfig.timeStamp,
+        nonceStr: payConfig.nonceStr,
+        package: payConfig.package,
+        signType: payConfig.signType,
+        paySign: payConfig.paySign,
+        success: ()=>{ alert('支付成功'); location.reload(); },
+        fail: (res)=>{ alert('支付失败: '+ res.errMsg); },
+        complete: ()=>{ confirmBtn.disabled=false; maskEl.classList.remove('show'); maskEl.setAttribute('aria-hidden','true'); }
+      });
+    } catch (e){
+      alert('支付失败,' + (e && (e.message||e) || '请重试'));
+      confirmBtn.disabled=false;
+    }
+  });
   refresh();
 })();
 </script>
