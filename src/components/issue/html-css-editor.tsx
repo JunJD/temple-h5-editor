@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import CodeMirror from '@uiw/react-codemirror'
+import { html as htmlLang } from '@codemirror/lang-html'
+import { css as cssLang } from '@codemirror/lang-css'
 import { Button } from '@/components/ui'
 import styles from './html-css-editor.module.css'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
@@ -29,9 +31,9 @@ export default function HtmlCssEditor({
   const [saved, setSaved] = useState(false)
   const [tab, setTab] = useState<'preview'|'html'|'css'>('preview')
   const iframeRef = useRef<HTMLIFrameElement>(null)
-  // 不使用额外语言包，保持基础编辑能力，避免安装依赖
-  const htmlExt: any[] = []
-  const cssExt: any[] = []
+  // 基础语言高亮
+  const htmlExt = useMemo(() => [htmlLang()], [])
+  const cssExt = useMemo(() => [cssLang()], [])
 
   const previewBase = useMemo(() => `/api/preview/${issueId}?preview=1`, [issueId])
   const refreshIframe = useCallback(() => {
@@ -77,95 +79,36 @@ export default function HtmlCssEditor({
     }
   }
 
-  const indent = (n: number) => '  '.repeat(Math.max(0, n))
-
-  const formatHtml = (input: string) => {
+  // 使用 Prettier 动态导入进行可靠格式化（官方推荐集成方式）
+  const onFormat = useCallback(async () => {
     try {
-      const voidTags = new Set([
-        'area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'
+      const [{ default: prettier }, { default: parserHtml }, { default: parserPostcss }] = await Promise.all([
+        import('prettier/standalone'),
+        import('prettier/plugins/html'),
+        import('prettier/plugins/postcss'),
       ])
-      const tagRe = /<!--[\s\S]*?-->|<\/?([a-zA-Z0-9\-]+)([^>]*)>/g
-      let out: string[] = []
-      let last = 0
-      let level = 0
-      let m: RegExpExecArray | null
-      while ((m = tagRe.exec(input))) {
-        const raw = m[0]
-        const text = input.slice(last, m.index)
-        const textTrim = text.replace(/\s+/g, ' ').trim()
-        if (textTrim) out.push(indent(level) + textTrim)
-        if (raw.startsWith('<!--')) {
-          out.push(indent(level) + raw)
-        } else {
-          const tag = m[1]?.toLowerCase() || ''
-          const isClosing = raw.startsWith('</')
-          const selfClose = /\/>$/.test(raw) || voidTags.has(tag)
-          if (isClosing) level = Math.max(0, level - 1)
-          out.push(indent(level) + raw)
-          if (!isClosing && !selfClose) level++
-        }
-        last = tagRe.lastIndex
-      }
-      const rest = input.slice(last).replace(/\s+/g, ' ').trim()
-      if (rest) out.push(indent(level) + rest)
-      return out.join('\n')
-    } catch {
-      return input
-    }
-  }
 
-  const formatCss = (input: string) => {
-    try {
-      let out = ''
-      let level = 0
-      let i = 0
-      const push = (s: string) => { out += s }
-      const newline = () => { out += '\n' + indent(level) }
-      while (i < input.length) {
-        const ch = input[i]
-        const next2 = input.slice(i, i + 2)
-        if (next2 === '/*') {
-          // copy comment
-          const end = input.indexOf('*/', i + 2)
-          const seg = end === -1 ? input.slice(i) : input.slice(i, end + 2)
-          if (!out.endsWith('\n')) newline()
-          push(seg)
-          i += seg.length
-          newline()
-          continue
-        }
-        if (ch === '{') {
-          push(' {')
-          level++
-          newline()
-        } else if (ch === '}') {
-          level = Math.max(0, level - 1)
-          out = out.trimEnd()
-          push('\n' + indent(level) + '}')
-          if (i + 1 < input.length) newline()
-        } else if (ch === ';') {
-          push(';' )
-          newline()
-        } else if (ch === '\n' || ch === '\r') {
-          // normalize
-          if (!out.endsWith('\n')) push('\n' + indent(level))
-        } else {
-          push(ch)
-        }
-        i++
-      }
-      return out.replace(/\n{3,}/g, '\n\n').trim() + '\n'
-    } catch {
-      return input
-    }
-  }
+      const [newHtml, newCss] = await Promise.all([
+        prettier
+          .format(html, {
+            parser: 'html',
+            plugins: [parserHtml],
+          })
+          .catch(() => html),
+        prettier
+          .format(css, {
+            parser: 'css',
+            plugins: [parserPostcss],
+          })
+          .catch(() => css),
+      ])
 
-  const onFormat = () => {
-    const newHtml = formatHtml(html)
-    const newCss = formatCss(css)
-    setHtml(newHtml)
-    setCss(newCss)
-  }
+      setHtml(newHtml)
+      setCss(newCss)
+    } catch (e) {
+      // 动态导入或格式化失败则静默回退
+    }
+  }, [html, css])
 
   return (
     <div className='space-y-3'>
