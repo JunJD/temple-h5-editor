@@ -317,6 +317,9 @@ dependencies:
   postcss:
     specifier: ^8.4.49
     version: 8.5.6
+  prettier:
+    specifier: ^3.3.3
+    version: 3.6.2
   prismjs:
     specifier: ^1.29.0
     version: 1.30.0
@@ -5360,6 +5363,12 @@ packages:
 
   /preact@10.27.2:
     resolution: {integrity: sha512-5SYSgFKSyhCbk6SrXyMpqjb5+MQBgfvEKE/OC+PujcY34sOpqtr+0AZQtPYx5IA6VxynQ7rUPCtKzyovpj9Bpg==}
+    dev: false
+
+  /prettier@3.6.2:
+    resolution: {integrity: sha512-I7AIg5boAr5R0FFtJ6rCfD+LFsWHp81dolrFD8S79U9tb8Az2nGrJncnMSnys+bpQJfRUzqs9hnA81OAA3hCuQ==}
+    engines: {node: '>=14'}
+    hasBin: true
     dev: false
 
   /pretty-format@3.8.0:
