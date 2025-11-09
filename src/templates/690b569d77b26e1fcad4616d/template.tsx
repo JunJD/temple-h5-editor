@@ -51,6 +51,33 @@ export default function Template(props: Props) {
         />
       </section>
 
+      {/* 筹化咨询 */}
+      <section id='consult' className='consult-section' aria-label='筹化咨询'>
+        <div className='consult-title' aria-hidden='true'>
+          <span>筹</span>
+          <span>化</span>
+          <span>咨</span>
+          <span>询</span>
+        </div>
+        <ul className='consult-list'>
+          <li>
+            启安法师：
+            <a href='tel:18662603022' aria-label='拨打启安法师电话'>18662603022</a>
+            <span className='consult-note'>（微信同步）</span>
+          </li>
+          <li>
+            融心法师：
+            <a href='tel:18036388996' aria-label='拨打融心法师电话'>18036388996</a>
+            <span className='consult-note'>（微信同步）</span>
+          </li>
+          <li>
+            禅礼法师：
+            <a href='tel:13862121255' aria-label='拨打禅礼法师电话'>13862121255</a>
+            <span className='consult-note'>（微信同步）</span>
+          </li>
+        </ul>
+      </section>
+
       {/* 支付弹窗 */}
       <ModalShell id='pay-mask'>
         <InputItem label='金额' id='money' className='juan_money' disabled suffix='元' />
