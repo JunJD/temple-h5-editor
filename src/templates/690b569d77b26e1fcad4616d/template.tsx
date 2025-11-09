@@ -7,10 +7,29 @@ export default function Template(props: Props) {
   const goodsTitle = props.goodsTitle ?? '点灯时间2'
   return (
     <>
+      {/* 顶部：独占大图 + 右上角音乐图标 */}
+      <section id='hero' className='hero' aria-label='封面图'>
+        <img
+          id='hero-img'
+          className='hero-img'
+          src={'https://kls.wxkltx.cn/api/image-assets/preview/1761977951391-xgm60d.jpg'}
+          alt='封面'
+        />
+        <div id='music' className='stopped' data-url='https://tyfy.oss-cn-beijing.aliyuncs.com/香云赞.mp3'>
+          <audio id='audio' loop preload='auto' autoPlay playsInline src='https://tyfy.oss-cn-beijing.aliyuncs.com/香云赞.mp3' />
+          <div className='control'>
+            <div className='control_after' />
+          </div>
+        </div>
+      </section>
+
       {/* 顶部：点灯时间（商品） */}
-      <section id='slots' aria-label='点灯时间'>
+      <section id='slots' className='slots-section' aria-label='点灯时间'>
         <div className='h5-header'>
-          <h2 className='h5-title'>{goodsTitle}</h2>
+          <div className='section-label'>
+            <img src='/templates/assets/icon-03.png' alt='' className='label-icon' />
+            <span className='label-text'>{goodsTitle}</span>
+          </div>
           <button type='button' id='btn-refresh' className='h5-refresh' aria-label='刷新'>
             刷新
           </button>
@@ -39,20 +58,15 @@ export default function Template(props: Props) {
         <input type='hidden' id='amount' name='amount' defaultValue='' />
       </section>
 
-      {/* 榜单：支付记录 */}
-      <section id='board' className='board'>
-        <div className='board-title'>名单登记榜单</div>
-        <table className='board-table' aria-label='支付记录'>
-          <thead>
-            <tr>
-              <th className='board-col-date'>日期</th>
-              <th className='board-col-name'>姓名</th>
-              <th className='board-col-item'>点灯时间</th>
-              <th className='board-col-amt'>金额</th>
-            </tr>
-          </thead>
-          <tbody id='board-body' />
-        </table>
+      {/* 名单登记榜（参考 formatTempList） */}
+      <section id='board' className='board-list'>
+        <div className='board-title'>名单登记榜</div>
+        <div
+          id='format-list'
+          className='format-temp-list'
+          data-auto-scroll='true'
+          data-template='<span class="temp-item-date">${date2}</span>｜<span class="temp-item-name">${name}</span>｜<span class="temp-item-goods">${goods}</span>｜<span class="temp-item-value">${amount}</span>'
+        />
       </section>
 
       {/* 支付弹窗 */}

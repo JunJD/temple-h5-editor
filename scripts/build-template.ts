@@ -75,7 +75,7 @@ async function main() {
     <title>H5 模板</title>
     <link rel="stylesheet" href="./template.css" />
   </head>
-  <body class="h5-page" style="padding:12px;">
+  <body class="h5-page" >
     ${bodyInner}
     <script>(function(){${runtime}})();</script>
   </body>

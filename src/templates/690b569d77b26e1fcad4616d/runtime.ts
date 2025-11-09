@@ -12,7 +12,9 @@ export function attachLampRuntime() {
   const summaryEl = document.getElementById('summary') as HTMLElement | null
   const clearBtn = document.getElementById('btn-clear') as HTMLButtonElement | null
   const refreshBtn = document.getElementById('btn-refresh') as HTMLButtonElement | null
-  const boardBody = document.getElementById('board-body') as HTMLElement | null
+  const formatListEl = document.getElementById('format-list') as HTMLElement | null
+  const musicEl = document.getElementById('music') as HTMLElement | null
+  const audioEl = document.getElementById('audio') as HTMLAudioElement | null
   const payBtn = document.getElementById('btn-pay') as HTMLButtonElement | null
   const maskEl = document.getElementById('pay-mask') as HTMLElement | null
   const cancelBtn = document.getElementById('btn-cancel') as HTMLElement | null
@@ -182,22 +184,205 @@ export function attachLampRuntime() {
     return items
   }
 
-  function renderBoard(submissions: any[]) {
-    if (!boardBody) return
-    boardBody.innerHTML = ''
-    const list = submissions.filter((s) => (s.status || '').toUpperCase() === 'PAID')
-    list.forEach((s) => {
-      const tr = document.createElement('tr')
+  function renderFormatList(submissions: any[]) {
+    if (!formatListEl) return
+    formatListEl.innerHTML = ''
+    const template = formatListEl.getAttribute('data-template') || '<span class="temp-item-name">${name}</span>: <span class="temp-item-value">${amount}</span>'
+    const autoScroll = (formatListEl.getAttribute('data-auto-scroll') || 'true') === 'true'
+
+    const paid = submissions.filter((s) => (s.status || '').toUpperCase() === 'PAID')
+    const data = paid.map((s) => {
       const goods = parseSubmissionGoods(s)
-      const firstItem = goods[0]
-      const amt = typeof s.amount === 'number' ? s.amount : 0
-      tr.appendChild(el('td', 'board-col-date', dateMD(s.paidAt || s.createdAt)))
-      const name = s.name || s.name1 || (s.formData && (s.formData.name || s.formData['姓名'] || s.formData['称呼'])) || ''
-      tr.appendChild(el('td', 'board-col-name', maskName(name)))
-      tr.appendChild(el('td', 'board-col-item', firstItem ? String(firstItem.title) : '—'))
-      tr.appendChild(el('td', 'board-col-amt', fmtYuan(amt)))
-      boardBody.appendChild(tr)
+      const first = goods[0]
+      const amountNum = typeof s.amount === 'number' ? s.amount : 0
+      const date2 = dateMD(s.paidAt || s.createdAt)
+      const nameRaw = s.name || s.name1 || (s.formData && (s.formData.name || s.formData['姓名'] || s.formData['称呼'])) || ''
+      return {
+        name: maskName(nameRaw),
+        amount: fmt(amountNum, 'CNY'),
+        date1: date2, // 简化处理
+        date2,
+        goods: first ? String(first.title) : ''
+      }
     })
+
+    const container = document.createElement('div')
+    container.className = 'infinite-scroll'
+
+    const buildCycle = () => {
+      const ul = document.createElement('ul')
+      data.forEach((item) => {
+        const li = document.createElement('li')
+        li.innerHTML = template.replace(/\${(\w+)}/g, (_, key) => (item as any)[key] || '')
+        ul.appendChild(li)
+      })
+      const spacer = document.createElement('li')
+      spacer.className = 'data-cycle-spacer'
+      spacer.style.height = '300px'
+      spacer.style.background = 'transparent'
+      spacer.style.border = 'none'
+      spacer.style.padding = '0'
+      spacer.style.margin = '0'
+      spacer.style.listStyleType = 'none'
+      ul.appendChild(spacer)
+      return ul
+    }
+
+    const list1 = buildCycle()
+    container.appendChild(list1)
+    formatListEl.appendChild(container)
+
+    if (!autoScroll) return
+
+    const oneCycleHeight = list1.offsetHeight
+    const cyclesNeeded = Math.max(Math.ceil(container.offsetHeight / oneCycleHeight) + 2, 3)
+    for (let i = 0; i < cyclesNeeded; i++) {
+      data.forEach((item) => {
+        const li = document.createElement('li')
+        li.innerHTML = template.replace(/\${(\w+)}/g, (_, key) => (item as any)[key] || '')
+        list1.appendChild(li)
+      })
+      const spacer = document.createElement('li')
+      spacer.className = 'data-cycle-spacer'
+      spacer.style.height = '300px'
+      spacer.style.background = 'transparent'
+      spacer.style.border = 'none'
+      spacer.style.padding = '0'
+      spacer.style.margin = '0'
+      spacer.style.listStyleType = 'none'
+      list1.appendChild(spacer)
+    }
+
+    container.scrollTop = oneCycleHeight
+    container.addEventListener('scroll', () => {
+      const currentScroll = container.scrollTop
+      const maxScroll = list1.offsetHeight - container.offsetHeight
+
+      if (currentScroll > maxScroll - oneCycleHeight) {
+        data.forEach((item) => {
+          const li = document.createElement('li')
+          li.innerHTML = template.replace(/\${(\w+)}/g, (_, key) => (item as any)[key] || '')
+          list1.appendChild(li)
+        })
+        const spacer = document.createElement('li')
+        spacer.className = 'data-cycle-spacer'
+        spacer.style.height = '300px'
+        spacer.style.background = 'transparent'
+        spacer.style.border = 'none'
+        spacer.style.padding = '0'
+        spacer.style.margin = '0'
+        spacer.style.listStyleType = 'none'
+        list1.appendChild(spacer)
+        for (let i = 0; i < data.length + 1; i++) {
+          if (list1.firstChild) list1.removeChild(list1.firstChild)
+        }
+        container.scrollTop = currentScroll - oneCycleHeight
+      }
+
+      if (currentScroll < oneCycleHeight) {
+        const tempItems: HTMLElement[] = []
+        const spacer = document.createElement('li')
+        spacer.className = 'data-cycle-spacer'
+        spacer.style.height = '300px'
+        spacer.style.background = 'transparent'
+        spacer.style.border = 'none'
+        spacer.style.padding = '0'
+        spacer.style.margin = '0'
+        spacer.style.listStyleType = 'none'
+        tempItems.push(spacer)
+        for (let i = data.length - 1; i >= 0; i--) {
+          const item = data[i]
+          const li = document.createElement('li')
+          li.innerHTML = template.replace(/\${(\w+)}/g, (_, key) => (item as any)[key] || '')
+          tempItems.push(li)
+        }
+        tempItems.forEach((n) => list1.insertBefore(n, list1.firstChild))
+        for (let i = 0; i < data.length + 1; i++) {
+          if (list1.lastChild) list1.removeChild(list1.lastChild)
+        }
+        container.scrollTop = currentScroll + oneCycleHeight
+      }
+    })
+
+    setInterval(() => {
+      if (!container) return
+      const current = container.scrollTop
+      const maxScroll = list1.offsetHeight - container.offsetHeight
+      if (current >= maxScroll - 10) container.scrollTop = oneCycleHeight
+      else container.scrollTop = current + 1
+    }, 50)
+  }
+
+  function setupMusic() {
+    if (!musicEl || !audioEl) return
+    const m = musicEl as HTMLElement
+    const a = audioEl as HTMLAudioElement
+    const url = m.getAttribute('data-url') || ''
+    if (url && !a.src) a.src = url
+    let isPlaying = false
+
+    function setUIPlaying(on: boolean) {
+      if (on) m.classList.remove('stopped')
+      else m.classList.add('stopped')
+    }
+
+    function toggle() {
+      if (isPlaying) {
+        a.pause()
+        setUIPlaying(false)
+      } else {
+        a
+          .play()
+          .then(() => {
+            isPlaying = true
+            setUIPlaying(true)
+          })
+          .catch(() => {
+            isPlaying = false
+            setUIPlaying(false)
+          })
+      }
+      isPlaying = !isPlaying
+    }
+
+    const ctrl = m.querySelector('.control')
+    ctrl?.addEventListener('click', toggle)
+
+    // Event listeners to sync UI with actual state (e.g. autoplay success)
+    a.addEventListener('play', () => {
+      isPlaying = true
+      setUIPlaying(true)
+    })
+    a.addEventListener('pause', () => {
+      isPlaying = false
+      setUIPlaying(false)
+    })
+
+    // WeChat autoplay handling
+    document.addEventListener(
+      'WeixinJSBridgeReady',
+      function () {
+        a.play().then(() => {
+          isPlaying = true
+          setUIPlaying(true)
+        })
+      },
+      false
+    )
+
+    // Fallback: first user interaction
+    document.addEventListener(
+      'click',
+      function () {
+        if (!isPlaying) {
+          a.play().then(() => {
+            isPlaying = true
+            setUIPlaying(true)
+          })
+        }
+      },
+      { once: true }
+    )
   }
 
   async function refresh() {
@@ -225,7 +410,7 @@ export function attachLampRuntime() {
       state.currency = (state.goods[0] as any)?.currency || 'CNY'
       const submissions = Array.isArray((subsJson as any)?.data) ? (subsJson as any).data : []
       renderSlots(state.goods)
-      renderBoard(submissions)
+      renderFormatList(submissions)
     } catch (e) {
       console.error(e)
       msgEl.textContent = '加载失败，请稍后再试'
@@ -339,6 +524,7 @@ export function attachLampRuntime() {
     }
   })
 
+  setupMusic()
   refresh()
 }
 
