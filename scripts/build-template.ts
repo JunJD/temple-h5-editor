@@ -123,6 +123,25 @@ async function main() {
   let finalHtml = html
   let finalCss = fs.readFileSync(cssSrc, 'utf8')
 
+  // Inline simple @import statements (relative paths only)
+  function inlineCssImports(css: string, baseDir: string, seen = new Set<string>()): string {
+    const importRe = /@import\s+(?:url\()?['\"]([^'\"\)]+)['\"]\)?\s*;?/g
+    return css.replace(importRe, (_m, href) => {
+      if (/^(https?:)?\/\//.test(href) || href.startsWith('/')) {
+        // Keep external imports as-is
+        return _m
+      }
+      const abs = path.resolve(baseDir, href)
+      if (!fs.existsSync(abs)) return ''
+      if (seen.has(abs)) return ''
+      seen.add(abs)
+      const imported = fs.readFileSync(abs, 'utf8')
+      const importedInlined = inlineCssImports(imported, path.dirname(abs), seen)
+      return '\n/* inlined: ' + path.relative(ROOT, abs) + ' */\n' + importedInlined + '\n/* end inlined */\n'
+    })
+  }
+  finalCss = inlineCssImports(finalCss, srcDir)
+
   // 4.1) 收集并上传 assets 到 OSS（与 issueId 关联，避免重复）
   const assetRefs = new Set<string>()
   const collect = (text: string, re: RegExp) => {

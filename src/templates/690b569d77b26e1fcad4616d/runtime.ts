@@ -8,14 +8,11 @@ import { defaultQtyForTitle, normalizeTitle, safeNum } from '../h5-sdk'
 export function attachLampRuntime() {
   const msgEl = document.getElementById('msg') as HTMLElement | null
   const gridEl = document.getElementById('slots-grid') as HTMLElement | null
-  const totalEl = document.getElementById('total') as HTMLElement | null
-  const summaryEl = document.getElementById('summary') as HTMLElement | null
-  const clearBtn = document.getElementById('btn-clear') as HTMLButtonElement | null
-  const refreshBtn = document.getElementById('btn-refresh') as HTMLButtonElement | null
+  // 合计/刷新/清空 UI 已移除
   const formatListEl = document.getElementById('format-list') as HTMLElement | null
   const musicEl = document.getElementById('music') as HTMLElement | null
   const audioEl = document.getElementById('audio') as HTMLAudioElement | null
-  const payBtn = document.getElementById('btn-pay') as HTMLButtonElement | null
+  // 去支付按钮已移除，改为点选即弹窗
   const maskEl = document.getElementById('pay-mask') as HTMLElement | null
   const cancelBtn = document.getElementById('btn-cancel') as HTMLElement | null
   const confirmBtn = document.getElementById('btn-confirm') as HTMLButtonElement | null
@@ -78,20 +75,11 @@ export function attachLampRuntime() {
   }
 
   function updateSummary() {
-    if (!summaryEl || !totalEl || !hiddenGoods || !hiddenAmount) return
+    if (!hiddenGoods || !hiddenAmount) return
     const items = Array.from(state.selected.values())
     const total = items.reduce((s, it) => s + safeNum(it.price) * safeNum(it.quantity), 0)
-    if (items.length === 0) {
-      summaryEl.classList.add('hidden')
-      hiddenGoods.value = ''
-      hiddenAmount.value = ''
-      totalEl.textContent = '¥0.00'
-    } else {
-      summaryEl.classList.remove('hidden')
-      totalEl.textContent = fmt(total, items[0]?.currency || state.currency || 'CNY')
-      hiddenGoods.value = JSON.stringify({ items, total, currency: items[0]?.currency || state.currency || 'CNY' })
-      hiddenAmount.value = String(total)
-    }
+    hiddenGoods.value = items.length ? JSON.stringify({ items, total, currency: items[0]?.currency || state.currency || 'CNY' }) : ''
+    hiddenAmount.value = items.length ? String(total) : ''
     window.dispatchEvent(new CustomEvent('goods:changed', { detail: { items, total, json: hiddenGoods.value } }))
   }
 
@@ -101,26 +89,28 @@ export function attachLampRuntime() {
 
     const node = el('div', 'slot-item' + (soldOut ? ' slot-disabled' : ''))
     const title = el('div', 'slot-title', g.title || '')
-    const badge = el('div', 'slot-badge' + (soldOut ? '' : ' ok'), soldOut ? '已满' : '可选')
     node.appendChild(title)
-    node.appendChild(badge)
+    // 只在右上角展示“已满”标记
+    if (soldOut) node.appendChild(el('div', 'slot-badge', '已满'))
 
     const syncSelectedUI = () => {
       if (state.selected.has(g.id)) node.classList.add('selected')
       else node.classList.remove('selected')
     }
-    syncSelectedUI()
 
     node.addEventListener('click', () => {
       if (soldOut) return
-      if (state.selected.has(g.id)) {
-        state.selected.delete(g.id)
-      } else {
-        const qty = defaultQtyForTitle(g.title)
-        state.selected.set(g.id, { id: g.id, title: g.title, price: safeNum(g.price), currency: g.currency || 'CNY', quantity: qty })
-      }
+      // 单选：清除之前的选择
+      state.selected.clear()
+      document.querySelectorAll('.slot-item.selected').forEach((n) => n.classList.remove('selected'))
+      const qty = defaultQtyForTitle(g.title)
+      state.selected.set(g.id, { id: g.id, title: g.title, price: safeNum(g.price), currency: g.currency || 'CNY', quantity: qty })
       syncSelectedUI()
       updateSummary()
+      const total = Number(hiddenAmount?.value || '0')
+      if (moneyInput && total > 0) moneyInput.value = String(total.toFixed(2))
+      maskEl?.classList.add('show')
+      maskEl?.setAttribute('aria-hidden', 'false')
     })
     return node
   }
@@ -144,16 +134,7 @@ export function attachLampRuntime() {
       return (a.title || '').localeCompare(b.title || '', 'zh')
     })
     sorted.forEach((g) => gridEl.appendChild(buildSlot(g)))
-
-    // 默认选择：18点-20点
-    const target = sorted.find((g) => /18.*(点)?\D+20/.test(normalizeTitle(g.title)))
-    if (target && !state.selected.has(target.id)) {
-      state.selected.set(target.id, { id: target.id, title: target.title, price: safeNum(target.price), currency: target.currency || 'CNY', quantity: defaultQtyForTitle(target.title) })
-      updateSummary()
-      const idx = sorted.indexOf(target)
-      const node = gridEl.children[idx] as HTMLElement | undefined
-      if (node) node.classList.add('selected')
-    }
+    // 单选模式：不做默认选择
   }
 
   function tryParse(v: unknown) {
@@ -418,22 +399,7 @@ export function attachLampRuntime() {
     }
   }
 
-  clearBtn?.addEventListener('click', () => {
-    state.selected.clear()
-    document.querySelectorAll('.slot-item.selected').forEach((n) => n.classList.remove('selected'))
-    updateSummary()
-  })
-  refreshBtn?.addEventListener('click', refresh)
-  payBtn?.addEventListener('click', () => {
-    const total = Number(hiddenAmount?.value || '0')
-    if (!total || total <= 0) {
-      alert('请选择时间段')
-      return
-    }
-    if (moneyInput) moneyInput.value = String(total.toFixed(2))
-    maskEl?.classList.add('show')
-    maskEl?.setAttribute('aria-hidden', 'false')
-  })
+  // 清空/刷新/去支付按钮事件已移除
   cancelBtn?.addEventListener('click', () => {
     maskEl?.classList.remove('show')
     maskEl?.setAttribute('aria-hidden', 'true')
