@@ -4,7 +4,9 @@ import OSS from 'ali-oss'
 const accessKeyId = process.env.ALIYUN_OSS_ACCESS_KEY_ID
 const accessKeySecret = process.env.ALIYUN_OSS_ACCESS_KEY_SECRET
 const bucket = process.env.ALIYUN_OSS_BUCKET
-const region = process.env.ALIYUN_OSS_REGION
+const regionRaw = process.env.ALIYUN_OSS_REGION
+// ali-oss 需要形如 oss-cn-beijing，若传入 cn-beijing 则自动补全前缀
+const region = regionRaw && regionRaw.startsWith('oss-') ? regionRaw : (regionRaw ? `oss-${regionRaw}` : regionRaw)
 
 if (!accessKeyId || !accessKeySecret || !bucket || !region) {
   console.error('阿里云 OSS 配置缺失:', {
@@ -23,14 +25,6 @@ const client = new OSS({
   bucket,
   region,
 })
-
-// 生成唯一的文件名
-const generateUniqueFileName = (originalName: string) => {
-  const ext = originalName.split('.').pop()
-  const timestamp = Date.now()
-  const random = Math.random().toString(36).substring(2, 8)
-  return `${timestamp}-${random}.${ext}`
-}
 
 // 上传文件到 OSS
 export const uploadToOSS = async (file: Buffer, fileName: string) => {
@@ -65,4 +59,21 @@ export const deleteFromOSS = async (url: string) => {
     console.error('从 OSS 删除文件失败:', error)
     throw error
   }
-} 
+}
+
+// 公开：获取底层 OSS 客户端（用于脚本）
+export const getOSSClient = () => client
+
+// 检查对象是否存在
+export const objectExists = async (key: string) => {
+  try {
+    await client.head(key)
+    return true
+  } catch (err: any) {
+    // 404 不存在
+    if (err?.name === 'NoSuchKeyError' || err?.status === 404) return false
+    // 其他错误按不存在处理，但打印日志
+    console.warn('OSS head error (treat as not exists):', err?.message || err)
+    return false
+  }
+}

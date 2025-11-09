@@ -12,7 +12,7 @@ export default function Template(props: Props) {
         <img
           id='hero-img'
           className='hero-img'
-          src={'https://kls.wxkltx.cn/api/image-assets/preview/1761977951391-xgm60d.jpg'}
+          src={'./assets/hero.png'}
           alt='封面'
         />
         <div id='music' className='stopped' data-url='https://tyfy.oss-cn-beijing.aliyuncs.com/香云赞.mp3'>
@@ -27,7 +27,7 @@ export default function Template(props: Props) {
       <section id='slots' className='slots-section' aria-label='点灯时间'>
         <div className='h5-header'>
           <div className='section-label'>
-            <img src='/templates/assets/icon-03.png' alt='' className='label-icon' />
+            <img src='./assets/icon-03.png' alt='' className='label-icon' />
             <span className='label-text'>{goodsTitle}</span>
           </div>
           <button type='button' id='btn-refresh' className='h5-refresh' aria-label='刷新'>

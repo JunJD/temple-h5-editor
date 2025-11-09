@@ -20,7 +20,7 @@
 /* Section: slots with cloud decorations */
 .slots-section {
     position: relative;
-    padding: 56px 0 20px;
+    padding: 56px 20px 20px;
 }
 .slots-section::before,
 .slots-section::after {
@@ -37,11 +37,11 @@
 }
 .slots-section::before {
     left: -6px;
-    background-image: url('/templates/assets/left-yun.jpg');
+    background-image: url('/api/image-assets/preview/bbdf3b085dc5-right-yun.jpg');
 }
 .slots-section::after {
     right: -6px;
-    background-image: url('/templates/assets/right-yun.jpg');
+    background-image: url('/api/image-assets/preview/19718982d9fc-left-yun.jpg');
 }
 
 /* Label pill */
@@ -96,7 +96,7 @@
 #music .control {
     width: 2.5em;
     height: 2.5em;
-    background: url(http://tuchuang.wxsushang.com/2020/04/01/yinyue.gif) no-repeat center center;
+    background: url(https://tuchuang.wxsushang.com/2020/04/01/yinyue.gif) no-repeat center center;
     background-size: contain;
     position: relative;
 }
@@ -108,7 +108,7 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: url(http://tuchuang.wxsushang.com/2020/04/01/yinyue1.png) transparent no-repeat center center;
+    background: url(https://tuchuang.wxsushang.com/2020/04/01/yinyue1.png) transparent no-repeat center center;
     background-size: 100% 100%;
     -webkit-animation: rotate2d 1.2s linear infinite;
     animation: rotate2d 1.2s linear infinite;

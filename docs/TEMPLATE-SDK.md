@@ -29,6 +29,35 @@ pnpm template:build -- --id <issueId>
 - `dist/templates/<issueId>/index.html`
 - `dist/templates/<issueId>/template.css`
 
+### 模板资源与 OSS 上传
+
+为使模板可在任意环境稳定加载静态资源（图标/图片等），构建脚本内置“资源自动上传 OSS + 引用替换”为服务端预览地址的能力：
+
+- 放置位置（推荐）：将资源放在 `src/templates/<issueId>/assets/`（例如 `src/templates/abc123/assets/icon.png`）。
+- 模板引用方式：在模板 HTML/TSX/CSS 中统一使用相对路径 `./assets/...` 引用资源，例如：
+  - HTML/TSX：`<img src="./assets/icon.png" />`
+  - CSS：`background-image: url('./assets/bg.jpg');`
+- 构建会：
+  1) 扫描 `index.html` 和 `template.css` 中所有 `./assets/...` 引用；
+  2) 读取文件并计算内容哈希（SHA1 前 12 位），生成对象键：`templates/<issueId>/<sha12>-<原文件名>`；
+  3) 覆盖上传至 OSS；
+  4) 将 HTML/CSS 中的相对路径替换为服务端预览 URL：`/api/image-assets/preview/<sha12-原文件名>`，与系统现有图片预览一致。
+- 备用路径（兼容旧项目）：若未在 `src/templates/<issueId>/assets/` 找到，会回退到 `public/templates/<issueId>/assets/` 或 `public/templates/assets/`。
+
+所需环境变量：
+
+```
+ALIYUN_OSS_ACCESS_KEY_ID=
+ALIYUN_OSS_ACCESS_KEY_SECRET=
+ALIYUN_OSS_BUCKET=
+ALIYUN_OSS_REGION=cn-beijing           # 示例
+# 可选：自定义域名（已配置 CDN/域名绑定时）
+```
+
+注意：
+- 仅会扫描并处理以 `./assets/` 开头的相对资源引用；请将需要上传的静态资源统一放入模板目录 `assets/` 并使用相对路径引用。
+- 对象键包含 `<issueId>` 与内容哈希，彼此隔离且可重复构建覆盖。
+
 3. 在编辑器中导入模板（可选）
 
 - 如需在 GrapesJS 中一键导入，可扩展插件去读取 `dist/templates/<issueId>/index.html`（目前示例插件默认指向旧的 public 路径，未强依赖此功能时可忽略）。

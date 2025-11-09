@@ -9,6 +9,7 @@
 - [NextAuth](https://next-auth.js.org/getting-started/introduction)
 - [MongoDB](https://www.mongodb.com/docs)
 - [测试问题记录](docs/TESTING.md)
+ - [模板 SDK 与构建说明（含模板资源上传 OSS）](docs/TEMPLATE-SDK.md)
 
 
 ### 代办
