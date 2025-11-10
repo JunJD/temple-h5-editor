@@ -4,11 +4,11 @@ import type { RenderOptions } from '../h5-sdk'
 type Props = Partial<RenderOptions>
 
 export default function Template(props: Props) {
-  const goodsTitle = props.goodsTitle ?? '点灯时间'
+  const goodsTitle = props.goodsTitle ?? '亮灯时间'
   return (
     <>
-      {/* 顶部：点灯时间（商品） */}
-      <section id='slots' aria-label='点灯时间'>
+      {/* 顶部：亮灯时间（商品） */}
+      <section id='slots' aria-label='亮灯时间'>
         <div className='h5-header'>
           <h2 className='h5-title'>{goodsTitle}</h2>
           <button type='button' id='btn-refresh' className='h5-refresh' aria-label='刷新'>
@@ -47,7 +47,7 @@ export default function Template(props: Props) {
             <tr>
               <th className='board-col-date'>日期</th>
               <th className='board-col-name'>姓名</th>
-              <th className='board-col-item'>点灯时间</th>
+              <th className='board-col-item'>亮灯时间</th>
               <th className='board-col-amt'>金额</th>
             </tr>
           </thead>

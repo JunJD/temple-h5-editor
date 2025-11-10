@@ -36,7 +36,7 @@ export type RenderOptions = {
 
 export const defaultRenderOptions: Required<RenderOptions> = {
   padding: '12px',
-  goodsTitle: '点灯时间',
+  goodsTitle: '亮灯时间',
 }
 
 export function normalizeTitle(title?: string) {

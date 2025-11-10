@@ -5,7 +5,7 @@ import { ModalShell, InputItem, TextareaItem } from '../common/form'
 type Props = Partial<RenderOptions>
 
 export default function Template(props: Props) {
-  const goodsTitle = props.goodsTitle ?? '点灯时间2'
+  const goodsTitle = props.goodsTitle ?? '亮点时间'
   return (
     <>
       {/* 顶部：独占大图 + 右上角音乐图标 */}
@@ -24,8 +24,8 @@ export default function Template(props: Props) {
         </div>
       </section>
 
-      {/* 顶部：点灯时间（商品） */}
-      <section id='slots' className='slots-section' aria-label='点灯时间'>
+      {/* 顶部：亮点时间（商品） */}
+      <section id='slots' className='slots-section' aria-label='亮点时间'>
         <div className='h5-header'>
           <div className='section-label'>
             <img src='./assets/icon-03.png' alt='' className='label-icon' />
@@ -40,14 +40,14 @@ export default function Template(props: Props) {
         <input type='hidden' id='amount' name='amount' defaultValue='' />
       </section>
 
-      {/* 名单登记榜（参考 formatTempList） */}
+      {/* 名单登记榜（日期-姓名-商品-金额） */}
       <section id='board' className='board-list'>
         <div className='board-title'>名单登记榜</div>
         <div
           id='format-list'
           className='format-temp-list'
           data-auto-scroll='true'
-          data-template='<span class="temp-item-date">${date2}</span>｜<span class="temp-item-name">${name}</span>｜<span class="temp-item-goods">${goods}</span>｜<span class="temp-item-value">${amount}</span>'
+          data-template='<span class="temp-item-date">${date2}</span><span class="temp-item-name">${name}</span><span class="temp-item-goods">${goods}</span><span class="temp-item-value">${amount}</span>'
         />
       </section>
 

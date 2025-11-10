@@ -1,8 +1,8 @@
 <body class="h5-page" style="padding:12px;">
-  <!-- 顶部：点灯时间（商品） -->
-  <section id="slots" aria-label="点灯时间">
+  <!-- 顶部：亮灯时间（商品） -->
+  <section id="slots" aria-label="亮灯时间">
     <div class="h5-header">
-      <h2 class="h5-title">点灯时间</h2>
+      <h2 class="h5-title">亮灯时间</h2>
       <button type="button" id="btn-refresh" class="h5-refresh" aria-label="刷新">刷新</button>
     </div>
     <div id="msg" class="h5-message">加载中...</div>
@@ -28,7 +28,7 @@
         <tr>
           <th class="board-col-date">日期</th>
           <th class="board-col-name">姓名</th>
-          <th class="board-col-item">点灯时间</th>
+          <th class="board-col-item">亮灯时间</th>
           <th class="board-col-amt">金额</th>
         </tr>
       </thead>
@@ -214,7 +214,7 @@
     }
     if (typeof sub.goods2 === 'string') items.push({ id:null, title:String(sub.goods2), quantity:1 });
     // fallback: specific fields
-    const possible = ['time','timeSlot','时段','点灯时间','商品'];
+    const possible = ['time','timeSlot','时段','亮灯时间','商品'];
     for(const k of possible){ if(fd[k]) items.push({ id:null, title:String(fd[k]), quantity:1 }); }
     return items;
   }

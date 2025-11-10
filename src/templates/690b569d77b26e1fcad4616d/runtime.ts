@@ -139,6 +139,7 @@ export function attachLampRuntime() {
 
   function tryParse(v: unknown) {
     try {
+      if (v && typeof v === 'object') return v as any
       return typeof v === 'string' ? JSON.parse(v) : null
     } catch {
       return null
@@ -149,8 +150,8 @@ export function attachLampRuntime() {
     const items: Array<{ id: string | null; title: string; quantity: number }> = []
     const fd = sub?.formData || {}
     if (fd && (fd.goods || fd.GOODS || fd.Goods)) {
-      const obj = tryParse(fd.goods || fd.GOODS || fd.Goods)
-      if (obj && Array.isArray(obj.items)) return obj.items.map((it: any) => ({ id: it.id, title: it.title, quantity: safeNum(it.quantity) || 1 }))
+      const obj = tryParse((fd as any).goods || (fd as any).GOODS || (fd as any).Goods)
+      if (obj && Array.isArray((obj as any).items)) return (obj as any).items.map((it: any) => ({ id: it.id, title: it.title, quantity: safeNum(it.quantity) || 1 }))
     }
     if (typeof sub?.goods1 === 'string') {
       const p = tryParse(sub.goods1)
@@ -158,7 +159,7 @@ export function attachLampRuntime() {
       items.push({ id: null, title: String(sub.goods1), quantity: 1 })
     }
     if (typeof sub?.goods2 === 'string') items.push({ id: null, title: String(sub.goods2), quantity: 1 })
-    const possible = ['time', 'timeSlot', '时段', '点灯时间', '商品']
+    const possible = ['time', 'timeSlot', '时段', '亮灯时间', '商品']
     for (const k of possible) {
       if (fd[k]) items.push({ id: null, title: String(fd[k]), quantity: 1 })
     }

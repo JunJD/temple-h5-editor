@@ -175,7 +175,7 @@ export function attachLampRuntime() {
       items.push({ id: null, title: String(sub.goods1), quantity: 1 })
     }
     if (typeof sub?.goods2 === 'string') items.push({ id: null, title: String(sub.goods2), quantity: 1 })
-    const possible = ['time', 'timeSlot', '时段', '点灯时间', '商品']
+    const possible = ['time', 'timeSlot', '时段', '亮灯时间', '商品']
     for (const k of possible) {
       if (fd[k]) items.push({ id: null, title: String(fd[k]), quantity: 1 })
     }
