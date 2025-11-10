@@ -117,11 +117,11 @@
 }
 .slots-section::before {
     left: 0.25rem;
-    background-image: url('/api/image-assets/preview/bbdf3b085dc5-right-yun.jpg');
+    background-image: url('http://wuxicdn.oss-cn-beijing.aliyuncs.com/templates/690b569d77b26e1fcad4616d/bbdf3b085dc5-right-yun.jpg');
 }
 .slots-section::after {
     right: 0.25rem;
-    background-image: url('/api/image-assets/preview/19718982d9fc-left-yun.jpg');
+    background-image: url('http://wuxicdn.oss-cn-beijing.aliyuncs.com/templates/690b569d77b26e1fcad4616d/19718982d9fc-left-yun.jpg');
 }
 
 /* Label pill */
