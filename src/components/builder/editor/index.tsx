@@ -46,7 +46,23 @@ export default function BuilderEditor({ children, projectData, id, formConfig }:
 }) {
   const updateFormConfig = useUpdateFormConfigField()
   const onEditor = (editor: Editor) => {
-    // 注册组件
+    // 仅使用全局设备（不生成 @media），并迁移历史 430px 断点到全局
+    try {
+      const dm = (editor as any).DeviceManager || (editor as any).Devices
+      if (dm && typeof dm.select === 'function') dm.select('global')
+
+      const cssc = (editor as any).Css || (editor as any).CssComposer
+      const rules = cssc?.getAll?.() || []
+      rules.forEach((rule: any) => {
+        try {
+          const mt = rule.get && (rule.get('mediaText') || rule.get('media'))
+          if (typeof mt === 'string' && /\(max-width:\s*\d+px\)/i.test(mt)) {
+            // 将任意 max-width 媒体查询扁平化为全局，避免历史阈值残留/重复
+            rule.set && rule.set('mediaText', '')
+          }
+        } catch {}
+      })
+    } catch {}
   }
 
   return (
@@ -163,13 +179,10 @@ const gjsOptions: EditorConfig = {
     infiniteCanvas: true,
   },
   deviceManager: {
-    devices: Object.values(devices).map(device => ({
-      id: device.id,
-      name: device.name,
-      width: `${device.width}px`,
-      height: `${device.height}px`,
-      widthMedia: undefined
-    }))
+    // 仅注册一个全局设备，不设置 widthMedia -> 样式落在全局，不生成 @media
+    devices: [
+      { id: 'global', name: 'Global', width: 'auto', height: 'auto' }
+    ]
   },
   pluginsOpts: {
     // @ts-ignore
@@ -225,4 +238,3 @@ const gjsOptions: EditorConfig = {
   },
   styleManager
 }
-
