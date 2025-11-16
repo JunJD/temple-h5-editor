@@ -3,5 +3,8 @@
  */
 module.exports = {
   reactStrictMode: false,
-  output: 'standalone'
+  output: 'standalone',
+  experimental: {
+    serverActions: true,
+  },
 }
