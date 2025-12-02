@@ -181,7 +181,7 @@ const gjsOptions: EditorConfig = {
   deviceManager: {
     // 仅注册一个全局设备，不设置 widthMedia -> 样式落在全局，不生成 @media
     devices: [
-      { id: 'global', name: 'Global', width: 'auto', height: 'auto' }
+      { id: 'global', name: 'Global', width: '480px', height: 'auto' }
     ]
   },
   pluginsOpts: {
