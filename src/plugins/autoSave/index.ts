@@ -54,10 +54,20 @@ const autoSavePlugin: Plugin<AutoSaveOptions> = (editor, opts = {}) => {
         // 执行保存前回调
         options.beforeSave();
         
-        // 获取页面内容
-        const html = editor.getHtml() ?? '';
-        const css = editor.getCss() ?? '';
-        const projectData = editor.getProjectData() ?? {};
+        // 获取页面内容（在编辑器销毁/切换期间做安全检查）
+        const hasGetHtml = typeof (editor as any)?.getHtml === 'function';
+        const hasGetCss = typeof (editor as any)?.getCss === 'function';
+        const wrapper = (editor as any)?.getWrapper?.() || (editor as any)?.DomComponents?.getWrapper?.();
+
+        if (!hasGetHtml || !hasGetCss || !wrapper) {
+          // 编辑器尚未就绪或已被销毁，跳过本次自动保存
+          isSaving = false;
+          return;
+        }
+
+        const html = (editor as any).getHtml() ?? '';
+        const css = (editor as any).getCss() ?? '';
+        const projectData = (editor as any).getProjectData?.() ?? {};
 
         // 检查内容是否为空
         if(!html || !css) {
@@ -102,6 +112,10 @@ const autoSavePlugin: Plugin<AutoSaveOptions> = (editor, opts = {}) => {
       } finally {
         // 重置保存状态
         isSaving = false;
+        // 如果编辑器被销毁，清理定时器
+        if (!(editor as any)?.getWrapper) {
+          if (saveTimeout) clearTimeout(saveTimeout);
+        }
       }
     }, options.debounceTime);
   };
@@ -179,6 +193,14 @@ const autoSavePlugin: Plugin<AutoSaveOptions> = (editor, opts = {}) => {
   editor.Commands.add('auto-save', {
     run() {
       debounceSave();
+    }
+  });
+
+  // 编辑器销毁时，清理定时器，避免在销毁后触发保存
+  editor.on('destroy', () => {
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
+      saveTimeout = null;
     }
   });
 

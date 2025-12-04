@@ -653,13 +653,18 @@ export const styleManager = {
               const type = values[PROPERTY_BG_TYPE];
               let image = values[PROPERTY_BG_IMAGE];
 
-              if (type === 'color' && image.indexOf('linear-gradient') < 0) {
-                image = `linear-gradient(${image} 1%, ${image} 100%)`;
+              // Guard against undefined/empty values when switching types
+              if (type === 'color') {
+                const img = typeof image === 'string' ? image : '';
+                // Only convert to gradient when we actually have a color-like value
+                if (img && img !== 'none' && img.indexOf('linear-gradient') < 0) {
+                  image = `linear-gradient(${img} 1%, ${img} 100%)`;
+                }
               }
 
               const result = {
                 ...values,
-                [PROPERTY_BG_IMAGE]: image,
+                [PROPERTY_BG_IMAGE]: image ?? '',
               };
 
               return result;
