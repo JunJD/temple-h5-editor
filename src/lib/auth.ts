@@ -2,9 +2,6 @@ import { NextAuthOptions } from 'next-auth'
 import GoogleProvider from 'next-auth/providers/google'
 import CredentialsProvider from 'next-auth/providers/credentials'
 
-console.log('GOOGLE_APP_CLIENT_ID', process.env.GOOGLE_APP_CLIENT_ID)
-console.log('GOOGLE_APP_CLIENT_SECRET', process.env.GOOGLE_APP_CLIENT_SECRET)
-
 export const authOptions: NextAuthOptions = {
   // Secret for Next-auth, without this JWT encryption/decryption won't work
   secret: process.env.NEXTAUTH_SECRET,

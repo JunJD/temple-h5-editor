@@ -1,5 +1,8 @@
 'use client'
 
+// 强制动态，避免构建期静态化
+export const dynamic = 'force-dynamic'
+
 export default function PreviewPage({ params }: { params: { id: string } }) {
   const src = `/api/preview/${params.id}?preview=1`
   return (

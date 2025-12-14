@@ -1,11 +1,13 @@
 'use client'
 
 import DraftEditor from "@/components/issue/editor/draft"
-import { prisma } from '@/lib/prisma'
 import { useSearchParams } from 'next/navigation'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 
-export default function ArtboardPreviewPage() {
+// 该页面依赖搜索参数，强制动态渲染，避免构建时预渲染
+export const dynamic = 'force-dynamic'
+
+function PreviewContent() {
     const searchParams = useSearchParams()
     const issueId = searchParams.get('issueId')
     
@@ -34,9 +36,17 @@ export default function ArtboardPreviewPage() {
     if (!issue) return <div>Issue not found</div>
 
     return (
-        <DraftEditor 
-            editable={false} 
-            content={issue.content ? JSON.stringify(issue.content) : '暂无内容'} 
-        />
+      <DraftEditor 
+        editable={false} 
+        content={issue.content ? JSON.stringify(issue.content) : '暂无内容'} 
+      />
     )
+}
+
+export default function ArtboardPreviewPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <PreviewContent />
+    </Suspense>
+  )
 }
