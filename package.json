@@ -12,7 +12,8 @@
     "start": "next start",
     "db:push": "prisma db push",
     "db:deploy": "prisma migrate deploy",
-    "template:build": "tsx scripts/build-template.ts"
+    "template:build": "tsx scripts/build-template.ts",
+    "fix-vercel": " npx fix-react2shell-next --fix"
   },
   "repository": {
     "type": "github",
@@ -118,7 +119,7 @@
     "js-cookie": "^3.0.5",
     "lucide-react": "^0.469.0",
     "nanoid": "^5.0.9",
-    "next": "14.0.4",
+    "next": "14.2.35",
     "next-auth": "^4.24.11",
     "next-themes": "^0.4.4",
     "node-fetch": "^3.3.2",
