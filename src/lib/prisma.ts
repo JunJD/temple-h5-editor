@@ -1,36 +1,26 @@
 import { PrismaClient } from '@prisma/client'
 
-declare global {
-  var prisma: PrismaClient | undefined
-}
+// Reuse a single PrismaClient in dev to avoid exhausting connections
+const globalForPrisma = globalThis as unknown as { prisma?: PrismaClient }
 
-export const prisma = global.prisma || new PrismaClient()
+export const prisma =
+  globalForPrisma.prisma ||
+  new PrismaClient()
 
-if (process.env.NODE_ENV !== 'production') global.prisma = prisma
+if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
 
-// 添加连接检查函数
+// Optional connectivity check that does NOT touch the shared client
 export async function checkDatabaseConnection() {
+  const testClient = new PrismaClient()
   try {
-    // 先尝试连接
-    await prisma.$connect()
-    
-    // 然后执行 ping 命令
-    await prisma.$runCommandRaw({ ping: 1 })
-    
+    await testClient.$connect()
+    await testClient.$runCommandRaw({ ping: 1 })
     console.log('✅ Successfully connected to MongoDB')
-    console.log('📌 Connection URL:', process.env.MONGO_URI)
     return true
   } catch (error) {
-    console.error('❌ MongoDB connection error')
-    console.error('📌 Connection URL:', process.env.MONGO_URI)
-    console.error('🔍 Error details:', error)
+    console.error('❌ MongoDB connection error:', error)
     return false
   } finally {
-    await prisma.$disconnect()
+    await testClient.$disconnect()
   }
-}
-
-// 在开发环境中自动检查连接
-if (process.env.NODE_ENV !== 'production') {
-  checkDatabaseConnection()
 }

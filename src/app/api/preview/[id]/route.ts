@@ -1,7 +1,9 @@
-import { getIssue } from "@/actions/issue"
 import { Issue } from "@/schemas"
 import { NextRequest, NextResponse } from "next/server"
-import { prisma } from '@/lib/prisma';
+import { prisma } from '@/lib/prisma'
+
+// Ensure this route runs on Node.js runtime (Prisma is not supported on Edge)
+export const runtime = 'nodejs'
 
 export async function GET(
     request: NextRequest,
@@ -16,12 +18,13 @@ export async function GET(
             return new NextResponse('openid not found' + request.url, { status: 404 })
         }
 
-        const result = await getIssue(params.id)
-        if (!('data' in result) || !result.data) {
+        // Fetch issue directly here instead of importing a Server Action
+        const dbIssue = await prisma.issue.findUnique({ where: { id: params.id } })
+        if (!dbIssue) {
             return new NextResponse('Not Found', { status: 404 })
         }
 
-        const data: Issue = result.data as Issue
+        const data = dbIssue as unknown as Issue
         const content = data.content || {}
 
         // 只在非预览模式下检查发布状态
