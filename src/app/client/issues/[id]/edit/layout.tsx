@@ -1,6 +1,7 @@
 'use client'
 
 import BuilderEditor from '@/components/builder/editor'
+import { BuilderHeader } from '@/components/builder/builder-header'
 import Template from '@/components/animated-template'
 import { useParams } from 'next/navigation'
 import { useEffect, useState } from 'react'
@@ -80,26 +81,31 @@ export default function EditIssueLayout({ children }: { children: React.ReactNod
   if ((goodsCount ?? 0) > 0) {
     return (
       <Template>
-        <div className='container mx-auto p-6 pt-20 max-w-4xl'>
-          <Alert>
-            <AlertTitle>已启用商品编辑，禁用可视化编辑器</AlertTitle>
-            <AlertDescription>
-              该页面已配置商品数据。为避免与 GrapesJS 可视化编辑冲突，当前不支持进入前端编辑器。
-              请前往商品管理进行内容配置，或在该页面上传 HTML / CSS。
-            </AlertDescription>
-          </Alert>
-          <div className='mt-6 flex flex-wrap gap-3'>
-            <Link href={`/client/issues/${params.id}/goods`}>
-              <Button>前往商品管理</Button>
-            </Link>
-            <Link href={`/api/preview/${params.id}?preview=1`} target='_blank'>
-              <Button variant='outline'>预览</Button>
-            </Link>
-            <Link href={`/client/issues/${params.id}`}>
-              <Button variant='ghost'>返回详情</Button>
-            </Link>
+        {/* 提供 Issue 上下文，便于在禁用编辑器的场景中仍可编辑标题 */}
+        <IssueProvider value={{ issue, loading, setIssue }}>
+          {/* 仅展示顶部头部，允许标题编辑、发布、预览、二维码等操作 */}
+          <BuilderHeader />
+          <div className='container mx-auto p-6 pt-20 max-w-4xl'>
+            <Alert>
+              <AlertTitle>已启用商品编辑，禁用可视化编辑器</AlertTitle>
+              <AlertDescription>
+                该页面已配置商品数据。为避免与 GrapesJS 可视化编辑冲突，当前不支持进入前端编辑器。
+                请前往商品管理进行内容配置，或在该页面上传 HTML / CSS。
+              </AlertDescription>
+            </Alert>
+            <div className='mt-6 flex flex-wrap gap-3'>
+              <Link href={`/client/issues/${params.id}/goods`}>
+                <Button>前往商品管理</Button>
+              </Link>
+              <Link href={`/api/preview/${params.id}?preview=1`} target='_blank'>
+                <Button variant='outline'>预览</Button>
+              </Link>
+              <Link href={`/client/issues/${params.id}`}>
+                <Button variant='ghost'>返回详情</Button>
+              </Link>
+            </div>
           </div>
-        </div>
+        </IssueProvider>
       </Template>
     )
   }

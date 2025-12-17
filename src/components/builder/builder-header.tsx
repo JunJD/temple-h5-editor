@@ -10,7 +10,7 @@ import { Button } from '@/components/ui'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from 'atomic-utils'
 import Link from 'next/link'
-import { DevicesProvider, useEditorMaybe } from '@grapesjs/react'
+import { DevicesProvider } from '@grapesjs/react'
 import { useParams } from 'next/navigation'
 import { updateIssue, updateIssueTitle } from '@/actions/builder'
 import { useIssue, usePublishIssue } from '@/contexts/issue-context'
@@ -34,7 +34,7 @@ const getDomain = () => {
   return '';
 };
 
-export const BuilderHeader = () => {
+export const BuilderHeader = ({ editor }: { editor?: any }) => {
   const { issue, setIssue } = useIssue()
   const [isSaving, setIsSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
@@ -49,7 +49,7 @@ export const BuilderHeader = () => {
   const leftPanelSize = 0
   const rightPanelSize = 0
   const isDragging = false
-  const editor = useEditorMaybe()
+  // editor 实例由外部传入；在禁用可视化编辑的场景下为 undefined
 
   const id = useParams().id as string
   const publishIssue = usePublishIssue()
@@ -365,24 +365,28 @@ export const BuilderHeader = () => {
             )}
           </div>
 
-          <DevicesProvider>
-            {({ selected, select, devices }) => {
-              return (
-                <div className="flex items-center gap-2">
-                  {devices.map(device => (
-                    <Button
-                      key={device.id}
-                      size="sm"
-                      variant={selected === device.id ? 'default' : 'ghost'}
-                      onClick={() => select(device.id.toString())}
-                    >
-                      {device.getName()}
-                    </Button>
-                  ))}
-                </div>
-              )
-            }}
-          </DevicesProvider>
+          {editor ? (
+            <DevicesProvider>
+              {({ selected, select, devices }) => {
+                return (
+                  <div className="flex items-center gap-2">
+                    {devices.map(device => (
+                      <Button
+                        key={device.id}
+                        size="sm"
+                        variant={selected === device.id ? 'default' : 'ghost'}
+                        onClick={() => select(device.id.toString())}
+                      >
+                        {device.getName()}
+                      </Button>
+                    ))}
+                  </div>
+                )
+              }}
+            </DevicesProvider>
+          ) : (
+            <div />
+          )}
 
           <div className="flex items-center gap-2">
             <Tooltip>
@@ -404,9 +408,11 @@ export const BuilderHeader = () => {
             <Button variant="outline" onClick={onPreview} size="sm">
               预览
             </Button>
-            <Button size="sm" onClick={onSave} disabled={isSaving}>
-              {isSaving ? '保存中...' : '保存'}
-            </Button>
+            {editor && (
+              <Button size="sm" onClick={onSave} disabled={isSaving}>
+                {isSaving ? '保存中...' : '保存'}
+              </Button>
+            )}
           </div>
         </div>
       </div>
