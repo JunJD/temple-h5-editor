@@ -474,7 +474,7 @@ class ConfigurableFormPlugin extends BasePluginV5 {
                 },
                 components: [{
                     type: PAY_BUTTON_TYPE,
-                    label: '立即支付'
+                    label: '提交'
                 }]
             }
         ];

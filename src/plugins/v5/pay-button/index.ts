@@ -19,7 +19,7 @@ class PayButtonPlugin extends BasePluginV5 {
                 defaults: {
                     tagName: 'div',
                     droppable: false,
-                    attributes: { class: 'pay-button', role: 'button', 'aria-label': '立即支付' },
+                    attributes: { class: 'pay-button', role: 'button', 'aria-label': '提交' },
                     style: {
                         'width': '100%',
                         'height': '56px',
@@ -60,12 +60,12 @@ class PayButtonPlugin extends BasePluginV5 {
                             type: 'text',
                             name: 'text',
                             label: '按钮文本',
-                            default: '立即支付',
+                            default: '提交',
                             changeProp: true
                         }
                     ],
                     'script-props': ['text'],
-                    content: '立即支付',
+                    content: '提交',
                     script: function (props) {
                         const el = this as HTMLButtonElement
                         const form = el.closest('form')
