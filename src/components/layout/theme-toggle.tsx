@@ -1,6 +1,7 @@
 'use client'
 import { IconType } from 'react-icons'
 import { LuMoon, LuSun, LuMonitor } from 'react-icons/lu'
+import { useEffect, useState } from 'react'
 
 import { useTheme } from 'next-themes'
 
@@ -14,8 +15,15 @@ const useServerTheme = create<string>({
 
 export function ThemeToggle() {
   const [serverTheme] = useServerTheme()
+  const [mounted, setMounted] = useState(false)
 
   const { setTheme, theme = serverTheme } = useTheme()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+
+  const displayTheme = mounted ? theme : serverTheme
 
   const nextTheme: any = {
     light: 'dark',
@@ -28,7 +36,7 @@ export function ThemeToggle() {
     light: LuSun,
     dark: LuMoon,
     system: LuMonitor
-  }[theme] as IconType
+  }[displayTheme] as IconType
 
   return (
     <Button
@@ -37,7 +45,7 @@ export function ThemeToggle() {
       size='icon'
       suppressHydrationWarning
       onClick={() => {
-        const newTheme = nextTheme[theme as string]
+        const newTheme = nextTheme[(displayTheme || 'system') as string]
         Cookies.set('theme', newTheme)
         setTheme(newTheme)
       }}

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Table,
   TableBody,
@@ -31,6 +31,27 @@ interface SubmissionTableProps {
   submissions: Submission[];
 }
 
+type SubmissionGoodsItem = {
+  title?: string
+  price?: number
+  quantity?: number
+}
+
+type SubmissionViewModel = {
+  id: string
+  name: string
+  specificType: string
+  projectCategory: string
+  amount: string
+  phone: string
+  message: string
+  unitPrice: string
+  quantity: string
+  time: string
+  statusLabel: string
+  formDataText: string
+}
+
 const PaymentStatusMap = {
   PENDING: { label: '待支付', color: 'default' },
   NOTPAY: { label: '未支付', color: 'secondary' },
@@ -40,6 +61,117 @@ const PaymentStatusMap = {
   REFUNDING: { label: '退款中', color: 'destructive' },
   REFUNDED: { label: '已退款', color: 'destructive' },
 } as const;
+
+function readFormData(submission: Submission) {
+  return ((submission.formData ?? {}) as Record<string, any>)
+}
+
+function pickFirstValue(source: Record<string, any>, keys: string[]) {
+  for (const key of keys) {
+    const value = source[key]
+    if (value !== undefined && value !== null && String(value).trim() !== '') {
+      return value
+    }
+  }
+  return ''
+}
+
+function formatCellValue(value: unknown) {
+  if (value === undefined || value === null || value === '') {
+    return '-'
+  }
+  return String(value)
+}
+
+function getGoodsItems(submission: Submission) {
+  const formData = readFormData(submission)
+  const goodsPayload = formData.goods
+
+  if (!goodsPayload) {
+    return [] as SubmissionGoodsItem[]
+  }
+
+  if (typeof goodsPayload === 'string') {
+    try {
+      const parsed = JSON.parse(goodsPayload)
+      return Array.isArray(parsed?.items) ? parsed.items : []
+    } catch {
+      return []
+    }
+  }
+
+  return Array.isArray(goodsPayload.items) ? goodsPayload.items : []
+}
+
+function joinGoodsValues(
+  items: SubmissionGoodsItem[],
+  getter: (item: SubmissionGoodsItem) => unknown
+) {
+  const values = items
+    .map(item => getter(item))
+    .filter(value => value !== undefined && value !== null && value !== '')
+
+  if (values.length === 0) {
+    return '-'
+  }
+
+  return values.join(' / ')
+}
+
+function formatFormData(submission: Submission) {
+  const formData = readFormData(submission)
+
+  return Object.entries(formData)
+    .map(([key, value]) => {
+      if (typeof value === 'object' && value !== null) {
+        return `${key}: ${JSON.stringify(value)}`
+      }
+      return `${key}: ${value}`
+    })
+    .join(', ')
+}
+
+function buildSubmissionViewModel(submission: Submission): SubmissionViewModel {
+  const formData = readFormData(submission)
+  const goodsItems = getGoodsItems(submission)
+  const statusConfig =
+    PaymentStatusMap[submission.status as keyof typeof PaymentStatusMap] ||
+    { label: submission.status, color: 'default' as const }
+  const rawGoodsValue = formData.goods
+  const unitPriceFromGoodsField =
+    typeof rawGoodsValue === 'string' || typeof rawGoodsValue === 'number'
+      ? formatCellValue(rawGoodsValue)
+      : '-'
+
+  const specificType = submission.goods1 || pickFirstValue(formData, ['goods1', '具体类型']) || goodsItems[0]?.title || ''
+  const projectCategory = submission.goods2 || pickFirstValue(formData, ['goods2', '项目分类']) || goodsItems[1]?.title || ''
+  const unitPrice =
+    unitPriceFromGoodsField !== '-'
+      ? unitPriceFromGoodsField
+      : joinGoodsValues(goodsItems, item => (typeof item.price === 'number' ? item.price.toFixed(2) : '')) !== '-'
+      ? joinGoodsValues(goodsItems, item => (typeof item.price === 'number' ? item.price.toFixed(2) : ''))
+      : formatCellValue(pickFirstValue(formData, ['unitPrice', 'price', '单价']))
+  const quantity =
+    joinGoodsValues(goodsItems, item => item.quantity) !== '-'
+      ? joinGoodsValues(goodsItems, item => item.quantity)
+      : formatCellValue(pickFirstValue(formData, ['quantity', 'count', '数量']))
+  const time = submission.paidAt || submission.createdAt
+
+  return {
+    id: submission.id,
+    name: formatCellValue(pickFirstValue(formData, ['name', '姓名', '称呼'])),
+    specificType: formatCellValue(specificType),
+    projectCategory: formatCellValue(projectCategory),
+    amount: Number(submission.amount || 0).toFixed(2),
+    phone: formatCellValue(pickFirstValue(formData, ['tel', 'phone', 'mobile', '电话'])),
+    message: formatCellValue(pickFirstValue(formData, ['wish', 'qifu', 'message', 'msg', 'remark', '留言'])),
+    unitPrice,
+    quantity,
+    time: time ? formatDateTime(time) : '-',
+    statusLabel: statusConfig.label,
+    formDataText: formatFormData(submission),
+  }
+}
 
 export function SubmissionTable({ submissions }: SubmissionTableProps) {
   const router = useRouter()
@@ -60,6 +192,10 @@ export function SubmissionTable({ submissions }: SubmissionTableProps) {
   const statusOptions = useMemo(() => ([
     'PENDING', 'NOTPAY', 'CLOSED', 'PAID', 'FAILED', 'REFUNDING', 'REFUNDED'
   ] as const), [])
+  const rows = useMemo(
+    () => submissions.map(submission => ({ submission, view: buildSubmissionViewModel(submission) })),
+    [submissions]
+  )
 
   const onEdit = (s: Submission) => {
     setCurrent(s)
@@ -136,41 +272,34 @@ export function SubmissionTable({ submissions }: SubmissionTableProps) {
     }
 
     const headers = [
-      '支付金额',
-      '货币',
       '姓名',
-      '商品1',
-      '商品2',
+      '具体类型',
+      '项目分类',
+      '金额',
       '电话',
+      '留言',
+      '单价',
+      '数量',
+      '时间',
       '状态标签',
-      '状态值',
-      '支付时间',
-      '创建时间',
-      '更新时间',
       '表单数据'
     ];
 
     const csvRows = [headers.join(',')];
 
-    submissions.forEach(submission => {
-      const statusConfig = PaymentStatusMap[submission.status] || { label: submission.status, color: 'default' };
-      const formDataStr = Object.entries(submission.formData as Record<string, any>)
-        .map(([key, value]) => `${key}: ${value}`)
-        .join('; ');
-
+    rows.forEach(({ view }) => {
       const row = [
-        submission.amount.toFixed(2),
-        submission.currency,
-        submission.formData.name || '',
-        submission.goods1 || '',
-        submission.goods2 || '',
-        submission.formData.tel || submission.formData.phone || '',
-        statusConfig.label,
-        submission.status,
-        submission.paidAt ? formatDateTime(submission.paidAt) : '-',
-        formatDateTime(submission.createdAt),
-        formatDateTime(submission.updatedAt),
-        `"${formDataStr.replace(/"/g, '""')}"`
+        view.name,
+        view.specificType,
+        view.projectCategory,
+        view.amount,
+        view.phone,
+        view.message,
+        view.unitPrice,
+        view.quantity,
+        view.time,
+        view.statusLabel,
+        `"${view.formDataText.replace(/"/g, '""')}"`
       ];
       csvRows.push(row.join(','));
     });
@@ -199,53 +328,46 @@ export function SubmissionTable({ submissions }: SubmissionTableProps) {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>支付金额</TableHead>
               <TableHead>姓名</TableHead>
-              <TableHead>商品</TableHead>
+              <TableHead>具体类型</TableHead>
+              <TableHead>项目分类</TableHead>
+              <TableHead>金额</TableHead>
               <TableHead>电话</TableHead>
-              <TableHead>状态</TableHead>
-              <TableHead>支付时间</TableHead>
-              <TableHead>创建时间</TableHead>
-              <TableHead>更新时间</TableHead>
+              <TableHead>留言</TableHead>
+              <TableHead>单价</TableHead>
+              <TableHead>数量</TableHead>
+              <TableHead>时间</TableHead>
+              <TableHead>状态标签</TableHead>
               <TableHead className="w-[300px]">表单数据</TableHead>
               <TableHead>操作</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {submissions.map((submission) => {
-              const statusConfig = PaymentStatusMap[submission.status] || { label: submission.status, color: 'default' };
-              // 将 formData 对象的所有键值对转换为字符串
-              const formDataStr = Object.entries(submission.formData as Record<string, any>)
-                .map(([key, value]) => `${key}: ${value}`)
-                .join(', ');
-
+            {rows.map(({ submission, view }) => {
+              const statusConfig =
+                PaymentStatusMap[submission.status as keyof typeof PaymentStatusMap] ||
+                { label: submission.status, color: 'default' as const };
               return (
                 <TableRow key={submission.id}>
-                  <TableCell className="font-medium">
-                    {submission.amount.toFixed(2)} {submission.currency}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {submission.formData.name} 
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {submission.goods1}/{submission.goods2} 
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {submission.formData.tel ? submission.formData.tel : submission.formData.phone} 
-                  </TableCell>
+                  <TableCell className="font-medium">{view.name}</TableCell>
+                  <TableCell className="font-medium">{view.specificType}</TableCell>
+                  <TableCell className="font-medium">{view.projectCategory}</TableCell>
+                  <TableCell className="font-medium">{view.amount}</TableCell>
+                  <TableCell className="font-medium">{view.phone}</TableCell>
+                  <TableCell className="font-medium">{view.message}</TableCell>
+                  <TableCell className="font-medium">{view.unitPrice}</TableCell>
+                  <TableCell className="font-medium">{view.quantity}</TableCell>
+                  <TableCell>{view.time}</TableCell>
                   <TableCell>
-                    <Badge variant={statusConfig.color}>{statusConfig.label}{submission.status}</Badge>
+                    <Badge variant={statusConfig.color}>{view.statusLabel}</Badge>
                   </TableCell>
-                  <TableCell>{submission.paidAt ? formatDateTime(submission.paidAt) : '-'}</TableCell>
-                  <TableCell>{formatDateTime(submission.createdAt)}</TableCell>
-                  <TableCell>{formatDateTime(submission.updatedAt)}</TableCell>
                   <TableCell className="max-w-[300px] truncate">
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <span>{formDataStr}</span>
+                        <span>{view.formDataText}</span>
                       </TooltipTrigger>
                       <TooltipContent>
-                        <p>{formDataStr}</p>
+                        <p>{view.formDataText}</p>
                       </TooltipContent>
                     </Tooltip>
                   </TableCell>
@@ -268,7 +390,7 @@ export function SubmissionTable({ submissions }: SubmissionTableProps) {
           </DialogHeader>
           <div className="grid grid-cols-2 gap-4 py-2">
             <div className="space-y-2">
-              <Label htmlFor="amount">支付金额</Label>
+              <Label htmlFor="amount">金额</Label>
               <Input id="amount" type="number" value={form.amount} onChange={(e) => setForm({ ...form, amount: e.target.value })} />
             </div>
             <div className="space-y-2">
@@ -289,15 +411,15 @@ export function SubmissionTable({ submissions }: SubmissionTableProps) {
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="paidAt">支付时间</Label>
+              <Label htmlFor="paidAt">时间</Label>
               <Input id="paidAt" type="datetime-local" value={form.paidAt} onChange={(e) => setForm({ ...form, paidAt: e.target.value })} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="goods1">商品1</Label>
+              <Label htmlFor="goods1">具体类型</Label>
               <Input id="goods1" value={form.goods1} onChange={(e) => setForm({ ...form, goods1: e.target.value })} />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="goods2">商品2</Label>
+              <Label htmlFor="goods2">项目分类</Label>
               <Input id="goods2" value={form.goods2} onChange={(e) => setForm({ ...form, goods2: e.target.value })} />
             </div>
             <div className="col-span-2 space-y-2">
