@@ -6,7 +6,7 @@ type Props = Partial<RenderOptions>
 
 const DEFAULT_HERO_IMAGE_URL =
   'https://tuchuang.wxsushang.com/2026/03/26/cac7c686e1093.jpg'
-const DEFAULT_AUDIO_URL = '/法器认捐/双手合十.mp3'
+const DEFAULT_AUDIO_URL = 'http://wuxicdn.oss-cn-beijing.aliyuncs.com/1775894956166-2p2kfp.mp3'
 const DEFAULT_OVERVIEW_HTML = `
   <section data-role="paragraph" class="_135editor">
     <section style="box-sizing: border-box; text-align: center; font-size: 16px; color: rgb(51, 51, 51);">
