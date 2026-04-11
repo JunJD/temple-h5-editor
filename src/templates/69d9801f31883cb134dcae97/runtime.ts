@@ -344,7 +344,7 @@ export function attachLampRuntime() {
 
   function clearBoardAutoScroll() {
     if (boardAutoScrollTimer != null) {
-      window.cancelAnimationFrame(boardAutoScrollTimer)
+      window.clearInterval(boardAutoScrollTimer)
       boardAutoScrollTimer = null
     }
   }
@@ -378,22 +378,31 @@ export function attachLampRuntime() {
       })
 
     if (paidItems.length === 0) {
-      boardSectionEl.classList.add('hidden')
+      boardSectionEl.classList.remove('hidden')
       return
     }
 
     boardSectionEl.classList.remove('hidden')
 
-    const wrapper = document.createElement('div')
-    wrapper.className = 'list-wrapper'
-    wrapper.setAttribute('data-v-e00a63bf', '')
+    const container = document.createElement('div')
+    container.className = 'infinite-scroll'
+    container.setAttribute('data-v-e00a63bf', '')
 
     const list = document.createElement('ul')
     list.className = 'ranking_list_detail'
     list.setAttribute('data-v-e00a63bf', '')
-    list.style.margin = '0'
-    list.style.padding = '0'
-    list.style.listStyle = 'none'
+
+    const appendSpacer = () => {
+      const spacer = document.createElement('li')
+      spacer.className = 'data-cycle-spacer'
+      spacer.style.height = '300px'
+      spacer.style.background = 'transparent'
+      spacer.style.border = 'none'
+      spacer.style.padding = '0'
+      spacer.style.margin = '0'
+      spacer.style.listStyleType = 'none'
+      list.appendChild(spacer)
+    }
 
     const appendCycle = () => {
       paidItems.forEach(item => {
@@ -412,31 +421,101 @@ export function attachLampRuntime() {
         li.appendChild(row)
         list.appendChild(li)
       })
+      appendSpacer()
     }
 
     appendCycle()
-    wrapper.appendChild(list)
-    formatListEl.appendChild(wrapper)
+    container.appendChild(list)
+    formatListEl.appendChild(container)
 
     if (paidItems.length <= 4) return
 
-    appendCycle()
-    appendCycle()
+    const oneCycleHeight = list.offsetHeight
+    const cyclesNeeded = Math.max(
+      Math.ceil(container.offsetHeight / oneCycleHeight) + 2,
+      3
+    )
 
-    let offset = formatListEl.offsetHeight
-    const cycleHeight = list.scrollHeight / 3
+    for (let index = 0; index < cyclesNeeded; index += 1) {
+      paidItems.forEach(item => {
+        const li = document.createElement('li')
+        li.setAttribute('data-v-e00a63bf', '')
 
-    const tick = () => {
-      offset -= 0.3
-      if (offset <= -cycleHeight) {
-        offset = formatListEl.offsetHeight
-      }
-      wrapper.style.transform = `translateY(${offset}px)`
-      boardAutoScrollTimer = window.requestAnimationFrame(tick)
+        const row = document.createElement('p')
+        row.setAttribute('data-v-e00a63bf', '')
+
+        for (const value of [item.date, item.name, item.goods, item.amount]) {
+          const span = document.createElement('span')
+          span.textContent = value
+          row.appendChild(span)
+        }
+
+        li.appendChild(row)
+        list.appendChild(li)
+      })
+      appendSpacer()
     }
 
-    wrapper.style.transform = `translateY(${offset}px)`
-    boardAutoScrollTimer = window.requestAnimationFrame(tick)
+    container.scrollTop = oneCycleHeight
+    container.addEventListener('scroll', () => {
+      const currentScroll = container.scrollTop
+      const maxScroll = list.offsetHeight - container.offsetHeight
+
+      if (currentScroll > maxScroll - oneCycleHeight) {
+        appendCycle()
+        for (let index = 0; index < paidItems.length + 1; index += 1) {
+          if (list.firstChild) list.removeChild(list.firstChild)
+        }
+        container.scrollTop = currentScroll - oneCycleHeight
+      }
+
+      if (currentScroll < oneCycleHeight) {
+        const tempNodes: HTMLElement[] = []
+        const spacer = document.createElement('li')
+        spacer.className = 'data-cycle-spacer'
+        spacer.style.height = '300px'
+        spacer.style.background = 'transparent'
+        spacer.style.border = 'none'
+        spacer.style.padding = '0'
+        spacer.style.margin = '0'
+        spacer.style.listStyleType = 'none'
+        tempNodes.push(spacer)
+
+        for (let index = paidItems.length - 1; index >= 0; index -= 1) {
+          const item = paidItems[index]
+          const li = document.createElement('li')
+          li.setAttribute('data-v-e00a63bf', '')
+
+          const row = document.createElement('p')
+          row.setAttribute('data-v-e00a63bf', '')
+
+          for (const value of [item.date, item.name, item.goods, item.amount]) {
+            const span = document.createElement('span')
+            span.textContent = value
+            row.appendChild(span)
+          }
+
+          li.appendChild(row)
+          tempNodes.push(li)
+        }
+
+        tempNodes.forEach(node => list.insertBefore(node, list.firstChild))
+        for (let index = 0; index < paidItems.length + 1; index += 1) {
+          if (list.lastChild) list.removeChild(list.lastChild)
+        }
+        container.scrollTop = currentScroll + oneCycleHeight
+      }
+    })
+
+    boardAutoScrollTimer = window.setInterval(() => {
+      const currentScroll = container.scrollTop
+      const maxScroll = list.offsetHeight - container.offsetHeight
+      if (currentScroll >= maxScroll - 10) {
+        container.scrollTop = oneCycleHeight
+        return
+      }
+      container.scrollTop = currentScroll + 1
+    }, 50)
   }
 
   function getStock(good: GoodsRecord) {

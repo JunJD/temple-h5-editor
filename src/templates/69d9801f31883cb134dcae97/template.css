@@ -179,18 +179,29 @@
   border-right: 2px solid #d1bba6;
 }
 
-.list-wrapper[data-v-e00a63bf] {
-  position: absolute;
-  width: 100%;
+.dailygooddeedOrder .ranking_list .infinite-scroll[data-v-e00a63bf] {
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   will-change: transform;
 }
 
-.dailygooddeedOrder .ranking_list .ranking_list_detail[data-v-e00a63bf] {
-  position: absolute;
-  left: 10px;
-  right: 10px;
+.dailygooddeedOrder
+  .ranking_list
+  .infinite-scroll[data-v-e00a63bf]::-webkit-scrollbar {
+  display: none;
+}
+
+.dailygooddeedOrder
+  .ranking_list
+  .infinite-scroll
+  .ranking_list_detail[data-v-e00a63bf] {
+  position: relative;
+  left: auto;
+  right: auto;
   margin: 0;
-  padding: 0;
+  padding: 0 10px;
   list-style: none;
 }
 
