@@ -36,4 +36,3 @@ export async function PUT(
     return new NextResponse('Failed to update content', { status: 500 })
   }
 }
-

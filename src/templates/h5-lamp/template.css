@@ -58,4 +58,3 @@
 .operate { display:flex; justify-content:flex-end; gap:12px; padding-top:6px; }
 .operate .cancel, .operate .confirm button { appearance:none; border:1px solid #e5e7eb; background:#111827; color:#fff; padding:8px 14px; border-radius:8px; cursor:pointer; }
 .operate .cancel { background:#fff; color:#111827; }
-

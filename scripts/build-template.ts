@@ -156,51 +156,54 @@ async function main() {
   collect(finalCss, /url\((?:'|")?(\.\/assets\/[^'"\)]+)(?:'|")?\)/g)
 
   const uploaded = new Map<string, string>()
-  const hasOssEnv = Boolean(process.env.ALIYUN_OSS_ACCESS_KEY_ID && process.env.ALIYUN_OSS_ACCESS_KEY_SECRET && process.env.ALIYUN_OSS_BUCKET && process.env.ALIYUN_OSS_REGION)
-  if (!hasOssEnv) {
-    console.error('[build-template] Missing OSS env. Required: ALIYUN_OSS_ACCESS_KEY_ID, ALIYUN_OSS_ACCESS_KEY_SECRET, ALIYUN_OSS_BUCKET, ALIYUN_OSS_REGION')
-    process.exit(1)
-  }
-  let oss: any
-  try {
-    oss = await import('@/lib/oss')
-  } catch (err: any) {
-    console.error('[build-template] OSS initialization failed:', err?.message || err)
-    process.exit(1)
-  }
+  if (assetRefs.size > 0) {
+    const hasOssEnv = Boolean(process.env.ALIYUN_OSS_ACCESS_KEY_ID && process.env.ALIYUN_OSS_ACCESS_KEY_SECRET && process.env.ALIYUN_OSS_BUCKET && process.env.ALIYUN_OSS_REGION)
+    if (!hasOssEnv) {
+      console.error('[build-template] Missing OSS env. Required: ALIYUN_OSS_ACCESS_KEY_ID, ALIYUN_OSS_ACCESS_KEY_SECRET, ALIYUN_OSS_BUCKET, ALIYUN_OSS_REGION')
+      process.exit(1)
+    }
 
-  for (const rel of assetRefs) {
-    const stripped = rel.replace(/^\.\//, '') // e.g. assets/xxx.png
-    // Prefer assets colocated with the template: src/templates/<issueId>/assets/...
-    const cand1 = path.join(srcDir, stripped)
-    console.log('cand1', cand1)
-    const localPath = [cand1].find(p => fs.existsSync(p))
-    console.log('localPath', localPath)
-    if (!localPath) {
-      console.warn('[build-template] asset not found in candidates:', { rel, cand1 })
-      continue
-    }
-    const buf = fs.readFileSync(localPath)
-    const hash = crypto.createHash('sha1').update(buf).digest('hex').slice(0, 12)
-    const base = path.basename(localPath)
-    const key = `templates/${issueId}/${hash}-${base}`
-    // 始终覆盖上传
-    const remoteUrl: string = await oss.uploadToOSS(buf, key)
-    const filename = path.basename(key)
-    // 确保 /api/image-assets/preview 可用：写入或更新数据库映射
+    let oss: any
     try {
-      const exist = await prisma.imageAsset.findFirst({ where: { url: { endsWith: filename } } })
-      if (exist) {
-        await prisma.imageAsset.update({ where: { id: exist.id }, data: { url: remoteUrl, name: base } })
-      } else {
-        await prisma.imageAsset.create({ data: { name: base, url: remoteUrl } })
-      }
-    } catch (e) {
-      console.warn('[build-template] Failed to upsert ImageAsset for', filename, e)
+      oss = await import('@/lib/oss')
+    } catch (err: any) {
+      console.error('[build-template] OSS initialization failed:', err?.message || err)
+      process.exit(1)
     }
-    // 构建时统一返回与现有系统一致的预览路径（服务端代理）
-    const serverUrl = `/api/image-assets/preview/${encodeURIComponent(filename)}`
-    uploaded.set(rel, serverUrl)
+
+    for (const rel of assetRefs) {
+      const stripped = rel.replace(/^\.\//, '') // e.g. assets/xxx.png
+      // Prefer assets colocated with the template: src/templates/<issueId>/assets/...
+      const cand1 = path.join(srcDir, stripped)
+      console.log('cand1', cand1)
+      const localPath = [cand1].find(p => fs.existsSync(p))
+      console.log('localPath', localPath)
+      if (!localPath) {
+        console.warn('[build-template] asset not found in candidates:', { rel, cand1 })
+        continue
+      }
+      const buf = fs.readFileSync(localPath)
+      const hash = crypto.createHash('sha1').update(buf).digest('hex').slice(0, 12)
+      const base = path.basename(localPath)
+      const key = `templates/${issueId}/${hash}-${base}`
+      // 始终覆盖上传
+      const remoteUrl: string = await oss.uploadToOSS(buf, key)
+      const filename = path.basename(key)
+      // 确保 /api/image-assets/preview 可用：写入或更新数据库映射
+      try {
+        const exist = await prisma.imageAsset.findFirst({ where: { url: { endsWith: filename } } })
+        if (exist) {
+          await prisma.imageAsset.update({ where: { id: exist.id }, data: { url: remoteUrl, name: base } })
+        } else {
+          await prisma.imageAsset.create({ data: { name: base, url: remoteUrl } })
+        }
+      } catch (e) {
+        console.warn('[build-template] Failed to upsert ImageAsset for', filename, e)
+      }
+      // 构建时统一返回与现有系统一致的预览路径（服务端代理）
+      const serverUrl = `/api/image-assets/preview/${encodeURIComponent(filename)}`
+      uploaded.set(rel, serverUrl)
+    }
   }
   // 已在上方缺失 OSS env 时直接退出
 
