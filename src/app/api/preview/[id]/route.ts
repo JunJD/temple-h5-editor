@@ -1,93 +1,80 @@
-import { Issue } from '@/schemas'
-import { NextRequest, NextResponse } from 'next/server'
+import { Issue } from "@/schemas"
+import { NextRequest, NextResponse } from "next/server"
 import { prisma } from '@/lib/prisma'
 
 // Ensure this route runs on Node.js runtime (Prisma is not supported on Edge)
 export const runtime = 'nodejs'
 
-function extractBodyInnerHtml(html: string) {
-  const bodyMatch = html.match(/<body[^>]*>([\s\S]*)<\/body>/i)
-  const source = bodyMatch ? bodyMatch[1] : html
-
-  return source
-    .replace(/<link\b[^>]*href=["'][^"']*template\.css[^"']*["'][^>]*>/gi, '')
-    .replace(/<!doctype[^>]*>/gi, '')
-    .trim()
-}
-
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
+    request: NextRequest,
+    { params }: { params: { id: string } }
 ) {
-  try {
-    const searchParams = request.nextUrl.searchParams
-    const isPreview = searchParams.get('preview') === '1'
-    const openid = searchParams.get('openid')
+    try {
+        const searchParams = request.nextUrl.searchParams
+        const isPreview = searchParams.get('preview') === '1'
+        const openid = searchParams.get('openid')
 
-    if (!openid && !isPreview) {
-      return new NextResponse('openid not found' + request.url, { status: 404 })
-    }
-
-    // Fetch issue directly here instead of importing a Server Action
-    const dbIssue = await prisma.issue.findUnique({ where: { id: params.id } })
-    if (!dbIssue) {
-      return new NextResponse('Not Found', { status: 404 })
-    }
-
-    const data = dbIssue as unknown as Issue
-    const content = data.content || {}
-
-    // 只在非预览模式下检查发布状态
-    if (!isPreview && data.status !== 'published') {
-      return new NextResponse('Not Found', { status: 404 })
-    }
-
-    const submissions = await prisma.submission.findMany({
-      where: {
-        issueId: params.id,
-        status: 'PAID'
-      },
-      orderBy: { createdAt: 'desc' }
-    })
-
-    if (!submissions) {
-      return new NextResponse('Not Found', { status: 404 })
-    }
-    const htmlContent = content.html || ''
-    const bodyInnerHtml = extractBodyInnerHtml(htmlContent)
-    let firstImageUrl: string | null = null
-    const siteUrl = 'https://kls.wxkltx.cn'
-    const currentSearchParams = new URLSearchParams(request.nextUrl.search)
-    currentSearchParams.delete('openid')
-    const search = currentSearchParams.toString()
-      ? `?${currentSearchParams.toString()}`
-      : ''
-    const pageUrl = `${siteUrl}${request.nextUrl.pathname}${search}`
-    const shareTitle = data.title || '分享标题'
-
-    const imageMatch = htmlContent.match(
-      /<img[^>]+src=\"((?!data:image)[^\"]+)\"/
-    )
-    if (imageMatch && imageMatch[1]) {
-      let rawImageUrl = imageMatch[1]
-      if (rawImageUrl && !rawImageUrl.startsWith('http')) {
-        if (rawImageUrl.startsWith('/')) {
-          firstImageUrl = siteUrl + rawImageUrl
-        } else {
-          firstImageUrl = siteUrl + '/' + rawImageUrl
+        if (!openid && !isPreview) {
+            return new NextResponse('openid not found' + request.url, { status: 404 })
         }
-      } else {
-        firstImageUrl = rawImageUrl
-      }
-    }
-    console.log('firstImageUrl', firstImageUrl)
 
-    // 如果提取到了图片，加上 OSS 参数，否则使用备用 URL
-    const shareImageUrl = firstImageUrl
-      ? `${firstImageUrl}?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80`
-      : 'https://kls.wxkltx.cn/jqW5VZWRkOFTnfh44oRZqVTv2lV9I9.jpg' // <-- 重要：请替换为你的备用图片URL
+        // Fetch issue directly here instead of importing a Server Action
+        const dbIssue = await prisma.issue.findUnique({ where: { id: params.id } })
+        if (!dbIssue) {
+            return new NextResponse('Not Found', { status: 404 })
+        }
 
-    const html = `
+        const data = dbIssue as unknown as Issue
+        const content = data.content || {}
+
+        // 只在非预览模式下检查发布状态
+        if (!isPreview && data.status !== 'published') {
+            return new NextResponse('Not Found', { status: 404 })
+        }
+
+        const submissions = await prisma.submission.findMany({
+            where: {
+                issueId: params.id,
+                status: 'PAID'
+            },
+            orderBy: { createdAt: 'desc' }
+        })
+
+        if (!submissions) {
+            return new NextResponse('Not Found', { status: 404 })
+        }
+        const htmlContent = content.html || '';
+        let firstImageUrl: string | null = null;
+        const siteUrl = 'https://kls.wxkltx.cn';
+        const currentSearchParams = new URLSearchParams(request.nextUrl.search);
+        currentSearchParams.delete('openid');
+        const search = currentSearchParams.toString() ? `?${currentSearchParams.toString()}` : '';
+        const pageUrl = `${siteUrl}${request.nextUrl.pathname}${search}`;
+        const shareTitle = data.title || '分享标题';
+
+        const imageMatch = htmlContent.match(/<img[^>]+src=\"((?!data:image)[^\"]+)\"/);
+        if (imageMatch && imageMatch[1]) {
+            let rawImageUrl = imageMatch[1];
+            if (rawImageUrl && !rawImageUrl.startsWith('http')) {
+                if (rawImageUrl.startsWith('/')) {
+                    firstImageUrl = siteUrl + rawImageUrl;
+                } else {
+                    firstImageUrl = siteUrl + '/' + rawImageUrl;
+                }
+            } else {
+                firstImageUrl = rawImageUrl;
+            }
+        }
+        console.log('firstImageUrl', firstImageUrl)
+
+        // 如果提取到了图片，加上 OSS 参数，否则使用备用 URL
+        const shareImageUrl = firstImageUrl
+        ? `${firstImageUrl}?x-oss-process=image/resize,w_120,m_lfit/format,png/quality,q_80`
+        : 'https://kls.wxkltx.cn/jqW5VZWRkOFTnfh44oRZqVTv2lV9I9.jpg'; // <-- 重要：请替换为你的备用图片URL
+    
+    
+
+        const html = `
 <!DOCTYPE html>
 <html>
 <head>
@@ -104,9 +91,7 @@ export async function GET(
     <link rel="stylesheet" href="/bootstrap-5.3.3-dist/css/fix.css">
     <style>
         ${content.css || ''}
-        ${
-          isPreview
-            ? `
+        ${isPreview ? `
         /* 预览模式水印 */
         body::before {
             content: "预览模式";
@@ -120,9 +105,7 @@ export async function GET(
             font-size: 12px;
             z-index: 9999;
         }
-        `
-            : ''
-        }
+        ` : ''}
     </style>
 </head>
 
@@ -131,12 +114,10 @@ export async function GET(
     <script>
         var is_h5 = true
         var submissionData = ${JSON.stringify(submissions)}
-            </script>
+    </script>
 
-    ${bodyInnerHtml}
-    ${
-      isPreview
-        ? `
+    ${content.html || ''}
+    ${isPreview ? `
     <div class="preview-banner" style="
         position: fixed;
         bottom: 0;
@@ -150,81 +131,64 @@ export async function GET(
     ">
         预览模式 - 该内容尚未发布
     </div>
-    `
-        : ''
-    }
+    ` : ''}
     <!-- Bootstrap JS -->
     <script src="/bootstrap-5.3.3-dist/js/bootstrap.bundle.min.js"></script>
     
 
     <script>
-        const shouldInitWechatJssdk =
-            !${JSON.stringify(isPreview)} &&
-            !/^(localhost|127\\.0\\.0\\.1|0\\.0\\.0\\.0)$/i.test(location.hostname);
-
-        if (shouldInitWechatJssdk) {
-            const frontendUrlForConfig = location.href.split('#')[0];
-            fetch('/api/wechat/jsconfig?url=' + encodeURIComponent(frontendUrlForConfig))
-                .then(async response => {
-                    if (!response.ok) {
-                        const text = await response.text();
-                        throw new Error(text || '获取微信配置失败');
-                    }
-                    return response.json();
-                })
-                .then(config => {
-                    if (!window.wx || !config?.appId) return;
-
-                    wx.config({
-                        debug: false,
-                        appId: config.appId,
-                        timestamp: config.timestamp,
-                        nonceStr: config.nonceStr,
-                        signature: config.signature,
-                        jsApiList: [
-                            'chooseWXPay',
-                            'updateAppMessageShareData',
-                            'updateTimelineShareData',
-                            'onMenuShareAppMessage',
-                            'onMenuShareTimeline',
-                            'checkJsApi',
-                        ]
-                    });
-
-                    wx.ready(function() {
-                        const shareConfig = {
-                            title: '${shareTitle}',
-                            link: '${pageUrl}',
-                            imgUrl: '${shareImageUrl}',
-                            success: function () {},
-                            cancel: function () {},
-                            fail: function (res) {}
-                        };
-                        wx.updateAppMessageShareData(shareConfig);
-                        wx.updateTimelineShareData(shareConfig);
-                    });
-
-                    wx.error(function(res) {
-                        console.error('微信 JSSDK 初始化失败 (wx.error):', JSON.stringify(res));
-                    });
-                })
-                .catch(error => {
-                    console.error('获取微信 JSSDK 配置失败 (fetch error):', error);
+        const frontendUrlForConfig = location.href.split('#')[0];
+        fetch('/api/wechat/jsconfig?url=' + encodeURIComponent(frontendUrlForConfig))
+            .then(response => response.json())
+            .then(config => {
+                wx.config({
+                    debug: false,
+                    appId: config.appId,
+                    timestamp: config.timestamp,
+                    nonceStr: config.nonceStr,
+                    signature: config.signature,
+                    jsApiList: [
+                        'chooseWXPay',
+                        'updateAppMessageShareData',
+                        'updateTimelineShareData',
+                        'onMenuShareAppMessage',
+                        'onMenuShareTimeline',
+                        'checkJsApi',
+                    ]
                 });
-        }
+
+                wx.ready(function() {
+                    const shareConfig = {
+                        title: '${shareTitle}',
+                        link: '${pageUrl}',
+                        imgUrl: '${shareImageUrl}',
+                        success: function () {},
+                        cancel: function () {},
+                        fail: function (res) {}
+                    };
+                    wx.updateAppMessageShareData(shareConfig);
+                    wx.updateTimelineShareData(shareConfig);
+                });
+
+                wx.error(function(res) {
+                    console.error('微信 JSSDK 初始化失败 (wx.error):', JSON.stringify(res));
+                });
+            })
+            .catch(error => {
+                console.error('获取微信 JSSDK 配置失败 (fetch error):', error);
+            });
     </script>
 </body>
 </html>`
 
-    return new NextResponse(html, {
-      headers: {
-        'Content-Type': 'text/html; charset=utf-8'
-      }
-    })
-  } catch (error) {
-    console.error('Preview error:', error)
-    return new NextResponse(
-      `
+        return new NextResponse(html, {
+            headers: {
+                'Content-Type': 'text/html; charset=utf-8'
+            }
+        })
+    } catch (error) {
+        console.error('Preview error:', error)
+        return new NextResponse(`
         <!DOCTYPE html>
         <html>
         <head><title>测试 - 出错</title></head>
@@ -235,10 +199,8 @@ export async function GET(
           <div>error: ${JSON.stringify(error, null, 2)}</div>
         </body>
         </html>
-        `,
-      {
-        headers: { 'Content-Type': 'text/html; charset=utf-8' }
-      }
-    )
-  }
-}
+        `, {
+            headers: { 'Content-Type': 'text/html; charset=utf-8' }
+        });
+    }
+} 
